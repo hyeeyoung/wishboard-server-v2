@@ -11,11 +11,11 @@ import lombok.*;
 public class LoginDto {
 
     private UserProviderType socialType;
-
     private String token;
+    private String fcmToken;
 
-    public static LoginDto of(UserProviderType socialType, String token) {
-        return new LoginDto(socialType, token);
+    public static LoginDto of(UserProviderType socialType, String token, String fcmToken) {
+        return new LoginDto(socialType, token, fcmToken);
     }
 
     public CreateUserDto toCreateUserDto(String socialId) {

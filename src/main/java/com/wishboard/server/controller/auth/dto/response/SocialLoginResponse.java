@@ -9,13 +9,13 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class LoginResponse {
+public class SocialLoginResponse {
 
     private Long userId;
     private TokenResponseDto token;
 
-    public static LoginResponse of(Long userId, TokenResponseDto token) {
-        return LoginResponse.builder()
+    public static SocialLoginResponse of(Long userId, TokenResponseDto token) {
+        return SocialLoginResponse.builder()
                 .userId(userId)
                 .token(token)
                 .build();

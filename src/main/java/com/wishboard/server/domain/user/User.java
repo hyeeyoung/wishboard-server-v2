@@ -9,6 +9,7 @@ import com.wishboard.server.domain.folder.Folder;
 import com.wishboard.server.domain.item.Item;
 import com.wishboard.server.domain.notifications.Notifications;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -57,7 +58,7 @@ public class User extends AuditingTimeEntity {
 	@Column(name = "push_state", nullable = false)
 	private Boolean pushState = false;
 
-	@Column(name = "auth_type", nullable = false, length = 45, columnDefinition = "default 'internal'")
+	@Column(name = "auth_type", nullable = false, length = 45)
 	@Enumerated(EnumType.STRING)
 	private AuthType authType;
 
@@ -80,11 +81,36 @@ public class User extends AuditingTimeEntity {
 	@OneToMany(mappedBy = "notificationId.user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Notifications> notifications = new ArrayList<>();
 
-	private User(String socialId, UserProviderType socialType) {
+	private User(String socialId, AuthType authType, UserProviderType socialType) {
+		this.authType = authType;
 		this.socialInfo = SocialInfo.of(socialId, socialType);
 	}
 
-	public static User newInstance(String socialId, UserProviderType socialType) {
-		return new User(socialId, socialType);
+	private User(String email, String password, String fcmToken, AuthType authType, OsType osType) {
+		this.email = email;
+		this.password = password;
+		this.fcmToken = fcmToken;
+		this.authType = authType;
+		this.osType = osType;
+	}
+
+	// TODO 소셜 로그인 시만 사용 우선
+	public static User newInstance(String socialId, AuthType authType, UserProviderType socialType) {
+		return new User(socialId, authType, socialType);
+	}
+	public static User newInstance(String email, String password, String fcmToken, AuthType authType, OsType osType) {
+		return new User(email, password, fcmToken, authType, osType);
+	}
+
+	public void updateDeviceInformation(String fcmToken, OsType osType) {
+		if (fcmToken == null) {
+			this.fcmToken = null;
+		}
+		if (!StringUtils.isBlank(fcmToken)) {
+			this.fcmToken = fcmToken;
+		}
+		if (!StringUtils.isBlank(osType.getValue())) {
+			this.osType = osType;
+		}
 	}
 }

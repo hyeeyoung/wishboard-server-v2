@@ -6,7 +6,7 @@ import com.wishboard.server.domain.user.UserProviderType;
 import com.wishboard.server.domain.user.repository.UserRepository;
 import com.wishboard.server.external.client.kakao.KakaoApiClient;
 import com.wishboard.server.external.client.kakao.dto.response.KakaoProfileResponse;
-import com.wishboard.server.service.auth.AuthService;
+import com.wishboard.server.service.auth.ExternalAuthService;
 import com.wishboard.server.service.auth.dto.request.LoginDto;
 import com.wishboard.server.service.user.UserService;
 import com.wishboard.server.service.user.UserServiceUtils;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class KaKaoAuthService implements AuthService {
+public class KaKaoAuthService implements ExternalAuthService {
 
     private static final UserProviderType socialType = UserProviderType.KAKAO;
 
@@ -29,7 +29,7 @@ public class KaKaoAuthService implements AuthService {
         KakaoProfileResponse response = kaKaoApiCaller.getProfileInfo(HttpHeaderUtils.withBearerToken(request.getToken())).block();
         User user = UserServiceUtils.findUserBySocialIdAndSocialType(userRepository, response.getId(), socialType);
         if (user == null)
-            return userService.registerUser(request.toCreateUserDto(response.getId()));
+            return userService.registerSocialUser(request.toCreateUserDto(response.getId()));
         return user.getId();
     }
 }

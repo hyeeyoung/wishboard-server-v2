@@ -12,7 +12,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class LoginRequestDto {
+public class SocialLoginRequestDto {
 
     @Schema(description = "소셜 로그인 타입 - KAKAO, APPLE", example = "KAKAO")
     @NotNull(message = "{user.socialType.notNull}")
@@ -22,7 +22,11 @@ public class LoginRequestDto {
     @NotBlank(message = "{auth.token.notBlank}")
     private String token;
 
+    @Schema(description = "토큰 - fcmToken", example = "dfdafjdslkfjslfjslifsjvmdsklvdosijsmvsdjvosadjvosd")
+    @NotBlank(message = "{auth.fcmToken.notBlank}")
+    private String fcmToken;
+
     public LoginDto toServiceDto() {
-        return LoginDto.of(socialType, token);
+        return LoginDto.of(socialType, token, fcmToken);
     }
 }
