@@ -24,6 +24,15 @@ create table users
     primary key (user_id)
 );
 
+create table user_token
+(
+    id     bigint,
+    fcm_token   varchar(255),
+    `create_at`  datetime default current_timestamp,
+    `update_at`  datetime default current_timestamp on update current_timestamp,
+    primary key (id)
+);
+
 create table folders
 (
     folder_id   bigint not null auto_increment,

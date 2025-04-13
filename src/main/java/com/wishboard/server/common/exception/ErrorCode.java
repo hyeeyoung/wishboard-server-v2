@@ -56,6 +56,7 @@ public enum ErrorCode {
      */
     CONFLICT_EXCEPTION(CONFLICT, "이미 존재합니다."),
     CONFLICT_USER_EXCEPTION(CONFLICT, "이미 해당 계정으로 회원가입하셨습니다.\n로그인 해주세요."),
+    CONFLICT_USER_FCM_TOKEN_EXCEPTION(CONFLICT, "FCM 토큰은 최대 3개까지 등록할 수 있습니다."),
 
     /**
      * 415 Unsupported Media Type
@@ -66,6 +67,7 @@ public enum ErrorCode {
      * 500 Internal Server Exception
      */
     INTERNAL_SERVER_EXCEPTION(INTERNAL_SERVER, "예상치 못한 서버 에러가 발생하였습니다."),
+    MAIL_SEND_FAILED_EXCEPTION(INTERNAL_SERVER, "이메일 전송 중 예상치 못한 서버 에러가 발생하였습니다."),
 
     /**
      * 502 Bad Gateway

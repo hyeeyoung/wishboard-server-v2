@@ -10,6 +10,4 @@ import com.wishboard.server.domain.user.User;
 
 public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 	boolean existsByEmailAndAuthType(final String email, final AuthType authType);
-	Optional<User> findByEmailAndAuthType(final String email, final AuthType authType);
-	List<User> findByIdNotAndFcmTokenAndAuthType(final Long id, final String fcmToken, final AuthType authType);
-}
+	Optional<User> findByEmailAndAuthType(final String email, final AuthType authType);}

@@ -84,6 +84,9 @@ dependencies {
 	// modelmapper
 	implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.3.8'
 
+	// mail 전송
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

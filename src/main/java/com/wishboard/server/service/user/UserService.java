@@ -11,7 +11,6 @@ import com.wishboard.server.service.user.dto.request.CreateUserDto;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;

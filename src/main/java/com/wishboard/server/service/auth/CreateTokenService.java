@@ -26,7 +26,7 @@ public class CreateTokenService {
     }
 
     @Transactional
-    public TokenResponseDto reissueToken(TokenRequestDto request) {
+    public TokenResponseDto REFRESHToken(TokenRequestDto request) {
         if (!jwtProvider.validateToken(request.getRefreshToken())) {
             throw new UnAuthorizedException(String.format("주어진 리프레시 토큰 (%s) 이 유효하지 않습니다.", request.getRefreshToken()));
         }

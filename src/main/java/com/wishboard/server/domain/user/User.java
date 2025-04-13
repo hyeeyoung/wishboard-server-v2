@@ -2,6 +2,7 @@ package com.wishboard.server.domain.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.wishboard.server.domain.cart.Cart;
 import com.wishboard.server.domain.common.AuditingTimeEntity;
@@ -49,9 +50,6 @@ public class User extends AuditingTimeEntity {
 	@Column(length = 512)
 	private String nickname;
 
-	@Column(name = "fcm_token", length = 255, unique = true)
-	private String fcmToken;
-
 	@Column(name = "is_active", nullable = false)
 	private Boolean isActive = true;
 
@@ -70,6 +68,9 @@ public class User extends AuditingTimeEntity {
 	private SocialInfo socialInfo;
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<UserToken> fcmTokens = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Folder> folders = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -86,10 +87,9 @@ public class User extends AuditingTimeEntity {
 		this.socialInfo = SocialInfo.of(socialId, socialType);
 	}
 
-	private User(String email, String password, String fcmToken, AuthType authType, OsType osType) {
+	private User(String email, String password, AuthType authType, OsType osType) {
 		this.email = email;
 		this.password = password;
-		this.fcmToken = fcmToken;
 		this.authType = authType;
 		this.osType = osType;
 	}
@@ -98,18 +98,27 @@ public class User extends AuditingTimeEntity {
 	public static User newInstance(String socialId, AuthType authType, UserProviderType socialType) {
 		return new User(socialId, authType, socialType);
 	}
+
+	public static void addFcmToken(String fcmToken, User user) {
+		UserToken userToken = new UserToken(fcmToken, user);
+		user.getFcmTokens().add(userToken);
+	}
+
 	public static User newInstance(String email, String password, String fcmToken, AuthType authType, OsType osType) {
-		return new User(email, password, fcmToken, authType, osType);
+		User user = new User(email, password, authType, osType);
+		addFcmToken(fcmToken, user);
+		return user;
 	}
 
 	public void updateDeviceInformation(String fcmToken, OsType osType) {
-		if (fcmToken == null) {
-			this.fcmToken = null;
+		if (StringUtils.isNotBlank(fcmToken)) {
+			List<String> fcmTokenList = this.fcmTokens.stream().map(UserToken::getFcmToken).toList();
+			if (!fcmTokenList.contains(fcmToken)) {
+				UserToken userToken = new UserToken(fcmToken, this);
+				this.fcmTokens.add(userToken);
+			}
 		}
-		if (!StringUtils.isBlank(fcmToken)) {
-			this.fcmToken = fcmToken;
-		}
-		if (!StringUtils.isBlank(osType.getValue())) {
+		if (osType != null && !StringUtils.isBlank(osType.getValue())) {
 			this.osType = osType;
 		}
 	}

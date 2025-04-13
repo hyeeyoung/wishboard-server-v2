@@ -12,10 +12,11 @@ import lombok.*;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Schema(description = "소셜 로그인 dto")
 public class SocialLoginRequestDto {
 
     @Schema(description = "소셜 로그인 타입 - KAKAO, APPLE", example = "KAKAO")
-    @NotNull(message = "{user.socialType.notNull}")
+    @NotNull(message = "{auth.socialType.notNull}")
     private UserProviderType socialType;
 
     @Schema(description = "토큰 - socialToken", example = "ijv4qLk0I7jYuDpFe-9A-oAx59-AAfC6UbTuairPCj1zTQAAAYI6e-6o")
