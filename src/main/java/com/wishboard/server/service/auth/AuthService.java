@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.wishboard.server.common.exception.ConflictException;
 import com.wishboard.server.common.exception.ValidationException;
+import com.wishboard.server.common.util.UuidUtils;
 import com.wishboard.server.config.resolver.HeaderOsType;
 import com.wishboard.server.controller.auth.dto.request.CheckEmailRequestDto;
 import com.wishboard.server.controller.auth.dto.request.ReSigninMailRequestDto;
@@ -80,7 +81,7 @@ public class AuthService {
 
     public String reSigninBeforeSendMail(ReSigninMailRequestDto request) {
         UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-        String verificationCode = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        String verificationCode = UuidUtils.generate().replace("-", "").substring(0, 6);
         mailClient.sendEmailWithVerificationCode(request.getEmail(), verificationCode);
         return verificationCode;
     }
