@@ -13,8 +13,7 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Schema(description = "wishboard 재로그인(이메일 인증 후) dto")
-public class ReSigninRequestDto {
+public class ReSigninRequest {
 
     @Schema(description = "verify", example = "true")
     @NotNull(message = "{auth.verify.notNull")

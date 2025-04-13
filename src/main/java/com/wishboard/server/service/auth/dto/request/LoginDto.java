@@ -1,7 +1,7 @@
 package com.wishboard.server.service.auth.dto.request;
 
 import com.wishboard.server.domain.user.UserProviderType;
-import com.wishboard.server.service.user.dto.request.CreateUserDto;
+import com.wishboard.server.service.user.dto.CreateUserDto;
 import lombok.*;
 
 @ToString

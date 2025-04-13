@@ -11,8 +11,7 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "wishboard 존재하는 이메일인지 확인 dto")
-public class CheckEmailRequestDto {
+public class CheckEmailRequest {
 	@Schema(description = "email", example = "wishboard123@gmail.com")
 	@NotBlank(message = "{auth.email.notBlank}")
 	private String email;

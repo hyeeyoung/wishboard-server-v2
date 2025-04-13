@@ -9,6 +9,6 @@ import lombok.ToString;
 @Getter
 @Builder
 @AllArgsConstructor
-public class ReSigninMailResponseDto {
+public class ReSigninMailResponse {
     private String verificationCode;
 }

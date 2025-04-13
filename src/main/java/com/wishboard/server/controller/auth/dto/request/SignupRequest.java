@@ -1,12 +1,7 @@
 package com.wishboard.server.controller.auth.dto.request;
 
-import com.wishboard.server.domain.user.UserProviderType;
-import com.wishboard.server.service.auth.dto.request.LoginDto;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +9,12 @@ import lombok.ToString;
 
 @ToString
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Schema(description = "wishboard 로그인 dto")
-public class SigninRequestDto {
+@AllArgsConstructor
+@NoArgsConstructor
+public class SignupRequest {
 
     @Schema(description = "email", example = "wishboard123@gmail.com")
-    @NotBlank(message = "{auth.email.notBlank")
+    @NotBlank(message = "{auth.email.notBlank}")
     private String email;
 
     @Schema(description = "password", example = "qwer1234!")

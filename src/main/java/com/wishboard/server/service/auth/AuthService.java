@@ -2,9 +2,6 @@ package com.wishboard.server.service.auth;
 
 import static com.wishboard.server.common.exception.ErrorCode.*;
 
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,12 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wishboard.server.common.exception.ConflictException;
 import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.common.util.UuidUtils;
-import com.wishboard.server.config.resolver.HeaderOsType;
-import com.wishboard.server.controller.auth.dto.request.CheckEmailRequestDto;
-import com.wishboard.server.controller.auth.dto.request.ReSigninMailRequestDto;
-import com.wishboard.server.controller.auth.dto.request.ReSigninRequestDto;
-import com.wishboard.server.controller.auth.dto.request.SigninRequestDto;
-import com.wishboard.server.controller.auth.dto.request.SignupRequestDto;
+import com.wishboard.server.controller.auth.dto.request.CheckEmailRequest;
+import com.wishboard.server.controller.auth.dto.request.ReSigninMailRequest;
+import com.wishboard.server.controller.auth.dto.request.ReSigninRequest;
+import com.wishboard.server.controller.auth.dto.request.SigninRequest;
+import com.wishboard.server.controller.auth.dto.request.SignupRequest;
 import com.wishboard.server.domain.user.AuthType;
 import com.wishboard.server.domain.user.OsType;
 import com.wishboard.server.domain.user.User;
@@ -38,18 +34,18 @@ public class AuthService {
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public void checkEmail(CheckEmailRequestDto request) {
+    public void checkEmail(CheckEmailRequest request) {
         UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
     }
 
-    public Long signup(SignupRequestDto request, OsType osType) {
+    public Long signup(SignupRequest request, OsType osType) {
         UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
         String hashedPassword = encoder.encode(request.getPassword());
         User user = userRepository.save(User.newInstance(request.getEmail(), hashedPassword, request.getFcmToken(), AuthType.INTERNAL, osType));
         return user.getId();
     }
 
-    public User signin(SigninRequestDto request, OsType osType) {
+    public User signin(SigninRequest request, OsType osType) {
         User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
         boolean isPasswordMatch = encoder.matches(request.getPassword(), user.getPassword());
         if (!isPasswordMatch) {
@@ -66,7 +62,7 @@ public class AuthService {
         return user;
     }
 
-    public User reSignin(ReSigninRequestDto request, OsType osType) {
+    public User reSignin(ReSigninRequest request, OsType osType) {
         User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
 
         if (user.getFcmTokens().size() >= 3) {
@@ -79,7 +75,7 @@ public class AuthService {
         return user;
     }
 
-    public String reSigninBeforeSendMail(ReSigninMailRequestDto request) {
+    public String reSigninBeforeSendMail(ReSigninMailRequest request) {
         UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
         String verificationCode = UuidUtils.generate().replace("-", "").substring(0, 6);
         mailClient.sendEmailWithVerificationCode(request.getEmail(), verificationCode);

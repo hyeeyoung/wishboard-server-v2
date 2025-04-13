@@ -12,8 +12,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Schema(description = "소셜 로그인 dto")
-public class SocialLoginRequestDto {
+public class SocialLoginRequest {
 
     @Schema(description = "소셜 로그인 타입 - KAKAO, APPLE", example = "KAKAO")
     @NotNull(message = "{auth.socialType.notNull}")

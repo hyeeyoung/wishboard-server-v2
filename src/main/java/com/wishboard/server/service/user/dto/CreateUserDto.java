@@ -1,4 +1,4 @@
-package com.wishboard.server.service.user.dto.request;
+package com.wishboard.server.service.user.dto;
 
 import com.wishboard.server.domain.user.UserProviderType;
 

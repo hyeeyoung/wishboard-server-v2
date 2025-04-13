@@ -2,13 +2,13 @@ package com.wishboard.server.controller.auth;
 
 import com.wishboard.server.common.dto.ErrorResponse;
 import com.wishboard.server.common.dto.SuccessResponse;
-import com.wishboard.server.controller.auth.dto.request.CheckEmailRequestDto;
-import com.wishboard.server.controller.auth.dto.request.ReSigninMailRequestDto;
-import com.wishboard.server.controller.auth.dto.request.ReSigninRequestDto;
-import com.wishboard.server.controller.auth.dto.request.SigninRequestDto;
-import com.wishboard.server.controller.auth.dto.request.SignupRequestDto;
-import com.wishboard.server.controller.auth.dto.request.SocialLoginRequestDto;
-import com.wishboard.server.controller.auth.dto.response.ReSigninMailResponseDto;
+import com.wishboard.server.controller.auth.dto.request.CheckEmailRequest;
+import com.wishboard.server.controller.auth.dto.request.ReSigninMailRequest;
+import com.wishboard.server.controller.auth.dto.request.ReSigninRequest;
+import com.wishboard.server.controller.auth.dto.request.SigninRequest;
+import com.wishboard.server.controller.auth.dto.request.SignupRequest;
+import com.wishboard.server.controller.auth.dto.request.SocialLoginRequest;
+import com.wishboard.server.controller.auth.dto.response.ReSigninMailResponse;
 import com.wishboard.server.controller.auth.dto.response.SigninResponse;
 import com.wishboard.server.controller.auth.dto.response.SignupResponse;
 import com.wishboard.server.controller.auth.dto.response.SocialLoginResponse;
@@ -49,7 +49,7 @@ public interface AuthControllerDocs {
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<SocialLoginResponse> socialLogin(SocialLoginRequestDto request);
+	SuccessResponse<SocialLoginResponse> socialLogin(SocialLoginRequest request);
 
 	@Operation(
 		summary = "JWT Access Token 갱신",
@@ -83,7 +83,7 @@ public interface AuthControllerDocs {
 		@ApiResponse(responseCode = "409", description = "이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<SignupResponse> signup(SignupRequestDto request, @Parameter(hidden = true) OsType osType);
+	SuccessResponse<SignupResponse> signup(SignupRequest request, @Parameter(hidden = true) OsType osType);
 
 	@Operation(
 		summary = "wishboard 회원 로그인",
@@ -103,7 +103,7 @@ public interface AuthControllerDocs {
 		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<SigninResponse> signin(SigninRequestDto request, @Parameter(hidden = true) OsType osType);
+	SuccessResponse<SigninResponse> signin(SigninRequest request, @Parameter(hidden = true) OsType osType);
 
 	@Operation(
 		summary = "wishboard 회원 이메일 확인",
@@ -120,7 +120,7 @@ public interface AuthControllerDocs {
 		@ApiResponse(responseCode = "409", description = "이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<Object> checkEmail(CheckEmailRequestDto request, @Parameter(hidden = true) OsType osType);
+	SuccessResponse<Object> checkEmail(CheckEmailRequest request, @Parameter(hidden = true) OsType osType);
 
 	@Operation(
 		summary = "wishboard 이메일 인증을 통한 비밀번호 없이 로그인 (2)",
@@ -140,8 +140,7 @@ public interface AuthControllerDocs {
 		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<SigninResponse> reSigninWithoutPassword(ReSigninRequestDto request, @Parameter(hidden = true) OsType osType);
-
+	SuccessResponse<SigninResponse> reSigninWithoutPassword(ReSigninRequest request, @Parameter(hidden = true) OsType osType);
 
 	@Operation(
 		summary = "wishboard 이메일 인증을 통한 비밀번호 없이 로그인 (1)",
@@ -157,5 +156,5 @@ public interface AuthControllerDocs {
 		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<ReSigninMailResponseDto> reSigninBeforeSendMail(ReSigninMailRequestDto request, @Parameter(hidden = true) OsType osType);
+	SuccessResponse<ReSigninMailResponse> reSigninBeforeSendMail(ReSigninMailRequest request, @Parameter(hidden = true) OsType osType);
 }
