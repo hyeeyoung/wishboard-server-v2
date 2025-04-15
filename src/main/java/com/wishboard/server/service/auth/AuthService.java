@@ -40,7 +40,7 @@ public class AuthService {
 
     public Long signup(SignupRequest request, OsType osType) {
         UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-        String hashedPassword = encoder.encode(request.getPassword());
+        String hashedPassword = AuthServiceUtils.getHashedPassword(request.getPassword());
         User user = userRepository.save(User.newInstance(request.getEmail(), hashedPassword, request.getFcmToken(), AuthType.INTERNAL, osType));
         return user.getId();
     }
@@ -49,7 +49,7 @@ public class AuthService {
         User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
         boolean isPasswordMatch = encoder.matches(request.getPassword(), user.getPassword());
         if (!isPasswordMatch) {
-            throw new ValidationException("비밀번호가 일치하지 않습니다.");
+            throw new ValidationException("비밀번호가 일치하지 않습니다.", VALIDATION_PASSWORD_EXCEPTION);
         }
 
         if (user.getFcmTokens().size() >= 3) {
