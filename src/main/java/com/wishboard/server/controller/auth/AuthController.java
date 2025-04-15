@@ -4,8 +4,11 @@ import java.util.Optional;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wishboard.server.common.dto.SuccessResponse;
@@ -55,6 +58,7 @@ public class AuthController implements AuthControllerDocs {
         return SuccessResponse.success(SuccessCode.REFRESH_TOKEN_SUCCESS, createTokenService.REFRESHToken(request));
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/v2/auth/signup")
     @Override
     public SuccessResponse<SignupResponse> signup(@Valid @RequestBody SignupRequest request, @HeaderOsType OsType osType) {
