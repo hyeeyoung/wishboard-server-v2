@@ -10,7 +10,8 @@ import static com.wishboard.server.common.exception.ErrorCode.FORBIDDEN_FILE_NAM
 @Getter
 public enum FileType {
 
-    ROOM_PRIVATE_IMAGE("방촬영 이미지", "data/", FileContentType.IMAGE);
+    ITEM_IMAGE("아이템 이미지", "data/", FileContentType.IMAGE),
+    PROFILE_IMAGE("프로필 이미지", "data/", FileContentType.IMAGE);
 
     private final String description;
     private final String directory;

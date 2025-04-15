@@ -25,6 +25,13 @@ public enum SuccessCode {
     RESIGNIN_SUCCESS(OK, "wishboard 재로그인 성공입니다."),
     SEND_MAIL_SUCCESS(OK, " 이메일 인증 메일 전송 성공입니다."),
 
+    // 유저
+    USER_INFO_SUCCESS(OK, "사용자 정보 조회 성공입니다."),
+    USER_PUSH_STATE_UPDATE_SUCCESS(OK, "푸시 알림 설정 변경 성공입니다."),
+    USER_INFO_UPDATE_SUCCESS(OK, "사용자 정보 변경 성공입니다."),
+    USER_PASSWORD_UPDATE_SUCCESS(OK, "사용자 wishboard 비밀번호 성공입니다."),
+    USER_DELETE_SUCCESS(OK, "사용자 탈퇴 성공입니다."),
+
     /**
      * 201 CREATED
      */

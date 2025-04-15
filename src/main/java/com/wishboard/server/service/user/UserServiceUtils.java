@@ -2,10 +2,6 @@ package com.wishboard.server.service.user;
 
 import static com.wishboard.server.common.exception.ErrorCode.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
 import com.wishboard.server.common.exception.ConflictException;
 import com.wishboard.server.common.exception.NotFoundException;
 import com.wishboard.server.domain.user.AuthType;
@@ -14,12 +10,9 @@ import com.wishboard.server.domain.user.User;
 import com.wishboard.server.domain.user.UserProviderType;
 import com.wishboard.server.domain.user.repository.UserRepository;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class UserServiceUtils {
 
     // TODO 현재는 소셜 로그인에만 고려되어 있는 코드

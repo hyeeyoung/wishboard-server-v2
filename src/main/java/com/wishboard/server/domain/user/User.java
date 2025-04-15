@@ -26,7 +26,9 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@ToString
 @Table(name = "users")
 @Getter
 @Entity
@@ -46,6 +48,9 @@ public class User extends AuditingTimeEntity {
 
 	@Column(name = "profile_img", length = 512)
 	private String profileImg;
+
+	@Column(name = "profile_img_url", length = 1000)
+	private String profileImgUrl;
 
 	@Column(length = 512)
 	private String nickname;
@@ -120,6 +125,33 @@ public class User extends AuditingTimeEntity {
 		}
 		if (osType != null && !StringUtils.isBlank(osType.getValue())) {
 			this.osType = osType;
+		}
+	}
+
+	public void updatePushState(boolean pushState) {
+		if (pushState) {
+			this.pushState = Boolean.TRUE;
+		} else {
+			this.pushState = Boolean.FALSE;
+		}
+	}
+
+	public void updateUserNickname(String nickname) {
+		if (this.nickname != null && !this.nickname.equals(nickname)) {
+			this.nickname = nickname;
+		}
+	}
+
+	public void updateProfileImage(String originalFilename, String profileImageUrl) {
+		if (this.profileImgUrl != null && !this.profileImgUrl.equals(profileImageUrl)) {
+			this.profileImg = originalFilename;
+			this.profileImgUrl = profileImageUrl;
+		}
+	}
+
+	public void updatePassword(String hashedPassword) {
+		if (this.password != null && !this.password.equals(hashedPassword)) {
+			this.password = hashedPassword;
 		}
 	}
 }
