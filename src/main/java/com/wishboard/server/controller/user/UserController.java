@@ -48,7 +48,8 @@ public class UserController implements UserControllerDocs {
 	@Auth
 	@PutMapping(value = "/v2/user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Override
-	public SuccessResponse<UserInfoResponse> updateUserInfo(@UserId Long userId, @Valid @RequestPart("request") UpdateUserInfoRequest request,
+	public SuccessResponse<UserInfoResponse> updateUserInfo(@UserId Long userId,
+		@Valid @RequestPart("request") UpdateUserInfoRequest request,
 		@RequestPart(required = false, name = "profile_img") MultipartFile image) {
 		var userDto = userService.updateUserInfo(userId, request, image);
 		return SuccessResponse.success(SuccessCode.USER_INFO_UPDATE_SUCCESS, modelMapper.map(userDto, UserInfoResponse.class));
