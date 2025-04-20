@@ -53,7 +53,7 @@ public class UserService {
     public UserDto updateUserInfo(Long userId, UpdateUserInfoRequest request, MultipartFile image) {
         var user = UserServiceUtils.findUserById(userRepository, userId);
         user.updateUserNickname(request.getNickname());
-        if (!image.isEmpty()) {
+        if (image != null && !image.isEmpty()) {
             String profileImageUrl = s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.PROFILE_IMAGE), image);
             if (StringUtils.isNotBlank(profileImageUrl)) {
                 user.updateProfileImage(image.getOriginalFilename(), profileImageUrl);
