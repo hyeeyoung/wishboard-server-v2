@@ -75,6 +75,10 @@ public class UserService {
 
 	public void deleteUser(Long userId) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
+		// 프로필 이미지 삭제
+		if (user.getProfileImgUrl() != null) {
+			s3Provider.deleteFile(user.getProfileImgUrl());
+		}
 		userRepository.delete(user);
 	}
 }
