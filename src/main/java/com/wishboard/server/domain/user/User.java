@@ -137,21 +137,24 @@ public class User extends AuditingTimeEntity {
 	}
 
 	public void updateUserNickname(String nickname) {
-		if (this.nickname != null && !this.nickname.equals(nickname)) {
-			this.nickname = nickname;
+		if (this.nickname != null && this.nickname.equals(nickname)) {
+			return;
 		}
+		this.nickname = nickname;
 	}
 
 	public void updateProfileImage(String originalFilename, String profileImageUrl) {
-		if (this.profileImgUrl != null && !this.profileImgUrl.equals(profileImageUrl)) {
-			this.profileImg = originalFilename;
-			this.profileImgUrl = profileImageUrl;
+		if (this.profileImgUrl != null && this.profileImgUrl.equals(profileImageUrl)) {
+			return;
 		}
+		this.profileImg = originalFilename;
+		this.profileImgUrl = profileImageUrl;
 	}
 
 	public void updatePassword(String hashedPassword) {
-		if (this.password != null && !this.password.equals(hashedPassword)) {
-			this.password = hashedPassword;
+		if (this.password != null && this.password.equals(hashedPassword)) {
+			return;
 		}
+		this.password = hashedPassword;
 	}
 }
