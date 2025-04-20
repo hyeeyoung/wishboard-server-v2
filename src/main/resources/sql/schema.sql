@@ -52,6 +52,7 @@ create table items
     item_name    varchar(512)           not null,
     item_price   varchar(255) default '0' not null,
     item_img_url varchar(1000),
+    item_url varchar(1024),
     item_memo    text,
     `create_at`  datetime     default current_timestamp,
     add_type varchar(45),
