@@ -1,5 +1,7 @@
 package com.wishboard.server.service.auth;
 
+import static com.wishboard.server.common.exception.ErrorCode.*;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.wishboard.server.common.exception.ValidationException;
@@ -14,7 +16,7 @@ public class AuthServiceUtils {
 
 	public static String getHashedPassword(String password) {
 		if (password == null || StringUtils.isBlank(password)) {
-			throw new ValidationException("Password is null or empty");
+			throw new ValidationException("Password is null or empty", VALIDATION_REQUEST_MISSING_EXCEPTION);
 		}
 		return encoder.encode(password);
 	}

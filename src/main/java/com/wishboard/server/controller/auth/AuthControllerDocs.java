@@ -76,10 +76,11 @@ public interface AuthControllerDocs {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "회원가입 성공입니다."),
 		@ApiResponse(responseCode = "400", description = """
-                    1. @가 포함된 이메일 주소를 입력해주세요.  (email)
-                    2. 비밀번호를 입력해주세요. (password)
-                    3. fcmToken을 입력해주세요. (fcmToken)
-                    """, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			1. @가 포함된 이메일 주소를 입력해주세요.  (email)
+			2. 비밀번호를 입력해주세요. (password)
+			3. fcmToken을 입력해주세요. (fcmToken)
+			4. 필수적인 요청 값이 입력되지 않았습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = "이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
@@ -98,9 +99,9 @@ public interface AuthControllerDocs {
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = """
-		1. 이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.
-		2. FCM 토큰은 최대 3개까지 등록할 수 있습니다.
-		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			1. 이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.
+			2. FCM 토큰은 최대 3개까지 등록할 수 있습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	SuccessResponse<SigninResponse> signin(SigninRequest request, @Parameter(hidden = true) OsType osType);
@@ -115,7 +116,7 @@ public interface AuthControllerDocs {
 	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "wishboard 이메일 확인 성공입니다."),
-		@ApiResponse(responseCode = "400", description ="@가 포함된 이메일 주소를 입력해주세요. (email)", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = "@가 포함된 이메일 주소를 입력해주세요. (email)", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = "이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -135,9 +136,9 @@ public interface AuthControllerDocs {
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = """
-		1. 이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.
-		2. FCM 토큰은 최대 3개까지 등록할 수 있습니다.
-		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			1. 이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.
+			2. FCM 토큰은 최대 3개까지 등록할 수 있습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	SuccessResponse<SigninResponse> reSigninWithoutPassword(ReSigninRequest request, @Parameter(hidden = true) OsType osType);
@@ -151,9 +152,9 @@ public interface AuthControllerDocs {
 		@ApiResponse(responseCode = "400", description = "@가 포함된 이메일 주소를 입력해주세요. (email)", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = """
-		1. 이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.
-		2. FCM 토큰은 최대 3개까지 등록할 수 있습니다.
-		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			1. 이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.
+			2. FCM 토큰은 최대 3개까지 등록할 수 있습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	SuccessResponse<ReSigninMailResponse> reSigninBeforeSendMail(ReSigninMailRequest request, @Parameter(hidden = true) OsType osType);
