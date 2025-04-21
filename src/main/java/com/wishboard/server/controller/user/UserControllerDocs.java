@@ -88,5 +88,5 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<UserInfoResponse> deleteUser(@Parameter(hidden = true) Long userId);
+	SuccessResponse<Object> deleteUser(@Parameter(hidden = true) Long userId);
 }

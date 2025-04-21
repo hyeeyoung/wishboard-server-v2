@@ -50,7 +50,7 @@ public class UserController implements UserControllerDocs {
 	@Override
 	public SuccessResponse<UserInfoResponse> updateUserInfo(@UserId Long userId,
 		@Valid @RequestPart("request") UpdateUserInfoRequest request,
-		@RequestPart(required = false, name = "profile_img") MultipartFile image) {
+		@RequestPart(required = false, name = "profileImage") MultipartFile image) {
 		var userDto = userService.updateUserInfo(userId, request, image);
 		return SuccessResponse.success(SuccessCode.USER_INFO_UPDATE_SUCCESS, modelMapper.map(userDto, UserInfoResponse.class));
 	}
@@ -66,8 +66,8 @@ public class UserController implements UserControllerDocs {
 	@Auth
 	@DeleteMapping(value = "/v2/user")
 	@Override
-	public SuccessResponse<UserInfoResponse> deleteUser(@UserId Long userId) {
+	public SuccessResponse<Object> deleteUser(@UserId Long userId) {
 		userService.deleteUser(userId);
-		return SuccessResponse.success(SuccessCode.USER_DELETE_SUCCESS,null);
+		return SuccessResponse.success(SuccessCode.USER_DELETE_SUCCESS, null);
 	}
 }
