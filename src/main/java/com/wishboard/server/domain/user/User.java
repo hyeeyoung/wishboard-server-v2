@@ -2,12 +2,10 @@ package com.wishboard.server.domain.user;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.wishboard.server.domain.cart.Cart;
 import com.wishboard.server.domain.common.AuditingTimeEntity;
 import com.wishboard.server.domain.folder.Folder;
-import com.wishboard.server.domain.item.Item;
 import com.wishboard.server.domain.notifications.Notifications;
 
 import io.micrometer.common.util.StringUtils;
@@ -77,9 +75,6 @@ public class User extends AuditingTimeEntity {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Folder> folders = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Item> items = new ArrayList<>();
 
 	@OneToMany(mappedBy = "cartId.user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Cart> carts = new ArrayList<>();
