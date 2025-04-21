@@ -27,9 +27,11 @@ create table users
 create table user_token
 (
     id     bigint,
+    user_id     bigint,
     fcm_token   varchar(255),
     `create_at`  datetime default current_timestamp,
     `update_at`  datetime default current_timestamp on update current_timestamp,
+    foreign key (user_id) references users (user_id) on update cascade on delete cascade,
     primary key (id)
 );
 
@@ -60,6 +62,17 @@ create table items
     foreign key (folder_id) references folders (folder_id) on update cascade on delete set null,
     primary key (item_id)
 );
+
+create table item_image (
+    id  bigint,
+    item_id    bigint,
+    item_img varchar(512),
+    item_img_url varchar(1000),
+    `create_at`  datetime default current_timestamp,
+    `update_at`  datetime default current_timestamp on update current_timestamp,
+    primary key (id),
+    foreign key (item_id) references items (item_id) on update cascade on delete cascade,
+)
 
 create table cart
 (
