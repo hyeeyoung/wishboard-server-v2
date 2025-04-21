@@ -37,9 +37,18 @@ public class Folder extends AuditingTimeEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@Column(name = "folder_name",length = 512)
+	@Column(name = "folder_name", length = 512)
 	private String folderName = "empty";
 
 	@OneToMany(mappedBy = "folder", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Item> items = new ArrayList<>();
+
+	private Folder(User user, String folderName) {
+		this.user = user;
+		this.folderName = folderName;
+	}
+
+	public static Folder newInstance(User user, String folderName) {
+		return new Folder(user, folderName);
+	}
 }

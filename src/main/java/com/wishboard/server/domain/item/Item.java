@@ -6,7 +6,6 @@ import java.util.List;
 import com.wishboard.server.domain.cart.Cart;
 import com.wishboard.server.domain.common.AuditingTimeEntity;
 import com.wishboard.server.domain.folder.Folder;
-import com.wishboard.server.domain.notifications.Notifications;
 import com.wishboard.server.domain.user.User;
 
 import jakarta.persistence.CascadeType;
@@ -23,6 +22,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,17 +43,11 @@ public class Item extends AuditingTimeEntity {
 	@JoinColumn(name = "folder_id")
 	private Folder folder;
 
-	@Column(name = "item_img", length = 512)
-	private String itemImg;
-
 	@Column(name = "item_name", length = 512, nullable = false)
 	private String itemName;
 
 	@Column(name = "item_price", length = 255, nullable = false)
 	private String itemPrice = "0";
-
-	@Column(name = "item_img_url", length = 1000)
-	private String itemImageUrl;
 
 	@Column(name = "item_url", length = 1024)
 	private String itemUrl;
@@ -65,9 +59,51 @@ public class Item extends AuditingTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private AddType addType;
 
+	@OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ItemImage> images = new ArrayList<>();
+
 	@OneToMany(mappedBy = "cartId.item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Cart> carts = new ArrayList<>();
 
-	@OneToMany(mappedBy = "notificationId.item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Notifications> notifications = new ArrayList<>();
+	private Item(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType) {
+		this.user = user;
+		this.itemName = itemName;
+		this.itemPrice = itemPrice;
+		this.itemUrl = itemUrl;
+		this.itemMemo = itemMemo;
+		this.addType = addType;
+	}
+
+	@Builder
+	public Item(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType, Folder folder) {
+		this.user = user;
+		this.itemName = itemName;
+		this.itemPrice = itemPrice;
+		this.itemUrl = itemUrl;
+		this.itemMemo = itemMemo;
+		this.addType = addType;
+		this.folder = folder;
+	}
+
+	public static Item newInstance(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType) {
+		return new Item(user, itemName, itemPrice, itemUrl, itemMemo, addType);
+	}
+
+	public void addItemImage(List<ItemImage> images) {
+		this.images.addAll(images);
+	}
+
+	public void updateFolder(Folder folder) {
+		if (this.folder != null && this.folder.equals(folder)) {
+			return;
+		}
+		this.folder = folder;
+	}
+
+	public void updateItemInfo(String itemName, String itemPrice, String itemUrl, String itemMemo) {
+		this.itemName = itemName;
+		this.itemPrice = itemPrice;
+		this.itemUrl = itemUrl;
+		this.itemMemo = itemMemo;
+	}
 }

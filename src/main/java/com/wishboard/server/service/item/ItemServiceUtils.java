@@ -1,0 +1,52 @@
+package com.wishboard.server.service.item;
+
+import static com.wishboard.server.common.exception.ErrorCode.*;
+
+import com.wishboard.server.common.exception.ConflictException;
+import com.wishboard.server.common.exception.NotFoundException;
+import com.wishboard.server.domain.item.Item;
+import com.wishboard.server.domain.item.repository.ItemRepository;
+import com.wishboard.server.domain.user.AuthType;
+import com.wishboard.server.domain.user.User;
+import com.wishboard.server.domain.user.UserProviderType;
+import com.wishboard.server.domain.user.repository.UserRepository;
+
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
+public class ItemServiceUtils {
+
+	// TODO 현재는 소셜 로그인에만 고려되어 있는 코드
+	static void validateNotExistsUser(UserRepository userRepository, String socialId, UserProviderType socialType) {
+		if (userRepository.existsBySocialIdAndSocialType(socialId, socialType)) {
+			throw new ConflictException(String.format("이미 존재하는 유저 (%s - %s) 입니다", socialId, socialType), CONFLICT_USER_EXCEPTION);
+		}
+	}
+
+	public static void existsByEmailAndAuthType(UserRepository userRepository, String email, AuthType authType) {
+		if (userRepository.existsByEmailAndAuthType(email, authType)) {
+			throw new ConflictException(String.format("이미 존재하는 유저 (authType: %s, email: %s) 입니다", authType.getValue(), email),
+				CONFLICT_USER_EXCEPTION);
+		}
+	}
+
+	public static User findUserBySocialIdAndSocialType(UserRepository userRepository, String socialId, UserProviderType socialType) {
+		return userRepository.findUserBySocialIdAndSocialType(socialId, socialType);
+	}
+
+	public static User findByEmailAndAuthType(UserRepository userRepository, String email, AuthType authType) {
+		return userRepository.findByEmailAndAuthType(email, authType)
+			.orElseThrow(() -> new NotFoundException(
+				String.format("이메일(%s)과 인증 유형(%s)에 해당하는 사용자를 찾을 수 없습니다.", email, authType), NOT_FOUND_USER_EXCEPTION));
+	}
+
+	public static Item findItemById(ItemRepository itemRepository, Long itemId, Long userId) {
+		Item item = itemRepository.findItemByItemId(itemId)
+			.orElseThrow(() -> new NotFoundException(
+				String.format("아이템(%s) 을 찾을 수 없습니다", itemId), NOT_FOUND_ITEM_EXCEPTION));
+		if (!item.getUser().getId().equals(userId)) {
+			throw new ConflictException(String.format("다른 사용자의 아이템 입니다. (userId: %s, itemId: %s)", userId, itemId), CONFLICT_ITEM_EXCEPTION);
+		}
+		return item;
+	}
+}

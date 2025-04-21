@@ -27,4 +27,13 @@ public enum ItemNotificationType implements EnumModel {
 	public String getValue() {
 		return value;
 	}
+
+	public ItemNotificationType valueOfKey(String key) {
+		for (ItemNotificationType type : ItemNotificationType.values()) {
+			if (type.getKey().equals(key)) {
+				return type;
+			}
+		}
+		throw new IllegalArgumentException("Invalid key: " + key);
+	}
 }
