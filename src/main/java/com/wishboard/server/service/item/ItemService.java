@@ -3,6 +3,7 @@ package com.wishboard.server.service.item;
 import static com.wishboard.server.common.exception.ErrorCode.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,7 @@ public class ItemService {
 	private final UserRepository userRepository;
 
 	private final S3Provider s3Provider;
+	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	public List<ItemFolderNotificationDto> getAllItemInfo(Long userId) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
@@ -88,7 +90,7 @@ public class ItemService {
 				Notifications.newInstance(
 					new NotificationId(item.getUser(), item),
 					request.getItemNotificationType(),
-					LocalDateTime.parse(request.getItemNotificationDate()))
+					LocalDateTime.parse(request.getItemNotificationDate(), formatter))
 			);
 		}
 
@@ -131,11 +133,11 @@ public class ItemService {
 		// 알림 수정
 		var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item))
 			.orElseThrow(
-				() -> new NotFoundException(String.format("알림이 존재하지 않습니다. (itemId: %s, userId: %s)", item.getItemId(), item.getUser().getId()),
+				() -> new NotFoundException(String.format("알림이 존재하지 않습니다. (itemId: %s, userId: %s)", item.getId(), item.getUser().getId()),
 					NOT_FOUND_NOTIFICATION_EXCEPTION));
 		notificationsByItem.updateState(
 			request.getItemNotificationType(),
-			LocalDateTime.parse(request.getItemNotificationDate())
+			LocalDateTime.parse(request.getItemNotificationDate(), formatter)
 		);
 		return ItemFolderNotificationDto.of(item, notificationsByItem);
 	}

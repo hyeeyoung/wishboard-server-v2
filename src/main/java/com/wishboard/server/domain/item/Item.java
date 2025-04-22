@@ -33,7 +33,8 @@ import lombok.NoArgsConstructor;
 public class Item extends AuditingTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long itemId;
+	@Column(name = "item_id")
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)

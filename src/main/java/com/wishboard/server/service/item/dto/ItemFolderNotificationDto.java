@@ -34,7 +34,7 @@ public class ItemFolderNotificationDto {
 
 	public static ItemFolderNotificationDto of(Item item, Notifications notifications) {
 		return ItemFolderNotificationDto.builder()
-			.id(item.getItemId())
+			.id(item.getId())
 			.userId(item.getUser() == null ? null : item.getUser().getId())
 			.folderId(item.getFolder() == null ? null : item.getFolder().getId())
 			.folderName(item.getFolder() == null ? null : item.getFolder().getFolderName())
