@@ -55,4 +55,8 @@ public class Notifications extends AuditingTimeEntity {
 			this.itemNotificationDate = itemNotificationDate;
 		}
 	}
+
+	public void confirmRead() {
+		this.readState = true;
+	}
 }

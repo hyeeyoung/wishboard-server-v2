@@ -41,6 +41,9 @@ public enum SuccessCode {
 	ITEM_AND_NOTIFICATION_DELETE_SUCCESS(OK, "아이템 삭제 성공입니다."),
 	ITEM_FOLDER_UPDATE_SUCCESS(OK, "아이템 폴더 수정 성공입니다."),
 
+	NOTIFICATION_HISTORY_LOAD_SUCCESS(OK, "알림 내역 조회 성공입니다."),
+	NOTIFICATIONS_LIST_SUCCESS(OK, "알림 전체 조회 성공입니다."),
+	NOTIFICATIONS_READ_STATE_UPDATE_SUCCESS(OK, "아이템 읽음 상태 수정 성공입니다."),
 	/**
 	 * 201 CREATED
 	 */
