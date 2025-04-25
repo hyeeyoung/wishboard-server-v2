@@ -28,12 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 @PropertySource(value = "classpath:application-jwt.yml", factory = YamlPropertySourceFactory.class, ignoreResourceNotFound = true)
 public class JwtUtils {
 
-	// private static final long ACCESS_TOKEN_EXPIRE_TIME = 30 * 60 * 1000L;              // 30분
-	private static final long ACCESS_TOKEN_EXPIRE_TIME = 200 * 24 * 60 * 60 * 1000L;    // 200일 TODO 테스트용
-	private static final long REFRESH_TOKEN_EXPIRE_TIME = 200 * 24 * 60 * 60 * 1000L;    // 200일
 	private static final long EXPIRED_TIME = 1L;
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final Key secretKey;
+
+	@Value("${jwt.access-token-expire-time}")
+	private Long accessTokenExpireTime;
+	@Value("${jwt.refresh-token-expire-time}")
+	private Long refreshTokenExpireTime;
 
 	public JwtUtils(@Value("${jwt.secret}") String secretKey, RedisTemplate redisTemplate) {
 		this.redisTemplate = redisTemplate;
@@ -44,8 +46,8 @@ public class JwtUtils {
 	public TokenResponseDto createTokenInfo(Long userId) {
 
 		long now = (new Date()).getTime();
-		Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-		Date refreshTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
+		Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
+		Date refreshTokenExpiresIn = new Date(now + refreshTokenExpireTime);
 
 		// Access Token 생성
 		String accessToken = Jwts.builder()
@@ -61,7 +63,7 @@ public class JwtUtils {
 			.compact();
 
 		redisTemplate.opsForValue()
-			.set(RedisKey.REFRESH_TOKEN + userId, refreshToken, REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+			.set(RedisKey.REFRESH_TOKEN + userId, refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
 
 		return TokenResponseDto.of(accessToken, refreshToken);
 	}
@@ -74,7 +76,7 @@ public class JwtUtils {
 		try {
 			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 			return true;
-		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+		} catch (SecurityException | MalformedJwtException e) {
 			log.info("Invalid JWT Token", e);
 		} catch (ExpiredJwtException e) {
 			log.info("Expired JWT Token", e);
