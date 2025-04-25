@@ -12,11 +12,6 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class FolderServiceUtils {
 
-	public static Folder findFolderById(FolderRepository folderRepository, Long folderId) {
-		return folderRepository.findFolderById(folderId)
-			.orElseThrow(() -> new NotFoundException(String.format("존재하지 않는 폴더 (%s) 입니다", folderId), NOT_FOUND_FOLDER_EXCEPTION));
-	}
-
 	public static Folder findFolderByIdAndUserId(FolderRepository folderRepository, Long folderId, User user) {
 		return folderRepository.findFolderByIdAndUser(folderId, user)
 			.orElseThrow(

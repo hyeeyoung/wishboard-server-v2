@@ -44,6 +44,13 @@ public enum SuccessCode {
 	NOTIFICATION_HISTORY_LOAD_SUCCESS(OK, "알림 내역 조회 성공입니다."),
 	NOTIFICATIONS_LIST_SUCCESS(OK, "알림 전체 조회 성공입니다."),
 	NOTIFICATIONS_READ_STATE_UPDATE_SUCCESS(OK, "아이템 읽음 상태 수정 성공입니다."),
+
+	FOLDER_LIST_SUCCESS(OK, "폴더 리스트 조회 성공입니다."),
+	FOLDER_CREATE_SUCCESS(OK, "폴더 생성 성공입니다."),
+	FOLDER_NAME_UPDATE_SUCCESS(OK, "폴더명 수정 성공입니다."),
+	FOLDER_DELETE_SUCCESS(OK, "폴더 삭제 성공입니다."),
+	ITEM_LIST_IN_FOLDER_SUCCESS(OK, "폴더 내 아이템 리스트 조회 성공입니다."),
+	FOLDER_LIST_FOR_ITEM_DETAIL_SUCCESS(OK, "폴더 리스트 조회 성공입니다."),
 	/**
 	 * 201 CREATED
 	 */

@@ -52,7 +52,7 @@ public interface ItemControllerDocs {
 
 	@Operation(summary = "아이템 생성")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = """
+		@ApiResponse(responseCode = "201", description = """
 			1. 아이템 생성 성공입니다.
 			2. 아이템 및 알림 생성 성공입니다.
 			"""),

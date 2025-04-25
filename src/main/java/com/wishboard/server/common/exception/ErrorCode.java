@@ -23,6 +23,7 @@ public enum ErrorCode {
 	VALIDATION_NOTIFICATION_EXCEPTION(BAD_REQUEST, "알림 날짜는 현재 날짜보다 같거나 미래만 가능합니다."),
 	VALIDATION_NOTIFICATION_MINUTE_EXCEPTION(BAD_REQUEST, "알림 날짜는 30분 단위로만 등록 가능합니다. (00분 또는 30분)"),
 	VALIDATION_ITEM_CREATE_ADD_TYPE_EXCEPTION(BAD_REQUEST, "아이템 등록 타입 (type)은 필수입니다."),
+	VALIDATION_FOLDER_NAME_DUPLICATE_EXCEPTION(BAD_REQUEST, "이미 존재하는 폴더명입니다."),
 
 	/**
 	 * 401 UnAuthorized
