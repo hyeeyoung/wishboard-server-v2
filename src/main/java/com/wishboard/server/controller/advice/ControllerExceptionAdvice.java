@@ -2,11 +2,7 @@ package com.wishboard.server.controller.advice;
 
 import static com.wishboard.server.common.exception.ErrorCode.*;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.wishboard.server.common.dto.ErrorResponse;
-import com.wishboard.server.common.exception.WishboardServerException;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Objects;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.TypeMismatchException;
@@ -25,131 +21,136 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.Objects;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.wishboard.server.common.dto.ErrorResponse;
+import com.wishboard.server.common.exception.WishboardServerException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
 public class ControllerExceptionAdvice {
 
-    /**
-     * 400 BadRequest
-     * Spring Validation
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(BindException.class)
-    protected ErrorResponse handleBadRequest(final BindException e) {
-        log.error(e.getMessage(), e);
-        FieldError fieldError = Objects.requireNonNull(e.getFieldError());
-        return ErrorResponse.error(VALIDATION_EXCEPTION, String.format("%s (%s)", fieldError.getDefaultMessage(), fieldError.getField()));
-    }
+	/**
+	 * 400 BadRequest
+	 * Spring Validation
+	 */
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(BindException.class)
+	protected ErrorResponse handleBadRequest(final BindException e) {
+		log.error(e.getMessage(), e);
+		FieldError fieldError = Objects.requireNonNull(e.getFieldError());
+		return ErrorResponse.error(VALIDATION_EXCEPTION, String.format("%s (%s)", fieldError.getDefaultMessage(), fieldError.getField()));
+	}
 
-    /**
-     * 400 BadRequest
-     * Pageable에 허용하지 않는 정렬기준이 입력된 경우 발생하는 Exception
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(ConstraintViolationException.class)
-    protected ErrorResponse handleConstraintViolationException(final ConstraintViolationException e) {
-        log.error(e.getMessage());
-        return ErrorResponse.error(VALIDATION_SORT_TYPE_EXCEPTION);
-    }
+	/**
+	 * 400 BadRequest
+	 * Pageable에 허용하지 않는 정렬기준이 입력된 경우 발생하는 Exception
+	 */
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(ConstraintViolationException.class)
+	protected ErrorResponse handleConstraintViolationException(final ConstraintViolationException e) {
+		log.error(e.getMessage());
+		return ErrorResponse.error(VALIDATION_SORT_TYPE_EXCEPTION);
+	}
 
-    /**
-     * 400 BadRequest
-     * 잘못된 Enum 값이 입력된 경우 발생하는 Exception
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    protected ErrorResponse handleHttpMessageNotReadableException(final HttpMessageNotReadableException e) {
-        log.error(e.getMessage());
-        return ErrorResponse.error(VALIDATION_ENUM_VALUE_EXCEPTION);
-    }
+	/**
+	 * 400 BadRequest
+	 * 잘못된 Enum 값이 입력되었거나 body 자체가 비어있는 경우 발생하는 Exception
+	 */
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	protected ErrorResponse handleHttpMessageNotReadableException(final HttpMessageNotReadableException e) {
+		log.error(e.getMessage());
+		return ErrorResponse.error(VALIDATION_EXCEPTION);
+	}
 
-    /**
-     * 400 BadRequest
-     * RequestParam, RequestPath, RequestPart 등의 필드가 입력되지 않은 경우 발생하는 Exception
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MissingRequestValueException.class)
-    protected ErrorResponse handle(final MissingRequestValueException e) {
-        log.error(e.getMessage());
-        return ErrorResponse.error(VALIDATION_REQUEST_MISSING_EXCEPTION);
-    }
+	/**
+	 * 400 BadRequest
+	 * RequestParam, RequestPath, RequestPart 등의 필드가 입력되지 않은 경우 발생하는 Exception
+	 */
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(MissingRequestValueException.class)
+	protected ErrorResponse handle(final MissingRequestValueException e) {
+		log.error(e.getMessage());
+		return ErrorResponse.error(VALIDATION_REQUEST_MISSING_EXCEPTION);
+	}
 
-    /**
-     * 400 BadRequest
-     * 잘못된 타입이 입력된 경우 발생하는 Exception
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(TypeMismatchException.class)
-    protected ErrorResponse handleTypeMismatchException(final TypeMismatchException e) {
-        log.error(e.getMessage());
-        return ErrorResponse.error(VALIDATION_WRONG_TYPE_EXCEPTION, String.format("%s (%s)", VALIDATION_WRONG_TYPE_EXCEPTION.getMessage(), e.getValue()));
-    }
+	/**
+	 * 400 BadRequest
+	 * 잘못된 타입이 입력된 경우 발생하는 Exception
+	 */
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(TypeMismatchException.class)
+	protected ErrorResponse handleTypeMismatchException(final TypeMismatchException e) {
+		log.error(e.getMessage());
+		return ErrorResponse.error(VALIDATION_WRONG_TYPE_EXCEPTION,
+			String.format("%s (%s)", VALIDATION_WRONG_TYPE_EXCEPTION.getMessage(), e.getValue()));
+	}
 
-    /**
-     * 400 BadRequest
-     */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({
-            InvalidFormatException.class,
-            ServletRequestBindingException.class,
-            MethodArgumentTypeMismatchException.class
-    })
-    protected ErrorResponse handleInvalidFormatException(final Exception e) {
-        log.error(e.getMessage());
-        return ErrorResponse.error(VALIDATION_EXCEPTION);
-    }
+	/**
+	 * 400 BadRequest
+	 */
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler({
+		InvalidFormatException.class,
+		ServletRequestBindingException.class,
+		MethodArgumentTypeMismatchException.class
+	})
+	protected ErrorResponse handleInvalidFormatException(final Exception e) {
+		log.error(e.getMessage());
+		return ErrorResponse.error(VALIDATION_EXCEPTION);
+	}
 
-    /**
-     * 405 Method Not Allowed
-     * 지원하지 않은 HTTP method 호출 할 경우 발생하는 Exception
-     */
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    protected ErrorResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        log.error(e.getMessage());
-        return ErrorResponse.error(METHOD_NOT_ALLOWED_EXCEPTION);
-    }
+	/**
+	 * 405 Method Not Allowed
+	 * 지원하지 않은 HTTP method 호출 할 경우 발생하는 Exception
+	 */
+	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	protected ErrorResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+		log.error(e.getMessage());
+		return ErrorResponse.error(METHOD_NOT_ALLOWED_EXCEPTION);
+	}
 
-    /**
-     * 406 Not Acceptable
-     */
-    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-    protected ErrorResponse handleHttpMediaTypeNotAcceptableException(HttpMediaTypeNotAcceptableException e) {
-        log.error(e.getMessage());
-        return ErrorResponse.error(NOT_ACCEPTABLE_EXCEPTION);
-    }
+	/**
+	 * 406 Not Acceptable
+	 */
+	@ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+	@ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+	protected ErrorResponse handleHttpMediaTypeNotAcceptableException(HttpMediaTypeNotAcceptableException e) {
+		log.error(e.getMessage());
+		return ErrorResponse.error(NOT_ACCEPTABLE_EXCEPTION);
+	}
 
-    /**
-     * 415 UnSupported Media Type
-     * 지원하지 않는 미디어 타입인 경우 발생하는 Exception
-     */
-    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    @ExceptionHandler(HttpMediaTypeException.class)
-    protected ErrorResponse handleHttpMediaTypeException(final HttpMediaTypeException e) {
-        log.error(e.getMessage(), e);
-        return ErrorResponse.error(UNSUPPORTED_MEDIA_TYPE_EXCEPTION);
-    }
+	/**
+	 * 415 UnSupported Media Type
+	 * 지원하지 않는 미디어 타입인 경우 발생하는 Exception
+	 */
+	@ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+	@ExceptionHandler(HttpMediaTypeException.class)
+	protected ErrorResponse handleHttpMediaTypeException(final HttpMediaTypeException e) {
+		log.error(e.getMessage(), e);
+		return ErrorResponse.error(UNSUPPORTED_MEDIA_TYPE_EXCEPTION);
+	}
 
-    /**
-     * Boilerplate Custom Exception
-     */
-    @ExceptionHandler(WishboardServerException.class)
-    protected ResponseEntity<ErrorResponse> handleBaseException(WishboardServerException exception) {
-        log.error(exception.getMessage(), exception);
-        return ResponseEntity.status(exception.getStatus())
-                .body(ErrorResponse.error(exception.getErrorCode()));
-    }
+	/**
+	 * Boilerplate Custom Exception
+	 */
+	@ExceptionHandler(WishboardServerException.class)
+	protected ResponseEntity<ErrorResponse> handleBaseException(WishboardServerException exception) {
+		log.error(exception.getMessage(), exception);
+		return ResponseEntity.status(exception.getStatus())
+			.body(ErrorResponse.error(exception.getErrorCode()));
+	}
 
-    /**
-     * 500 Internal Server
-     */
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(Exception.class)
-    protected ErrorResponse handleException(final Exception exception) {
-        log.error(exception.getMessage(), exception);
-        return ErrorResponse.error(INTERNAL_SERVER_EXCEPTION);
-    }
+	/**
+	 * 500 Internal Server
+	 */
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ExceptionHandler(Exception.class)
+	protected ErrorResponse handleException(final Exception exception) {
+		log.error(exception.getMessage(), exception);
+		return ErrorResponse.error(INTERNAL_SERVER_EXCEPTION);
+	}
 }
