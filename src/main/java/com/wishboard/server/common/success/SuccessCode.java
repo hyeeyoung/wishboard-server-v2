@@ -20,7 +20,7 @@ public enum SuccessCode {
 	REFRESH_TOKEN_SUCCESS(OK, "토큰 갱신 성공입니다."),
 
 	CHECK_EMAIL_SUCCESS(OK, "wishboard 이메일 확인 성공입니다."),
-	SIGNUP_SUCCESS(OK, "wishboard 회원가입 후 로그인 성공입니다."),
+	SIGNUP_SUCCESS(CREATED, "wishboard 회원가입 후 로그인 성공입니다."),
 	SIGNIN_SUCCESS(OK, "wishboard 로그인 성공입니다."),
 	RESIGNIN_SUCCESS(OK, "wishboard 재로그인 성공입니다."),
 	SEND_MAIL_SUCCESS(OK, " 이메일 인증 메일 전송 성공입니다."),
@@ -34,8 +34,8 @@ public enum SuccessCode {
 
 	ITEM_LIST_INFO_SUCCESS(OK, "아이템 리스트 조회 성공입니다."),
 	ITEM_INFO_SUCCESS(OK, "아이템 정보 조회 성공입니다."),
-	ITEM_CREATE_SUCCESS(OK, "아이템 생성 성공입니다."),
-	ITEM_AND_NOTIFICATION_CREATE_SUCCESS(OK, "아이템 및 알림 생성 성공입니다."),
+	ITEM_CREATE_SUCCESS(CREATED, "아이템 생성 성공입니다."),
+	ITEM_AND_NOTIFICATION_CREATE_SUCCESS(CREATED, "아이템 및 알림 생성 성공입니다."),
 	ITEM_UPDATE_SUCCESS(OK, "아이템 수정 성공입니다."),
 	ITEM_AND_NOTIFICATION_UPDATE_SUCCESS(OK, "아이템 및 알림 수정 성공입니다."),
 	ITEM_AND_NOTIFICATION_DELETE_SUCCESS(OK, "아이템 삭제 성공입니다."),
@@ -46,7 +46,7 @@ public enum SuccessCode {
 	NOTIFICATIONS_READ_STATE_UPDATE_SUCCESS(OK, "아이템 읽음 상태 수정 성공입니다."),
 
 	FOLDER_LIST_SUCCESS(OK, "폴더 리스트 조회 성공입니다."),
-	FOLDER_CREATE_SUCCESS(OK, "폴더 생성 성공입니다."),
+	FOLDER_CREATE_SUCCESS(CREATED, "폴더 생성 성공입니다."),
 	FOLDER_NAME_UPDATE_SUCCESS(OK, "폴더명 수정 성공입니다."),
 	FOLDER_DELETE_SUCCESS(OK, "폴더 삭제 성공입니다."),
 	ITEM_LIST_IN_FOLDER_SUCCESS(OK, "폴더 내 아이템 리스트 조회 성공입니다."),
