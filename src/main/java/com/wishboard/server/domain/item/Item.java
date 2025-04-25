@@ -3,7 +3,6 @@ package com.wishboard.server.domain.item;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.wishboard.server.domain.cart.Cart;
 import com.wishboard.server.domain.common.AuditingTimeEntity;
 import com.wishboard.server.domain.folder.Folder;
 import com.wishboard.server.domain.user.User;
@@ -60,11 +59,8 @@ public class Item extends AuditingTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private AddType addType;
 
-	@OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ItemImage> images = new ArrayList<>();
-
-	@OneToMany(mappedBy = "cartId.item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Cart> carts = new ArrayList<>();
 
 	private Item(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType) {
 		this.user = user;
@@ -91,7 +87,10 @@ public class Item extends AuditingTimeEntity {
 	}
 
 	public void addItemImage(List<ItemImage> images) {
-		this.images.addAll(images);
+		for (ItemImage image : images) {
+			image.updateItem(this);
+			this.images.add(image);
+		}
 	}
 
 	public void updateFolder(Folder folder) {

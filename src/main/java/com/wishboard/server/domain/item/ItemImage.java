@@ -39,4 +39,8 @@ public class ItemImage {
 		this.itemImageUrl = itemImageUrl;
 		this.item = item;
 	}
+
+	public void updateItem(Item item) {
+		this.item = item;
+	}
 }

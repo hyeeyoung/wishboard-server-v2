@@ -3,7 +3,6 @@ package com.wishboard.server.domain.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.wishboard.server.domain.cart.Cart;
 import com.wishboard.server.domain.common.AuditingTimeEntity;
 import com.wishboard.server.domain.folder.Folder;
 import com.wishboard.server.domain.notifications.Notifications;
@@ -15,7 +14,6 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -70,16 +68,13 @@ public class User extends AuditingTimeEntity {
 	@Embedded
 	private SocialInfo socialInfo;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserToken> fcmTokens = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Folder> folders = new ArrayList<>();
 
-	@OneToMany(mappedBy = "cartId.user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Cart> carts = new ArrayList<>();
-
-	@OneToMany(mappedBy = "notificationId.user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "notificationId.user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Notifications> notifications = new ArrayList<>();
 
 	private User(String socialId, AuthType authType, UserProviderType socialType) {

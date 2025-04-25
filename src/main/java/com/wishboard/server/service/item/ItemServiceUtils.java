@@ -41,7 +41,7 @@ public class ItemServiceUtils {
 	}
 
 	public static Item findItemById(ItemRepository itemRepository, Long itemId, Long userId) {
-		Item item = itemRepository.findItemById(itemId)
+		Item item = itemRepository.findById(itemId)
 			.orElseThrow(() -> new NotFoundException(
 				String.format("아이템(%s) 을 찾을 수 없습니다", itemId), NOT_FOUND_ITEM_EXCEPTION));
 		if (!item.getUser().getId().equals(userId)) {
