@@ -52,11 +52,11 @@ public class AuthController implements AuthControllerDocs {
         return SuccessResponse.success(SuccessCode.LOGIN_SUCCESS, SocialLoginResponse.of(userId, tokenInfo));
     }
 
-    @PostMapping("/v2/auth/refresh")
-    @Override
-    public SuccessResponse<TokenResponseDto> refreshToken(@Valid @RequestBody TokenRequestDto request) {
-        return SuccessResponse.success(SuccessCode.REFRESH_TOKEN_SUCCESS, createTokenService.REFRESHToken(request));
-    }
+	@PostMapping("/v2/auth/refresh")
+	@Override
+	public SuccessResponse<TokenResponseDto> refreshToken(@Valid @RequestBody TokenRequestDto request, HttpServletRequest servletRequest) {
+		return SuccessResponse.success(SuccessCode.REFRESH_TOKEN_SUCCESS, createTokenService.getRefreshToken(request));
+	}
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/v2/auth/signup")
