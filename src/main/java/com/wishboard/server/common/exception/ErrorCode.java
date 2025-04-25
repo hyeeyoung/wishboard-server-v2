@@ -18,6 +18,7 @@ public enum ErrorCode {
 	VALIDATION_REQUEST_MISSING_EXCEPTION(BAD_REQUEST, "필수적인 요청 값이 입력되지 않았습니다."),
 	VALIDATION_WRONG_TYPE_EXCEPTION(BAD_REQUEST, "잘못된 타입이 입력되었습니다."),
 	VALIDATION_SOCIAL_TYPE_EXCEPTION(BAD_REQUEST, "잘못된 소셜 프로바이더 입니다."),
+	VALIDATION_HEADER_USER_AGENT_EXCEPTION(BAD_REQUEST, "잘못된 User-Agent 입니다."),
 	VALIDATION_SORT_TYPE_EXCEPTION(BAD_REQUEST, "허용하지 않는 정렬기준을 입력했습니다."),
 	VALIDATION_PASSWORD_EXCEPTION(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 	VALIDATION_NOTIFICATION_EXCEPTION(BAD_REQUEST, "알림 날짜는 현재 날짜보다 같거나 미래만 가능합니다."),
@@ -35,6 +36,7 @@ public enum ErrorCode {
 	 * 403 Forbidden
 	 */
 	FORBIDDEN_EXCEPTION(FORBIDDEN, "허용하지 않는 요청입니다."),
+	FORBIDDEN_USER_AGENT_EXCEPTION(FORBIDDEN, "허용하지 않는 User-Agent의 요청입니다."),
 	FORBIDDEN_FILE_TYPE_EXCEPTION(BAD_REQUEST, "허용되지 않은 파일 형식입니다."),
 	FORBIDDEN_FILE_NAME_EXCEPTION(BAD_REQUEST, "허용되지 않은 파일 이름입니다."),
 

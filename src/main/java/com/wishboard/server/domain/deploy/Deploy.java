@@ -28,13 +28,20 @@ public class Deploy extends AuditingTimeEntity {
 	@Column(length = 20, nullable = false)
 	private String platform;
 
-	@Column(name = "min_version",length = 20, nullable = false)
+	@Column(name = "min_version", length = 20, nullable = false)
 	private String minVersion;
 
 	@Column(name = "recommended_version", length = 20, nullable = false)
 	private String recommendedVersion;
 
-	@Column(name="release_date")
+	@Column(name = "release_date")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
 	private LocalDate releaseDate;
+
+	public void updateVersionSpec(String minVersion, String recommendedVersion) {
+		if (!minVersion.equals(this.minVersion) || !recommendedVersion.equals(this.recommendedVersion)) {
+			this.minVersion = minVersion;
+			this.recommendedVersion = recommendedVersion;
+		}
+	}
 }

@@ -51,6 +51,10 @@ public enum SuccessCode {
 	FOLDER_DELETE_SUCCESS(OK, "폴더 삭제 성공입니다."),
 	ITEM_LIST_IN_FOLDER_SUCCESS(OK, "폴더 내 아이템 리스트 조회 성공입니다."),
 	FOLDER_LIST_FOR_ITEM_DETAIL_SUCCESS(OK, "폴더 리스트 조회 성공입니다."),
+
+	VERSION_LIST_SUCCESS(OK, "버전 리스트 조회 성공입니다."),
+	VERSION_INFO_SUCCESS(OK, "버전 정보 조회 성공입니다."),
+	VERSION_UPDATE_SUCCESS(OK, "버전 정보 수정 성공입니다."),
 	/**
 	 * 201 CREATED
 	 */
