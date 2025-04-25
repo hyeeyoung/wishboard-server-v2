@@ -15,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.wishboard.server.config.converter.AddTypeConverter;
 import com.wishboard.server.config.interceptor.AuthInterceptor;
+import com.wishboard.server.config.interceptor.UserAgentValidationInterceptor;
 import com.wishboard.server.config.resolver.HeaderOsTypeResolver;
 import com.wishboard.server.config.resolver.UserIdResolver;
 
@@ -28,10 +29,12 @@ public class WebConfig implements WebMvcConfigurer {
 
 	private final UserIdResolver userIdResolver;
 	private final HeaderOsTypeResolver headerOsTypeResolver;
+	private final UserAgentValidationInterceptor userAgentValidationInterceptor;
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(authInterceptor);
+		registry.addInterceptor(userAgentValidationInterceptor);
 	}
 
 	@Override

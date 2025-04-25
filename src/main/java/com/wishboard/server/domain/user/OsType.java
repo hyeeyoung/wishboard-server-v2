@@ -1,8 +1,5 @@
 package com.wishboard.server.domain.user;
 
-import static com.wishboard.server.common.exception.ErrorCode.*;
-
-import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.common.model.EnumModel;
 
 import lombok.AccessLevel;
@@ -20,11 +17,7 @@ public enum OsType implements EnumModel {
 
 	public static OsType fromUserAgent(String userAgent) {
 		String osSegment = userAgent.split("/")[0].split("-")[1].toUpperCase();
-		try {
-			return OsType.valueOf(osSegment);
-		} catch (IllegalArgumentException e) {
-			throw new ValidationException(String.format("Invalid OS Type: %s", userAgent), VALIDATION_HEADER_USER_AGENT_EXCEPTION);
-		}
+		return OsType.valueOf(osSegment);
 	}
 
 	@Override
