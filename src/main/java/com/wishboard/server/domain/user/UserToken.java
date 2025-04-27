@@ -1,11 +1,7 @@
 package com.wishboard.server.domain.user;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.wishboard.server.domain.common.AuditingTimeEntity;
 
-import com.wishboard.server.domain.folder.Folder;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserToken {
+public class UserToken extends AuditingTimeEntity {
 
 	@Id
 	@Column(name = "id")
@@ -34,12 +29,16 @@ public class UserToken {
 	@Column(name = "fcm_token", length = 255)
 	private String fcmToken;
 
+	@Column(name = "device", length = 255)
+	private String device;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	public UserToken(String fcmToken, User user) {
+	public UserToken(String fcmToken, String deviceInfo, User user) {
 		this.fcmToken = fcmToken;
+		this.device = deviceInfo;
 		this.user = user;
 	}
 }

@@ -3,11 +3,12 @@ package com.wishboard.server.domain.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.util.StringUtils;
+
 import com.wishboard.server.domain.common.AuditingTimeEntity;
 import com.wishboard.server.domain.folder.Folder;
 import com.wishboard.server.domain.notifications.Notifications;
 
-import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -94,26 +95,25 @@ public class User extends AuditingTimeEntity {
 		return new User(socialId, authType, socialType);
 	}
 
-	public static void addFcmToken(String fcmToken, User user) {
-		UserToken userToken = new UserToken(fcmToken, user);
+	public static void addFcmToken(String fcmToken, String deviceInfo, User user) {
+		UserToken userToken = new UserToken(fcmToken, deviceInfo, user);
 		user.getFcmTokens().add(userToken);
 	}
 
-	public static User newInstance(String email, String password, String fcmToken, AuthType authType, OsType osType) {
+	public static User newInstance(String email, String password, String fcmToken, String deviceInfo, AuthType authType, OsType osType) {
 		User user = new User(email, password, authType, osType);
-		addFcmToken(fcmToken, user);
+		addFcmToken(fcmToken, deviceInfo, user);
 		return user;
 	}
 
-	public void updateDeviceInformation(String fcmToken, OsType osType) {
-		if (StringUtils.isNotBlank(fcmToken)) {
+	public void updateDeviceInformation(String fcmToken, OsType osType, String deviceInfo) {
+		if (StringUtils.hasText(fcmToken)) {
 			List<String> fcmTokenList = this.fcmTokens.stream().map(UserToken::getFcmToken).toList();
 			if (!fcmTokenList.contains(fcmToken)) {
-				UserToken userToken = new UserToken(fcmToken, this);
-				this.fcmTokens.add(userToken);
+				addFcmToken(fcmToken, deviceInfo, this);
 			}
 		}
-		if (osType != null && !StringUtils.isBlank(osType.getValue())) {
+		if (osType != null && !StringUtils.hasText(osType.getValue())) {
 			this.osType = osType;
 		}
 	}

@@ -67,4 +67,12 @@ public class NotificationsRepositoryImpl implements NotificationsRepositoryCusto
 				return ItemNotificationDto.of(item, notifications);
 			}).toList();
 	}
+
+	@Override
+	public void deleteAllByUserId(Long userId) {
+		queryFactory
+			.delete(notifications)
+			.where(notifications.notificationId.user.id.eq(userId))
+			.execute();
+	}
 }

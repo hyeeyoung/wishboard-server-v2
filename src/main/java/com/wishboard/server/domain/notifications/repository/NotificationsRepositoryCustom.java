@@ -8,4 +8,6 @@ public interface NotificationsRepositoryCustom {
 	List<ItemNotificationDto> findAllByUserId(Long userId);
 
 	List<ItemNotificationDto> findUpcomingNotificationsByUserId(Long userId);
+
+	void deleteAllByUserId(Long userId);
 }

@@ -14,4 +14,6 @@ public interface FolderRepository extends JpaRepository<Folder, Long>, FolderRep
 	Optional<Folder> findByUserAndFolderName(User user, String folderName);
 
 	List<Folder> findAllByUserOrderByCreatedAtDesc(User user);
+
+	void deleteAllByUser(User user);
 }

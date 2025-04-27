@@ -1,5 +1,7 @@
 package com.wishboard.server.domain.item;
 
+import com.wishboard.server.domain.common.AuditingTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ItemImage {
+public class ItemImage extends AuditingTimeEntity {
 
 	@Id
 	@Column(name = "id")
