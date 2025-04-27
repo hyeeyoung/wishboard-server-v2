@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.exception.NotFoundException;
@@ -30,7 +31,6 @@ import com.wishboard.server.service.image.provider.dto.request.ImageUploadFileRe
 import com.wishboard.server.service.item.dto.ItemFolderNotificationDto;
 import com.wishboard.server.service.user.UserServiceUtils;
 
-import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -110,7 +110,7 @@ public class ItemService {
 		// 이미지 변경
 		if (!item.getImages().isEmpty()) {
 			item.getImages().forEach(image -> {
-				if (StringUtils.isNotBlank(image.getItemImageUrl())) {
+				if (StringUtils.hasText(image.getItemImageUrl())) {
 					s3Provider.deleteFile(image.getItemImageUrl());
 				}
 			});
@@ -148,7 +148,7 @@ public class ItemService {
 
 		// 이미지 삭제
 		item.getImages().forEach(image -> {
-			if (StringUtils.isNotBlank(image.getItemImageUrl())) {
+			if (StringUtils.hasText(image.getItemImageUrl())) {
 				s3Provider.deleteFile(image.getItemImageUrl());
 			}
 		});

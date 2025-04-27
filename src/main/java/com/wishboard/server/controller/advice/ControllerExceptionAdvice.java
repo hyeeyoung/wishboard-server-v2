@@ -23,6 +23,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.wishboard.server.common.dto.ErrorResponse;
+import com.wishboard.server.common.dto.ErrorResponseWithCode;
 import com.wishboard.server.common.exception.WishboardServerException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -140,8 +141,14 @@ public class ControllerExceptionAdvice {
 	@ExceptionHandler(WishboardServerException.class)
 	protected ResponseEntity<ErrorResponse> handleBaseException(WishboardServerException exception) {
 		log.error(exception.getMessage(), exception);
-		return ResponseEntity.status(exception.getStatus())
-			.body(ErrorResponse.error(exception.getErrorCode()));
+
+		if (exception.getErrorCodeDetail() != null) {
+			return ResponseEntity.status(exception.getStatus())
+				.body(ErrorResponseWithCode.error(exception.getErrorCode(), exception.getErrorCodeDetail()));
+		} else {
+			return ResponseEntity.status(exception.getStatus())
+				.body(ErrorResponse.error(exception.getErrorCode()));
+		}
 	}
 
 	/**

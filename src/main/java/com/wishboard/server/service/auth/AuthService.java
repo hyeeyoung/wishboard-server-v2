@@ -6,7 +6,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.wishboard.server.common.exception.ConflictException;
 import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.common.util.UuidUtils;
 import com.wishboard.server.controller.auth.dto.request.CheckEmailRequest;
@@ -28,57 +27,57 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class AuthService {
 
-    private final MailClient mailClient;
+	private final MailClient mailClient;
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public void checkEmail(CheckEmailRequest request) {
-        UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-    }
+	public void checkEmail(CheckEmailRequest request) {
+		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+	}
 
-    public Long signup(SignupRequest request, OsType osType) {
-        UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-        String hashedPassword = AuthServiceUtils.getHashedPassword(request.getPassword());
-        User user = userRepository.save(User.newInstance(request.getEmail(), hashedPassword, request.getFcmToken(), AuthType.INTERNAL, osType));
-        return user.getId();
-    }
+	public Long signup(SignupRequest request, OsType osType, String deviceInfo) {
+		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+		String hashedPassword = AuthServiceUtils.getHashedPassword(request.getPassword());
+		User user = userRepository.save(
+			User.newInstance(request.getEmail(), hashedPassword, request.getFcmToken(), deviceInfo, AuthType.INTERNAL, osType));
+		return user.getId();
+	}
 
-    public User signin(SigninRequest request, OsType osType) {
-        User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-        boolean isPasswordMatch = encoder.matches(request.getPassword(), user.getPassword());
-        if (!isPasswordMatch) {
-            throw new ValidationException("비밀번호가 일치하지 않습니다.", VALIDATION_PASSWORD_EXCEPTION);
-        }
+	public User signIn(SigninRequest request, OsType osType, String deviceInfo) {
+		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+		boolean isPasswordMatch = encoder.matches(request.getPassword(), user.getPassword());
+		if (!isPasswordMatch) {
+			throw new ValidationException("비밀번호가 일치하지 않습니다.", VALIDATION_PASSWORD_EXCEPTION);
+		}
+		// 현재 유저의 os 정보 갱신
+		user.updateDeviceInformation(request.getFcmToken(), osType, deviceInfo);
+		return user;
+	}
 
-        if (user.getFcmTokens().size() >= 3) {
-            throw new ConflictException("FCM 토큰은 최대 3개까지 등록할 수 있습니다.", CONFLICT_USER_FCM_TOKEN_EXCEPTION);
-        }
+	public User reSignIn(ReSigninRequest request, OsType osType, String deviceInfo) {
+		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+		// 현재 유저의 os 정보 갱신
+		user.updateDeviceInformation(request.getFcmToken(), osType, deviceInfo);
+		return user;
+	}
 
-        // 현재 유저의 os 정보 갱신
-        user.updateDeviceInformation(request.getFcmToken(), osType);
+	public String reSignInBeforeSendMail(ReSigninMailRequest request) {
+		UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+		String verificationCode = UuidUtils.generate().replace("-", "").substring(0, 6);
+		mailClient.sendEmailWithVerificationCode(request.getEmail(), verificationCode);
+		return verificationCode;
+	}
 
-        return user;
-    }
-
-    public User reSignin(ReSigninRequest request, OsType osType) {
-        User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-
-        if (user.getFcmTokens().size() >= 3) {
-            throw new ConflictException("FCM 토큰은 최대 3개까지 등록할 수 있습니다.", CONFLICT_USER_FCM_TOKEN_EXCEPTION);
-        }
-
-        // 현재 유저의 os 정보 갱신
-        user.updateDeviceInformation(request.getFcmToken(), osType);
-
-        return user;
-    }
-
-    public String reSigninBeforeSendMail(ReSigninMailRequest request) {
-        UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-        String verificationCode = UuidUtils.generate().replace("-", "").substring(0, 6);
-        mailClient.sendEmailWithVerificationCode(request.getEmail(), verificationCode);
-        return verificationCode;
-    }
+	public void logout(Long userId, String deviceInfo) {
+		var user = UserServiceUtils.findUserById(userRepository, userId);
+		var fcmTokens = user.getFcmTokens();
+		// deviceInfo가 일치하는 토큰이 있으면 그거만 삭제. 없으면 전체 삭제
+		boolean removed = fcmTokens.removeIf(token -> deviceInfo.equals(token.getFcmToken()));
+		if (!removed) {
+			fcmTokens.clear();
+		}
+		userRepository.save(user);
+	}
 }

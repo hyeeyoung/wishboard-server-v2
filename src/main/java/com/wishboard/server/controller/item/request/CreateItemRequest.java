@@ -7,10 +7,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.springframework.util.StringUtils;
+
 import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.domain.notifications.ItemNotificationType;
 
-import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -47,21 +48,22 @@ public class CreateItemRequest {
 	private String itemNotificationDate;
 
 	public void validateDateInFuture() {
-		if (StringUtils.isNotBlank(itemNotificationDate)) {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-			LocalDateTime inputDateTime = LocalDateTime.parse(this.itemNotificationDate, formatter);
+		if (!StringUtils.hasText(itemNotificationDate)) {
+			return;
+		}
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime inputDateTime = LocalDateTime.parse(this.itemNotificationDate, formatter);
 
-			ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-			ZonedDateTime inputKST = inputDateTime.atZone(ZoneId.of("Asia/Seoul"));
+		ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+		ZonedDateTime inputKST = inputDateTime.atZone(ZoneId.of("Asia/Seoul"));
 
-			if (inputKST.isBefore(nowKST)) {
-				throw new ValidationException(String.format("알림 시간은 현재 시각보다 이후여야 합니다. (now: %s, input:%s)", nowKST.toString(), inputKST.toString()),
-					VALIDATION_NOTIFICATION_EXCEPTION);
-			}
+		if (inputKST.isBefore(nowKST)) {
+			throw new ValidationException(String.format("알림 시간은 현재 시각보다 이후여야 합니다. (now: %s, input:%s)", nowKST.toString(), inputKST.toString()),
+				VALIDATION_NOTIFICATION_EXCEPTION);
+		}
 
-			if (inputKST.getMinute() != 30 && inputKST.getMinute() != 0) {
-				throw new ValidationException("알림 시간은 30분 단위로 설정해야 합니다.", VALIDATION_NOTIFICATION_MINUTE_EXCEPTION);
-			}
+		if (inputKST.getMinute() != 30 && inputKST.getMinute() != 0) {
+			throw new ValidationException("알림 시간은 30분 단위로 설정해야 합니다.", VALIDATION_NOTIFICATION_MINUTE_EXCEPTION);
 		}
 	}
 }

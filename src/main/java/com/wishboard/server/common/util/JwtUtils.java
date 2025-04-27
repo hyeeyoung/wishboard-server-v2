@@ -2,12 +2,14 @@ package com.wishboard.server.common.util;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.wishboard.server.common.constant.JwtKeys;
 import com.wishboard.server.common.constant.RedisKey;
@@ -43,8 +45,7 @@ public class JwtUtils {
 		this.secretKey = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	public TokenResponseDto createTokenInfo(Long userId) {
-
+	public TokenResponseDto createTokenInfo(Long userId, String deviceInfo) {
 		long now = (new Date()).getTime();
 		Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
 		Date refreshTokenExpiresIn = new Date(now + refreshTokenExpireTime);
@@ -62,14 +63,37 @@ public class JwtUtils {
 			.signWith(secretKey, SignatureAlgorithm.HS512)
 			.compact();
 
-		redisTemplate.opsForValue()
-			.set(RedisKey.REFRESH_TOKEN + userId, refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
+		saveRefreshTokenToRedis(userId, deviceInfo, refreshToken, now);
 
 		return TokenResponseDto.of(accessToken, refreshToken);
 	}
 
-	public void expireRefreshToken(Long userId) {
-		redisTemplate.opsForValue().set(RedisKey.REFRESH_TOKEN + userId, "", EXPIRED_TIME, TimeUnit.MILLISECONDS);
+	public void expireRefreshToken(Long userId, String deviceInfo) {
+		String keyName = generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId));
+		expireRefreshToken(keyName);
+	}
+
+	private void expireRefreshToken(String keyName) {
+		redisTemplate.opsForValue().set(keyName, "", EXPIRED_TIME, TimeUnit.MILLISECONDS);
+	}
+
+	public String getRefreshToken(Long userId, String deviceInfo) {
+		// v2 전 기존 키 형식의 토큰이 존재한다면
+		String refreshToken = (String)redisTemplate.opsForValue().get(String.valueOf(userId));
+		if (StringUtils.hasText(refreshToken)) {
+			return refreshToken;
+		}
+
+		return (String)redisTemplate.opsForValue().get(generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId)));
+	}
+
+	public Boolean isLogoutDevice(Long userId, String deviceInfo) {
+		String logoutDeviceKeyName = generateKeyName(RedisKey.LOGOUT_FLAG, deviceInfo, String.valueOf(userId));
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(logoutDeviceKeyName))) {
+			redisTemplate.delete(logoutDeviceKeyName);
+			return true;
+		}
+		return false;
 	}
 
 	public boolean validateToken(String token) {
@@ -97,6 +121,60 @@ public class JwtUtils {
 			return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken).getBody();
 		} catch (ExpiredJwtException e) {
 			return e.getClaims();
+		}
+	}
+
+	private String generateKeyName(String... names) {
+		return String.join("_", names);
+	}
+
+	private void saveRefreshTokenToRedis(Long userId, String deviceInfo, String refreshToken, Long now) {
+		String refreshTokenKeyName = generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId));
+		String zsetKeyName = generateKeyName(RedisKey.USER_DEVICE, String.valueOf(userId));
+
+		// (legacy) v1 에 저장된 형태를 마이그레이션 하면서 v2 형태로 저장
+		if (migrateLegacyRefreshTokenIfExist(userId, refreshTokenKeyName, zsetKeyName, now)) {
+			return;
+		}
+
+		// 신규 토큰 저장
+		saveNewRefreshToken(refreshTokenKeyName, refreshToken, zsetKeyName, now);
+
+		// 로그인 기기 초과 시 정리
+		removeOldestDeviceIfExceedLimit(zsetKeyName, userId);
+	}
+
+	private boolean migrateLegacyRefreshTokenIfExist(Long userId, String newRefreshTokenKeyName, String zsetKeyName, Long now) {
+		String legacyRefreshTokenKeyName = String.valueOf(userId);
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(legacyRefreshTokenKeyName))) {
+			String legacyRefreshToken = (String)redisTemplate.opsForValue().get(legacyRefreshTokenKeyName);
+			if (StringUtils.hasText(legacyRefreshToken)) {
+				saveNewRefreshToken(newRefreshTokenKeyName, legacyRefreshToken, zsetKeyName, now);
+				expireRefreshToken(legacyRefreshTokenKeyName);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void saveNewRefreshToken(String refreshTokenKeyName, String refreshToken, String zsetKeyName, Long now) {
+		redisTemplate.opsForValue().set(refreshTokenKeyName, refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
+		redisTemplate.opsForZSet().add(zsetKeyName, refreshTokenKeyName, now);
+	}
+
+	private void removeOldestDeviceIfExceedLimit(String zsetKeyName, Long userId) {
+		Long loginDeviceCount = redisTemplate.opsForZSet().size(zsetKeyName);
+		if (loginDeviceCount != null && loginDeviceCount > 3) {
+			Set<Object> oldest = redisTemplate.opsForZSet().range(zsetKeyName, 0, 0);
+			if (oldest != null && !oldest.isEmpty()) {
+				String oldRefreshTokenKeyName = oldest.iterator().next().toString();
+				expireRefreshToken(oldRefreshTokenKeyName);
+				redisTemplate.opsForZSet().remove(zsetKeyName, oldRefreshTokenKeyName);
+				log.info("Exceeded device limit. Deleted oldest refresh token: {}", oldRefreshTokenKeyName);
+				String oldKeyDeviceInfo = oldRefreshTokenKeyName.split("_")[1];
+				redisTemplate.opsForValue()
+					.set(generateKeyName(RedisKey.LOGOUT_FLAG, oldKeyDeviceInfo, String.valueOf(userId)), String.valueOf(true));
+			}
 		}
 	}
 }

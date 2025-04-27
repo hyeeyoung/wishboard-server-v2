@@ -5,14 +5,20 @@ import lombok.Getter;
 @Getter
 public abstract class WishboardServerException extends RuntimeException {
 
-    private final ErrorCode errorCode;
+	private final ErrorCode errorCode;
+	private final ErrorDetailCode errorCodeDetail;
 
-    public WishboardServerException(String message, ErrorCode errorCode) {
-        super(message);
-        this.errorCode = errorCode;
-    }
+	protected WishboardServerException(String message, ErrorCode errorCode) {
+		this(message, errorCode, null);
+	}
 
-    public int getStatus() {
-        return errorCode.getStatus();
-    }
+	protected WishboardServerException(String message, ErrorCode errorCode, ErrorDetailCode errorCodeDetail) {
+		super(message);
+		this.errorCode = errorCode;
+		this.errorCodeDetail = errorCodeDetail;
+	}
+
+	public int getStatus() {
+		return errorCode.getStatus();
+	}
 }
