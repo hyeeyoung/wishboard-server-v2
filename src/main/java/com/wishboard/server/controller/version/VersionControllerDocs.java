@@ -1,4 +1,4 @@
-package com.wishboard.server.controller.user;
+package com.wishboard.server.controller.version;
 
 import java.util.List;
 
@@ -22,6 +22,7 @@ public interface VersionControllerDocs {
 	@Operation(summary = "OS별 버전 정보 조회")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "버전 정보 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	SuccessResponse<VersionInfoResponse> getVersionByOs(@Parameter(hidden = true) OsType osType);
@@ -32,6 +33,7 @@ public interface VersionControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 				1. 최소 버전을 입력해주세요.
 				2. 추천 버전을 입력해주세요.
+				3. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
@@ -40,6 +42,7 @@ public interface VersionControllerDocs {
 	@Operation(summary = "버전 정보 전체 조회 (서버 확인용)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "버전 리스트 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	SuccessResponse<List<VersionInfoResponse>> getVersions(@Parameter(hidden = true) OsType osType);

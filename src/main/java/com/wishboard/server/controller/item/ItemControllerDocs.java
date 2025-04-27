@@ -28,6 +28,7 @@ public interface ItemControllerDocs {
 	@Operation(summary = "아이템 리스트 조회 (홈화면 조회)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 리스트 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -43,6 +44,7 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
+				3. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = "다른 사용자의 아이템입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -61,6 +63,7 @@ public interface ItemControllerDocs {
 			2. 아이템 등록 타입 (type)은 필수입니다.
 			3. 알림 날짜는 현재 날짜보다 같거나 미래만 가능합니다.
 			4. 알림 날짜는 30분 단위로만 등록 가능합니다. (00분 또는 30분)
+			5. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -83,7 +86,10 @@ public interface ItemControllerDocs {
 			1. 아이템 수정 성공입니다.
 			2. 아이템 및 알림 수정 성공입니다.
 			"""),
-		@ApiResponse(responseCode = "400", description = "아이템 이름을 입력해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 아이템 이름을 입력해주세요.
+			2. 허용하지 않는 User-Agent의 요청입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -104,6 +110,7 @@ public interface ItemControllerDocs {
 	@Operation(summary = "아이템 삭제")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "사용자 삭제 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -119,6 +126,7 @@ public interface ItemControllerDocs {
 	@Operation(summary = "아이템 폴더 수정")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 폴더 수정 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.

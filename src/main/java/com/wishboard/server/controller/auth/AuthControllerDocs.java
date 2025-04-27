@@ -43,6 +43,8 @@ public interface AuthControllerDocs {
 			1. 유저의 socialType 를 입력해주세요.
 			2. access token 을 입력해주세요.
 			3. fcmToken 을 입력해주세요.
+			4. Request Header에 디바이스 정보가 없습니다.
+			5. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰입니다."),
 		@ApiResponse(responseCode = "409", description = """
@@ -62,8 +64,8 @@ public interface AuthControllerDocs {
 			예외 발생 시 code 값을 별도로 전달합니다. code 값에 대한 설명은 다음과 같습니다.
 			
 			"LOGOUT_BY_DEVICE_OVERFLOW": 중복 로그인 기기 대수 초과(3대)로 자동 로그아웃 처리된 유저 -> 재로그인 필요
-			"TOKEN_EXPIRED": 토큰이 만료됨
-			"INVALID_TOKEN": 유효하지 않은 토큰임
+			"TOKEN_EXPIRED": 토큰이 만료
+			"INVALID_TOKEN": 유효하지 않은 토큰
 			"""
 	)
 	@ApiResponses(value = {
@@ -71,6 +73,8 @@ public interface AuthControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 			1. access token 을 입력해주세요.
 			2. refresh token 을 입력해주세요.
+			3. Request Header에 디바이스 정보가 없습니다.
+			4. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = "토큰이 만료되었습니다. 다시 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -89,6 +93,8 @@ public interface AuthControllerDocs {
 			2. 비밀번호를 입력해주세요. (password)
 			3. fcmToken을 입력해주세요. (fcmToken)
 			4. 필수적인 요청 값이 입력되지 않았습니다.
+			5. Request Header에 디바이스 정보가 없습니다.
+			6. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = "이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -107,6 +113,8 @@ public interface AuthControllerDocs {
 			1. @가 포함된 이메일 주소를 입력해주세요. (email)
 			2. 비밀번호를 입력해주세요. (password)
 			3. fcmToken을 입력해주세요. (fcmToken)
+			4. Request Header에 디바이스 정보가 없습니다.
+			5. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = """
@@ -129,7 +137,10 @@ public interface AuthControllerDocs {
 	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "wishboard 이메일 확인 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "@가 포함된 이메일 주소를 입력해주세요. (email)", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. @가 포함된 이메일 주소를 입력해주세요. (email)
+			2. 허용하지 않는 User-Agent의 요청입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = "이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -146,6 +157,8 @@ public interface AuthControllerDocs {
 			1. @가 포함된 이메일 주소를 입력해주세요. (email)
 			2. 이메일 인증 여부를 입력해주세요. (verify)
 			3. fcmToken을 입력해주세요. (fcmToken)
+			4. Request Header에 디바이스 정보가 없습니다.
+			5. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = """
@@ -164,7 +177,10 @@ public interface AuthControllerDocs {
 	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "wishboard 이메일 인증 메일 전송 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "@가 포함된 이메일 주소를 입력해주세요. (email)", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. @가 포함된 이메일 주소를 입력해주세요. (email)
+			2. 허용하지 않는 User-Agent의 요청입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = """
 			1. 이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.
@@ -177,6 +193,10 @@ public interface AuthControllerDocs {
 	@Operation(summary = "로그아웃")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "로그아웃 성공입니다."),
+		@ApiResponse(responseCode = "400", description = """
+			1. Request Header에 디바이스 정보가 없습니다.
+			2. 허용하지 않는 User-Agent의 요청입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})

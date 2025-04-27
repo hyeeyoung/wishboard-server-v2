@@ -25,6 +25,7 @@ public interface UserControllerDocs {
 	@Operation(summary = "사용자 정보 조회")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -37,6 +38,7 @@ public interface UserControllerDocs {
 	@Operation(summary = "푸쉬 알림 설정 변경")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "푸쉬 알림 설정 변경 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -50,7 +52,10 @@ public interface UserControllerDocs {
 	@Operation(summary = "사용자 정보 변경")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "사용자 정보 변경 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "닉네임을 입력해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 닉네임을 입력해주세요.
+			2. 허용하지 않는 User-Agent의 요청입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -68,6 +73,7 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 			1. 새 비밀번호를 입력해주세요.
 			2. 필수적인 요청 값이 입력되지 않았습니다.
+			3. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -81,6 +87,7 @@ public interface UserControllerDocs {
 	@Operation(summary = "사용자 탈퇴")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "사용자 탈퇴 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.

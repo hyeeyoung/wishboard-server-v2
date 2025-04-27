@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wishboard.server.common.dto.SuccessResponse;
 import com.wishboard.server.common.success.SuccessCode;
 import com.wishboard.server.config.resolver.HeaderOsType;
-import com.wishboard.server.controller.user.VersionControllerDocs;
 import com.wishboard.server.controller.version.request.UpdateVersionRequest;
 import com.wishboard.server.controller.version.response.VersionInfoResponse;
 import com.wishboard.server.domain.user.OsType;

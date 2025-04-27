@@ -25,6 +25,7 @@ public interface FolderControllerDocs {
 	@Operation(summary = "폴더 리스트 조회 (폴더탭 조회)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "폴더 리스트 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -40,6 +41,7 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 				1. 폴더 이름을 입력해주세요.
 				2. 이미 존재하는 폴더명입니다.
+				3. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -57,6 +59,7 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 				1. 폴더 이름을 입력해주세요.
 				2. 이미 존재하는 폴더명입니다.
+				3. 허용하지 않는 User-Agent의 요청입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -74,6 +77,7 @@ public interface FolderControllerDocs {
 	@Operation(summary = "폴더 삭제")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "폴더 삭제 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -90,6 +94,7 @@ public interface FolderControllerDocs {
 	@Operation(summary = "폴더 내 아이템 리스트 조회")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "폴더 내 아이템 리스트 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -106,6 +111,7 @@ public interface FolderControllerDocs {
 	@Operation(summary = "폴더 리스트 조회 (아이템 상세 화면)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "폴더 리스트 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
