@@ -3,6 +3,10 @@ package com.wishboard.server.controller.folder;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,11 +41,10 @@ public class FolderController implements FolderControllerDocs {
 	@Auth
 	@GetMapping("/v2/folder")
 	@Override
-	public SuccessResponse<List<FolderListResponse>> getFolderList(@UserId Long userId) {
-		var folderList = folderService.getFolderList(userId);
-		var response = folderList.stream()
-			.map(folder -> modelMapper.map(folder, FolderListResponse.class))
-			.toList();
+	public SuccessResponse<Page<FolderListResponse>> getFolderList(@UserId Long userId,
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		var folderList = folderService.getFolderList(userId, pageable);
+		var response = folderList.map(folder -> modelMapper.map(folder, FolderListResponse.class));
 		return SuccessResponse.success(SuccessCode.FOLDER_LIST_SUCCESS, response);
 	}
 
@@ -74,11 +77,10 @@ public class FolderController implements FolderControllerDocs {
 	@Auth
 	@GetMapping("/v2/folder/item/{folderId}")
 	@Override
-	public SuccessResponse<List<ItemInfoResponse>> getItemListInFolder(@UserId Long userId, @PathVariable Long folderId) {
-		var itemFolderNotificationDto = folderService.getItemListInFolder(userId, folderId);
-		var response = itemFolderNotificationDto.stream()
-			.map(folder -> modelMapper.map(folder, ItemInfoResponse.class))
-			.toList();
+	public SuccessResponse<Page<ItemInfoResponse>> getItemListInFolder(@UserId Long userId, @PathVariable Long folderId,
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		var itemFolderNotificationDto = folderService.getItemListInFolder(userId, folderId, pageable);
+		var response = itemFolderNotificationDto.map(folder -> modelMapper.map(folder, ItemInfoResponse.class));
 		return SuccessResponse.success(SuccessCode.ITEM_LIST_IN_FOLDER_SUCCESS, response);
 	}
 

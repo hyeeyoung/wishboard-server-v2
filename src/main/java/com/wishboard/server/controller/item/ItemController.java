@@ -3,6 +3,10 @@ package com.wishboard.server.controller.item;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,11 +42,10 @@ public class ItemController implements ItemControllerDocs {
 	@Auth
 	@GetMapping("/v2/item")
 	@Override
-	public SuccessResponse<List<ItemInfoResponse>> getAllItemInfo(@UserId Long userId) {
-		var itemNotificationDto = itemService.getAllItemInfo(userId);
-		var response = itemNotificationDto.stream()
-			.map(item -> modelMapper.map(item, ItemInfoResponse.class))
-			.toList();
+	public SuccessResponse<Page<ItemInfoResponse>> getAllItemInfo(@UserId Long userId,
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		var itemNotificationDto = itemService.getAllItemInfo(userId, pageable);
+		var response = itemNotificationDto.map(item -> modelMapper.map(item, ItemInfoResponse.class));
 		return SuccessResponse.success(SuccessCode.ITEM_LIST_INFO_SUCCESS, response);
 	}
 

@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -45,9 +47,9 @@ public class ItemService {
 	private final S3Provider s3Provider;
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-	public List<ItemFolderNotificationDto> getAllItemInfo(Long userId) {
+	public Page<ItemFolderNotificationDto> getAllItemInfo(Long userId, Pageable pageable) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
-		return itemRepository.findAllByUserId(user.getId());
+		return itemRepository.findAllByUserId(user.getId(), pageable);
 	}
 
 	public ItemFolderNotificationDto getItemInfo(Long userId, Long itemId) {

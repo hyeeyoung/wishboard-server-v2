@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.ObjectUtils;
 
 import com.querydsl.core.Tuple;
@@ -31,7 +34,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<ItemFolderNotificationDto> findAllByUserId(Long userId) {
+	public Page<ItemFolderNotificationDto> findAllByUserId(Long userId, Pageable pageable) {
 		List<Tuple> results = queryFactory
 			.selectDistinct(item, itemImage, folder, notifications)
 			.from(item)
@@ -40,8 +43,10 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
 			.where(item.user.id.eq(userId))
 			.orderBy(item.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.fetch();
-		return results.stream()
+		List<ItemFolderNotificationDto> dtoList = results.stream()
 			.map(tuple -> {
 				Item item = tuple.get(QItem.item);
 				ItemImage itemImage = tuple.get(QItemImage.itemImage);
@@ -51,6 +56,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				}
 				return ItemFolderNotificationDto.of(item, notifications);
 			}).toList();
+		return new PageImpl<>(dtoList, pageable, results.size());
 	}
 
 	@Override

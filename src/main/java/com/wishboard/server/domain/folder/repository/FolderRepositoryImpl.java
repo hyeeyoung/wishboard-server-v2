@@ -6,6 +6,9 @@ import static com.wishboard.server.domain.notifications.QNotifications.*;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.ObjectUtils;
 
 import com.querydsl.core.Tuple;
@@ -24,7 +27,7 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<ItemFolderNotificationDto> findItemListByUserIdAndFolderId(Long userId, Long folderId) {
+	public Page<ItemFolderNotificationDto> findItemListByUserIdAndFolderId(Long userId, Long folderId, Pageable pageable) {
 		List<Tuple> results = queryFactory
 			.select(item, folder, notifications)
 			.from(item)
@@ -35,8 +38,10 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 				folder.id.eq(folderId)
 			)
 			.orderBy(item.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.fetch();
-		return results.stream()
+		List<ItemFolderNotificationDto> dtoList = results.stream()
 			.map(tuple -> {
 				Item item = tuple.get(QItem.item);
 				Notifications notifications = tuple.get(QNotifications.notifications);
@@ -45,5 +50,6 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 				}
 				return ItemFolderNotificationDto.of(item, notifications);
 			}).toList();
+		return new PageImpl<>(dtoList, pageable, results.size());
 	}
 }

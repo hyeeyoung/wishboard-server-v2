@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.wishboard.server.common.exception.ValidationException;
@@ -31,7 +34,35 @@ public class FolderService {
 	private final ModelMapper modelMapper;
 	private final ItemRepository itemRepository;
 
-	// TODO 추후에 페이징 고려
+	public Page<FolderDto> getFolderList(Long userId, Pageable pageable) {
+		var user = UserServiceUtils.findUserById(userRepository, userId);
+
+		// 해당 유저의 전체 폴더 목록
+		var folders = folderRepository.findAllByUser(user, pageable);
+		List<Long> folderIds = folders.getContent().stream().map(Folder::getId).toList();
+
+		// 폴더에 저장된 최신 아이템 이미지 (섬네일) 및 아이템 개수 추출
+		Map<Long, FolderItemDto> folderItemDtoMap = itemRepository.findLatestItemByFolderIds(folderIds);
+
+		var results = folders.stream().map(folder -> {
+			var folderItemDto = folderItemDtoMap.get(folder.getId());
+			if (folderItemDto.getItemCount() == 0L) {
+				return FolderDto.builder()
+					.id(folder.getId())
+					.folderName(folder.getFolderName())
+					.itemCount(0L)
+					.build();
+			}
+			return FolderDto.builder()
+				.id(folder.getId())
+				.folderName(folder.getFolderName())
+				.folderThumbnail(folderItemDto.getLastestItem().getImages().getFirst().getItemImageUrl())
+				.itemCount(folderItemDto.getItemCount())
+				.build();
+		}).toList();
+		return new PageImpl<>(results, pageable, results.size());
+	}
+
 	public List<FolderDto> getFolderList(Long userId) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
 
@@ -81,11 +112,10 @@ public class FolderService {
 		folderRepository.delete(folder);
 	}
 
-	// TODO 추후에 페이징 고려
-	public List<ItemFolderNotificationDto> getItemListInFolder(Long userId, Long folderId) {
+	public Page<ItemFolderNotificationDto> getItemListInFolder(Long userId, Long folderId, Pageable pageable) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
 		var folder = FolderServiceUtils.findFolderByIdAndUserId(folderRepository, folderId, user);
-		return folderRepository.findItemListByUserIdAndFolderId(user.getId(), folder.getId());
+		return folderRepository.findItemListByUserIdAndFolderId(user.getId(), folder.getId(), pageable);
 	}
 
 	private void checkDuplicateFolderName(User user, String folderName) {

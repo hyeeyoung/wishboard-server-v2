@@ -2,12 +2,15 @@ package com.wishboard.server.controller.item;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.dto.ErrorResponse;
 import com.wishboard.server.common.dto.SuccessResponse;
 import com.wishboard.server.config.swagger.SwaggerBody;
+import com.wishboard.server.config.swagger.SwaggerPageable;
 import com.wishboard.server.controller.item.request.CreateItemRequest;
 import com.wishboard.server.controller.item.request.UpdateItemRequest;
 import com.wishboard.server.controller.item.response.ItemInfoResponse;
@@ -25,7 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Item", description = "아이템 관련 API")
 public interface ItemControllerDocs {
 
-	@Operation(summary = "아이템 리스트 조회 (홈화면 조회)")
+	@Operation(summary = "아이템 리스트 조회 (홈화면 조회)", description = "정렬은 최신순으로 고정이므로 size와 page 만 전달해주세요.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 리스트 조회 성공입니다."),
 		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -36,7 +39,8 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<List<ItemInfoResponse>> getAllItemInfo(@Parameter(hidden = true) Long userId);
+	@SwaggerPageable
+	SuccessResponse<Page<ItemInfoResponse>> getAllItemInfo(@Parameter(hidden = true) Long userId, Pageable pageable);
 
 	@Operation(summary = "아이템 정보 조회")
 	@ApiResponses(value = {
