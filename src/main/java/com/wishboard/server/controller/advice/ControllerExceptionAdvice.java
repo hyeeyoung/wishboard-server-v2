@@ -140,7 +140,11 @@ public class ControllerExceptionAdvice {
 	 */
 	@ExceptionHandler(WishboardServerException.class)
 	protected ResponseEntity<ErrorResponse> handleBaseException(WishboardServerException exception) {
-		log.error(exception.getMessage(), exception);
+		if (exception.getStatus() >= 400 && exception.getStatus() < 500) {
+			log.warn(exception.getMessage(), exception);
+		} else {
+			log.error(exception.getMessage(), exception);
+		}
 
 		if (exception.getErrorCodeDetail() != null) {
 			return ResponseEntity.status(exception.getStatus())
