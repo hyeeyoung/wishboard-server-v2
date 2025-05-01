@@ -26,6 +26,7 @@ import com.wishboard.server.common.dto.ErrorResponse;
 import com.wishboard.server.common.dto.ErrorResponseWithCode;
 import com.wishboard.server.common.exception.WishboardServerException;
 
+import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -144,6 +145,7 @@ public class ControllerExceptionAdvice {
 			log.warn(exception.getMessage(), exception);
 		} else {
 			log.error(exception.getMessage(), exception);
+			Sentry.captureException(exception);
 		}
 
 		if (exception.getErrorCodeDetail() != null) {

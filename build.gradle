@@ -88,6 +88,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // sentry
+    implementation platform('io.sentry:sentry-bom:8.11.1') //import bom
+    implementation('io.sentry:sentry-spring-boot-starter-jakarta') //no version specified
+    implementation('io.sentry:sentry-logback') //no version specified
 }
 
 tasks.named('test') {
