@@ -3,8 +3,8 @@ package com.wishboard.server.config.interceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.wishboard.server.auth.infrastructure.jwt.JwtClient;
 import com.wishboard.server.common.exception.UnAuthorizedException;
-import com.wishboard.server.common.util.JwtUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class LoginCheckHandler {
 
-	private final JwtUtils jwtProvider;
+	private final JwtClient jwtProvider;
 
 	public Long getUserId(HttpServletRequest request) {
 		String bearerToken = request.getHeader("Authorization");

@@ -6,7 +6,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 
 import com.wishboard.server.common.exception.ValidationException;
-import com.wishboard.server.domain.item.AddType;
+import com.wishboard.server.item.domain.model.AddType;
 
 public class AddTypeConverter implements Converter<String, AddType> {
 

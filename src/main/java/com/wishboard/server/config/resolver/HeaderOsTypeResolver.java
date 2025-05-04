@@ -9,7 +9,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.wishboard.server.domain.user.OsType;
+import com.wishboard.server.common.domain.OsType;
 
 @Component
 public class HeaderOsTypeResolver implements HandlerMethodArgumentResolver {

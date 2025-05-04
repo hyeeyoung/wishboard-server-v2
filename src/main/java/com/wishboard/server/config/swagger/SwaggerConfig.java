@@ -37,7 +37,7 @@ public class SwaggerConfig {
 	public GroupedOpenApi publicApi() {
 		return GroupedOpenApi.builder()
 			.group("v2")
-			.packagesToScan("com.wishboard.server.controller")
+			.packagesToScan("com.wishboard.server")
 			.pathsToMatch("/v2/**")
 			.addOperationCustomizer(operationCustomizer())
 			.build();
