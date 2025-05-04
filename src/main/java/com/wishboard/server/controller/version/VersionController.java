@@ -36,7 +36,7 @@ public class VersionController implements VersionControllerDocs {
 	@PutMapping("/v2/version")
 	@Override
 	public SuccessResponse<VersionInfoResponse> updateVersionByOs(@HeaderOsType OsType osType, @Valid @RequestBody UpdateVersionRequest request) {
-		var versionInfoDto = versionService.updateVersion(osType, modelMapper.map(request, VersionDto.class));
+		var versionInfoDto = versionService.updateVersion(osType, request.toCommand());
 		return SuccessResponse.success(SuccessCode.VERSION_LIST_SUCCESS, modelMapper.map(versionInfoDto, VersionInfoResponse.class));
 	}
 

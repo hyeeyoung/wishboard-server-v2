@@ -1,9 +1,11 @@
 package com.wishboard.server.service.auth.dto.request;
 
+import com.wishboard.server.service.auth.dto.command.TokenCommand;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
-public record TokenRequestDto(
+public record TokenRequest(
 
 	@Schema(description = "토큰 - accessToken", example = "eyJhbGciOiJIUzUxMiJ9.eyJVU0VSX0lEIjoxLCJleHAiOjE2NTg4NDA2NzN9.udnKnDSK08EuX56E5k-vkYUbZYofuo12YdiM9gEPY4eqdfzM_xt4MpgTimTuQ8ipmMxWZNCaTjtentg8vLyfgQ", required = true)
 	@NotBlank(message = "{auth.accessToken.notBlank}")
@@ -13,4 +15,10 @@ public record TokenRequestDto(
 	@NotBlank(message = "{auth.refreshToken.notBlank}")
 	String refreshToken
 ) {
+	public TokenCommand toCommand() {
+		return TokenCommand.builder()
+			.accessToken(this.accessToken)
+			.refreshToken(this.refreshToken)
+			.build();
+	}
 }

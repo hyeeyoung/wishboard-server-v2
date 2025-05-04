@@ -1,5 +1,7 @@
 package com.wishboard.server.controller.version.request;
 
+import com.wishboard.server.service.version.command.UpdateVersionCommand;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
@@ -12,4 +14,7 @@ public record UpdateVersionRequest(
 	@NotBlank(message = "{version.recommendedVersion.notBlank")
 	String recommendedVersion
 ) {
+	public UpdateVersionCommand toCommand() {
+		return new UpdateVersionCommand(this.minVersion, this.recommendedVersion);
+	}
 }

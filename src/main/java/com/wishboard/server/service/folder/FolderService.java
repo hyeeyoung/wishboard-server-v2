@@ -18,6 +18,8 @@ import com.wishboard.server.domain.item.repository.ItemRepository;
 import com.wishboard.server.domain.user.User;
 import com.wishboard.server.domain.user.repository.UserRepository;
 import com.wishboard.server.service.folder.dto.FolderDto;
+import com.wishboard.server.service.folder.dto.command.CreateFolderCommand;
+import com.wishboard.server.service.folder.dto.command.UpdateFolderCommand;
 import com.wishboard.server.service.item.dto.FolderItemDto;
 import com.wishboard.server.service.item.dto.ItemFolderNotificationDto;
 import com.wishboard.server.service.user.UserServiceUtils;
@@ -91,18 +93,18 @@ public class FolderService {
 		}).toList();
 	}
 
-	public FolderDto createFolder(Long userId, FolderDto folderDto) {
+	public FolderDto createFolder(Long userId, CreateFolderCommand createFolderCommand) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
-		checkDuplicateFolderName(user, folderDto.getFolderName());
-		var folder = folderRepository.save(Folder.newInstance(user, folderDto.getFolderName()));
+		checkDuplicateFolderName(user, createFolderCommand.folderName());
+		var folder = folderRepository.save(Folder.newInstance(user, createFolderCommand.folderName()));
 		return modelMapper.map(folder, FolderDto.class);
 	}
 
-	public FolderDto updateFolder(Long userId, Long folderId, FolderDto folderDto) {
+	public FolderDto updateFolder(Long userId, Long folderId, UpdateFolderCommand updateFolderCommand) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
-		checkDuplicateFolderName(user, folderDto.getFolderName());
+		checkDuplicateFolderName(user, updateFolderCommand.folderName());
 		var folder = FolderServiceUtils.findFolderByIdAndUserId(folderRepository, folderId, user);
-		folder.updateFolderName(folderDto.getFolderName());
+		folder.updateFolderName(updateFolderCommand.folderName());
 		return modelMapper.map(folder, FolderDto.class);
 	}
 

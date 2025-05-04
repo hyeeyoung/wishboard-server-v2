@@ -63,7 +63,7 @@ public class ItemController implements ItemControllerDocs {
 	@Override
 	public SuccessResponse<ItemInfoResponse> createItem(@UserId Long userId, @Valid @RequestPart("request") CreateItemRequest request,
 		@RequestPart(required = false, value = "itemImages") List<MultipartFile> images, @RequestParam("type") AddType addType) {
-		var itemNotificationDto = itemService.createItem(userId, request, images, addType);
+		var itemNotificationDto = itemService.createItem(userId, request.toCommand(), images, addType);
 		if (request.itemNotificationType() != null && request.itemNotificationDate() != null) {
 			return SuccessResponse.success(SuccessCode.ITEM_AND_NOTIFICATION_CREATE_SUCCESS,
 				modelMapper.map(itemNotificationDto, ItemInfoResponse.class));
@@ -76,7 +76,7 @@ public class ItemController implements ItemControllerDocs {
 	@Override
 	public SuccessResponse<ItemInfoResponse> updateItem(@UserId Long userId, @Valid @RequestPart("request") UpdateItemRequest request,
 		@RequestPart(required = false, value = "itemImages") List<MultipartFile> images, @PathVariable Long itemId) {
-		var itemNotificationDto = itemService.updateItem(userId, itemId, request, images);
+		var itemNotificationDto = itemService.updateItem(userId, itemId, request.toCommand(), images);
 		if (request.itemNotificationType() != null && request.itemNotificationDate() != null) {
 			return SuccessResponse.success(SuccessCode.ITEM_AND_NOTIFICATION_UPDATE_SUCCESS,
 				modelMapper.map(itemNotificationDto, ItemInfoResponse.class));

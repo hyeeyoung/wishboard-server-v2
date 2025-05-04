@@ -13,7 +13,7 @@ import com.wishboard.server.controller.auth.dto.response.SigninResponse;
 import com.wishboard.server.controller.auth.dto.response.SignupResponse;
 import com.wishboard.server.controller.auth.dto.response.SocialLoginResponse;
 import com.wishboard.server.domain.user.OsType;
-import com.wishboard.server.service.auth.dto.request.TokenRequestDto;
+import com.wishboard.server.service.auth.dto.request.TokenRequest;
 import com.wishboard.server.service.auth.dto.response.TokenResponseDto;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -80,7 +80,7 @@ public interface AuthControllerDocs {
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
-	SuccessResponse<TokenResponseDto> refreshToken(TokenRequestDto request, @Parameter(hidden = true) HttpServletRequest servletRequest);
+	SuccessResponse<TokenResponseDto> refreshToken(TokenRequest request, @Parameter(hidden = true) HttpServletRequest servletRequest);
 
 	@Operation(
 		summary = "wishboard 회원 가입",

@@ -1,6 +1,7 @@
 package com.wishboard.server.controller.item.request;
 
 import com.wishboard.server.domain.notifications.ItemNotificationType;
+import com.wishboard.server.service.item.dto.command.UpdateItemCommand;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -28,4 +29,8 @@ public record UpdateItemRequest(
 	@Schema(description = "알림 날짜", example = "2025-01-01 10:00:00")
 	String itemNotificationDate
 ) {
+	public UpdateItemCommand toCommand() {
+		return new UpdateItemCommand(this.folderId, this.itemName, this.itemPrice, this.itemMemo, this.itemUrl, this.itemNotificationType,
+			this.itemNotificationDate);
+	}
 }

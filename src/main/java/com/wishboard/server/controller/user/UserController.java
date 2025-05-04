@@ -51,7 +51,7 @@ public class UserController implements UserControllerDocs {
 	public SuccessResponse<UserInfoResponse> updateUserInfo(@UserId Long userId,
 		@Valid @RequestPart("request") UpdateUserInfoRequest request,
 		@RequestPart(required = false, name = "profileImage") MultipartFile image) {
-		var userDto = userService.updateUserInfo(userId, request, image);
+		var userDto = userService.updateUserInfo(userId, request.toCommand(), image);
 		return SuccessResponse.success(SuccessCode.USER_INFO_UPDATE_SUCCESS, modelMapper.map(userDto, UserInfoResponse.class));
 	}
 
@@ -59,7 +59,7 @@ public class UserController implements UserControllerDocs {
 	@PutMapping(value = "/v2/user/re-passwd")
 	@Override
 	public SuccessResponse<UserInfoResponse> updatePassword(@UserId Long userId, @Valid @RequestBody UpdatePasswordRequest request) {
-		var userDto = userService.updatePassword(userId, request);
+		var userDto = userService.updatePassword(userId, request.toCommand());
 		return SuccessResponse.success(SuccessCode.USER_PASSWORD_UPDATE_SUCCESS, modelMapper.map(userDto, UserInfoResponse.class));
 	}
 

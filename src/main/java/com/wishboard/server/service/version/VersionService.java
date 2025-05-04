@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.wishboard.server.common.exception.NotFoundException;
 import com.wishboard.server.domain.deploy.repository.DeployRepository;
 import com.wishboard.server.domain.user.OsType;
+import com.wishboard.server.service.version.command.UpdateVersionCommand;
 import com.wishboard.server.service.version.dto.VersionDto;
 
 import jakarta.transaction.Transactional;
@@ -25,9 +26,9 @@ public class VersionService {
 		return modelMapper.map(version, VersionDto.class);
 	}
 
-	public VersionDto updateVersion(OsType osType, VersionDto versionDto) {
+	public VersionDto updateVersion(OsType osType, UpdateVersionCommand updateVersionCommand) {
 		var version = deployRepository.findByPlatform(osType.getValue()).orElseThrow(() -> new NotFoundException("Version not found"));
-		version.updateVersionSpec(versionDto.getMinVersion(), versionDto.getRecommendedVersion());
+		version.updateVersionSpec(updateVersionCommand.minVersion(), updateVersionCommand.recommendedVersion());
 		return modelMapper.map(version, VersionDto.class);
 	}
 

@@ -1,5 +1,7 @@
 package com.wishboard.server.controller.auth.dto.request;
 
+import com.wishboard.server.service.auth.dto.command.SignInCommand;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
@@ -16,4 +18,10 @@ public record SigninRequest(
 	@NotBlank(message = "{auth.fcmToken.notBlank}")
 	String fcmToken
 ) {
+	public SignInCommand toCommand() {
+		return SignInCommand.builder()
+			.email(this.email)
+			.password(this.password)
+			.fcmToken(this.fcmToken).build();
+	}
 }

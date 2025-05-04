@@ -27,7 +27,6 @@ import com.wishboard.server.controller.folder.response.FolderInfoWithoutItemCoun
 import com.wishboard.server.controller.folder.response.FolderListResponse;
 import com.wishboard.server.controller.item.response.ItemInfoResponse;
 import com.wishboard.server.service.folder.FolderService;
-import com.wishboard.server.service.folder.dto.FolderDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +52,7 @@ public class FolderController implements FolderControllerDocs {
 	@PostMapping("/v2/folder")
 	@Override
 	public SuccessResponse<FolderInfoWithoutItemCountResponse> createFolder(@UserId Long userId, @Valid @RequestBody CreateFolderRequest request) {
-		var response = folderService.createFolder(userId, modelMapper.map(request, FolderDto.class));
+		var response = folderService.createFolder(userId, request.toCommand());
 		return SuccessResponse.success(SuccessCode.FOLDER_CREATE_SUCCESS, modelMapper.map(response, FolderInfoWithoutItemCountResponse.class));
 	}
 
@@ -62,7 +61,7 @@ public class FolderController implements FolderControllerDocs {
 	@Override
 	public SuccessResponse<FolderInfoWithoutItemCountResponse> updateFolder(@UserId Long userId, @PathVariable Long folderId,
 		@Valid @RequestBody UpdateFolderRequest request) {
-		var response = folderService.updateFolder(userId, folderId, modelMapper.map(request, FolderDto.class));
+		var response = folderService.updateFolder(userId, folderId, request.toCommand());
 		return SuccessResponse.success(SuccessCode.FOLDER_NAME_UPDATE_SUCCESS, modelMapper.map(response, FolderInfoWithoutItemCountResponse.class));
 	}
 

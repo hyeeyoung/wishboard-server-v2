@@ -8,16 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.common.util.UuidUtils;
-import com.wishboard.server.controller.auth.dto.request.CheckEmailRequest;
-import com.wishboard.server.controller.auth.dto.request.ReSigninMailRequest;
-import com.wishboard.server.controller.auth.dto.request.ReSigninRequest;
-import com.wishboard.server.controller.auth.dto.request.SigninRequest;
-import com.wishboard.server.controller.auth.dto.request.SignupRequest;
 import com.wishboard.server.domain.user.AuthType;
 import com.wishboard.server.domain.user.OsType;
 import com.wishboard.server.domain.user.User;
 import com.wishboard.server.domain.user.repository.UserRepository;
 import com.wishboard.server.external.client.MailClient;
+import com.wishboard.server.service.auth.dto.command.CheckEmailCommand;
+import com.wishboard.server.service.auth.dto.command.SignInCommand;
+import com.wishboard.server.service.auth.dto.command.SignUpCommand;
 import com.wishboard.server.service.user.UserServiceUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -33,40 +31,40 @@ public class AuthService {
 
 	private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-	public void checkEmail(CheckEmailRequest request) {
-		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
+	public void checkEmail(CheckEmailCommand checkEmailCommand) {
+		UserServiceUtils.existsByEmailAndAuthType(userRepository, checkEmailCommand.email(), AuthType.INTERNAL);
 	}
 
-	public Long signup(SignupRequest request, OsType osType, String deviceInfo) {
-		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
-		String hashedPassword = AuthServiceUtils.getHashedPassword(request.password());
+	public Long signup(SignUpCommand signUpCommand, OsType osType, String deviceInfo) {
+		UserServiceUtils.existsByEmailAndAuthType(userRepository, signUpCommand.getEmail(), AuthType.INTERNAL);
+		String hashedPassword = AuthServiceUtils.getHashedPassword(signUpCommand.getPassword());
 		User user = userRepository.save(
-			User.newInstance(request.email(), hashedPassword, request.fcmToken(), deviceInfo, AuthType.INTERNAL, osType));
+			User.newInstance(signUpCommand.getEmail(), hashedPassword, signUpCommand.getFcmToken(), deviceInfo, AuthType.INTERNAL, osType));
 		return user.getId();
 	}
 
-	public User signIn(SigninRequest request, OsType osType, String deviceInfo) {
-		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
-		boolean isPasswordMatch = encoder.matches(request.password(), user.getPassword());
+	public User signIn(SignInCommand signInCommand, OsType osType, String deviceInfo) {
+		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, signInCommand.getEmail(), AuthType.INTERNAL);
+		boolean isPasswordMatch = encoder.matches(signInCommand.getPassword(), user.getPassword());
 		if (!isPasswordMatch) {
 			throw new ValidationException("비밀번호가 일치하지 않습니다.", VALIDATION_PASSWORD_EXCEPTION);
 		}
 		// 현재 유저의 os 정보 갱신
-		user.updateDeviceInformation(request.fcmToken(), osType, deviceInfo);
+		user.updateDeviceInformation(signInCommand.getFcmToken(), osType, deviceInfo);
 		return user;
 	}
 
-	public User reSignIn(ReSigninRequest request, OsType osType, String deviceInfo) {
-		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
+	public User reSignIn(SignInCommand signInCommand, OsType osType, String deviceInfo) {
+		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, signInCommand.getEmail(), AuthType.INTERNAL);
 		// 현재 유저의 os 정보 갱신
-		user.updateDeviceInformation(request.fcmToken(), osType, deviceInfo);
+		user.updateDeviceInformation(signInCommand.getFcmToken(), osType, deviceInfo);
 		return user;
 	}
 
-	public String reSignInBeforeSendMail(ReSigninMailRequest request) {
-		UserServiceUtils.findByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
+	public String reSignInBeforeSendMail(SignInCommand signInCommand) {
+		UserServiceUtils.findByEmailAndAuthType(userRepository, signInCommand.getEmail(), AuthType.INTERNAL);
 		String verificationCode = UuidUtils.generate().replace("-", "").substring(0, 6);
-		mailClient.sendEmailWithVerificationCode(request.email(), verificationCode);
+		mailClient.sendEmailWithVerificationCode(signInCommand.getEmail(), verificationCode);
 		return verificationCode;
 	}
 

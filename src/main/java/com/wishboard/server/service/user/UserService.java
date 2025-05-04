@@ -7,8 +7,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.type.FileType;
-import com.wishboard.server.controller.user.request.UpdatePasswordRequest;
-import com.wishboard.server.controller.user.request.UpdateUserInfoRequest;
 import com.wishboard.server.domain.folder.repository.FolderRepository;
 import com.wishboard.server.domain.item.repository.ItemRepository;
 import com.wishboard.server.domain.notifications.repository.NotificationsRepository;
@@ -20,8 +18,9 @@ import com.wishboard.server.service.image.provider.S3Provider;
 import com.wishboard.server.service.image.provider.dto.request.ImageUploadFileRequest;
 import com.wishboard.server.service.user.dto.CreateUserDto;
 import com.wishboard.server.service.user.dto.UserDto;
+import com.wishboard.server.service.user.dto.command.UpdatePasswordCommand;
+import com.wishboard.server.service.user.dto.command.UpdateUserCommand;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -55,9 +54,9 @@ public class UserService {
 		return modelMapper.map(user, UserDto.class);
 	}
 
-	public UserDto updateUserInfo(Long userId, UpdateUserInfoRequest request, MultipartFile image) {
+	public UserDto updateUserInfo(Long userId, UpdateUserCommand updateUserCommand, MultipartFile image) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
-		user.updateUserNickname(request.nickname());
+		user.updateUserNickname(updateUserCommand.nickname());
 		if (image != null && !image.isEmpty()) {
 			String previousImageUrl = user.getProfileImgUrl();
 			if (StringUtils.hasText(previousImageUrl)) {
@@ -72,9 +71,9 @@ public class UserService {
 		return modelMapper.map(user, UserDto.class);
 	}
 
-	public UserDto updatePassword(Long userId, @Valid UpdatePasswordRequest request) {
+	public UserDto updatePassword(Long userId, UpdatePasswordCommand updatePasswordCommand) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
-		String hashedPassword = AuthServiceUtils.getHashedPassword(request.newPassword());
+		String hashedPassword = AuthServiceUtils.getHashedPassword(updatePasswordCommand.newPassword());
 		user.updatePassword(hashedPassword);
 		return modelMapper.map(user, UserDto.class);
 	}
