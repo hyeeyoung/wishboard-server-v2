@@ -34,39 +34,39 @@ public class AuthService {
 	private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
 	public void checkEmail(CheckEmailRequest request) {
-		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
 	}
 
 	public Long signup(SignupRequest request, OsType osType, String deviceInfo) {
-		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-		String hashedPassword = AuthServiceUtils.getHashedPassword(request.getPassword());
+		UserServiceUtils.existsByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
+		String hashedPassword = AuthServiceUtils.getHashedPassword(request.password());
 		User user = userRepository.save(
-			User.newInstance(request.getEmail(), hashedPassword, request.getFcmToken(), deviceInfo, AuthType.INTERNAL, osType));
+			User.newInstance(request.email(), hashedPassword, request.fcmToken(), deviceInfo, AuthType.INTERNAL, osType));
 		return user.getId();
 	}
 
 	public User signIn(SigninRequest request, OsType osType, String deviceInfo) {
-		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
-		boolean isPasswordMatch = encoder.matches(request.getPassword(), user.getPassword());
+		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
+		boolean isPasswordMatch = encoder.matches(request.password(), user.getPassword());
 		if (!isPasswordMatch) {
 			throw new ValidationException("비밀번호가 일치하지 않습니다.", VALIDATION_PASSWORD_EXCEPTION);
 		}
 		// 현재 유저의 os 정보 갱신
-		user.updateDeviceInformation(request.getFcmToken(), osType, deviceInfo);
+		user.updateDeviceInformation(request.fcmToken(), osType, deviceInfo);
 		return user;
 	}
 
 	public User reSignIn(ReSigninRequest request, OsType osType, String deviceInfo) {
-		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+		User user = UserServiceUtils.findByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
 		// 현재 유저의 os 정보 갱신
-		user.updateDeviceInformation(request.getFcmToken(), osType, deviceInfo);
+		user.updateDeviceInformation(request.fcmToken(), osType, deviceInfo);
 		return user;
 	}
 
 	public String reSignInBeforeSendMail(ReSigninMailRequest request) {
-		UserServiceUtils.findByEmailAndAuthType(userRepository, request.getEmail(), AuthType.INTERNAL);
+		UserServiceUtils.findByEmailAndAuthType(userRepository, request.email(), AuthType.INTERNAL);
 		String verificationCode = UuidUtils.generate().replace("-", "").substring(0, 6);
-		mailClient.sendEmailWithVerificationCode(request.getEmail(), verificationCode);
+		mailClient.sendEmailWithVerificationCode(request.email(), verificationCode);
 		return verificationCode;
 	}
 

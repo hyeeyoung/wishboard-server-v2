@@ -57,7 +57,7 @@ public class UserService {
 
 	public UserDto updateUserInfo(Long userId, UpdateUserInfoRequest request, MultipartFile image) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
-		user.updateUserNickname(request.getNickname());
+		user.updateUserNickname(request.nickname());
 		if (image != null && !image.isEmpty()) {
 			String previousImageUrl = user.getProfileImgUrl();
 			if (StringUtils.hasText(previousImageUrl)) {
@@ -74,7 +74,7 @@ public class UserService {
 
 	public UserDto updatePassword(Long userId, @Valid UpdatePasswordRequest request) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
-		String hashedPassword = AuthServiceUtils.getHashedPassword(request.getNewPassword());
+		String hashedPassword = AuthServiceUtils.getHashedPassword(request.newPassword());
 		user.updatePassword(hashedPassword);
 		return modelMapper.map(user, UserDto.class);
 	}

@@ -62,7 +62,7 @@ public class ItemService {
 	public ItemFolderNotificationDto createItem(Long userId, CreateItemRequest request, List<MultipartFile> images, AddType addType) {
 		var user = UserServiceUtils.findUserById(userRepository, userId);
 		var item = itemRepository.save(
-			Item.newInstance(user, request.getItemName(), String.valueOf(request.getItemPrice()), request.getItemUrl(), request.getItemMemo(),
+			Item.newInstance(user, request.itemName(), String.valueOf(request.itemPrice()), request.itemUrl(), request.itemMemo(),
 				addType));
 
 		// 이미지 추가
@@ -79,20 +79,20 @@ public class ItemService {
 			item.addItemImage(imageUrls);
 		}
 		// 폴더 추가
-		if (request.getFolderId() != null) {
-			var folder = FolderServiceUtils.findFolderByIdAndUserId(folderRepository, request.getFolderId(), user);
+		if (request.folderId() != null) {
+			var folder = FolderServiceUtils.findFolderByIdAndUserId(folderRepository, request.folderId(), user);
 			item.updateFolder(folder);
 		}
 		// 알림 추가
 		Notifications notifications = null;
-		if (request.getItemNotificationType() != null && request.getItemNotificationDate() != null) {
+		if (request.itemNotificationType() != null && request.itemNotificationDate() != null) {
 			request.validateDateInFuture();
 			// 알림 생성
 			notifications = notificationsRepository.save(
 				Notifications.newInstance(
 					new NotificationId(item.getUser(), item),
-					request.getItemNotificationType(),
-					LocalDateTime.parse(request.getItemNotificationDate(), formatter))
+					request.itemNotificationType(),
+					LocalDateTime.parse(request.itemNotificationDate(), formatter))
 			);
 		}
 
@@ -104,8 +104,8 @@ public class ItemService {
 		var item = ItemServiceUtils.findItemById(itemRepository, itemId, userId);
 
 		// 폴더 변경
-		if (request.getFolderId() != null) {
-			var folder = FolderServiceUtils.findFolderByIdAndUserId(folderRepository, request.getFolderId(), user);
+		if (request.folderId() != null) {
+			var folder = FolderServiceUtils.findFolderByIdAndUserId(folderRepository, request.folderId(), user);
 			item.updateFolder(folder);
 		}
 
@@ -130,7 +130,7 @@ public class ItemService {
 				.collect(Collectors.toList());
 			item.addItemImage(imageUrls);
 		}
-		item.updateItemInfo(request.getItemName(), String.valueOf(request.getItemPrice()), request.getItemUrl(), request.getItemMemo());
+		item.updateItemInfo(request.itemName(), String.valueOf(request.itemPrice()), request.itemUrl(), request.itemMemo());
 
 		// 알림 수정
 		var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item))
@@ -138,8 +138,8 @@ public class ItemService {
 				() -> new NotFoundException(String.format("알림이 존재하지 않습니다. (itemId: %s, userId: %s)", item.getId(), item.getUser().getId()),
 					NOT_FOUND_NOTIFICATION_EXCEPTION));
 		notificationsByItem.updateState(
-			request.getItemNotificationType(),
-			LocalDateTime.parse(request.getItemNotificationDate(), formatter)
+			request.itemNotificationType(),
+			LocalDateTime.parse(request.itemNotificationDate(), formatter)
 		);
 		return ItemFolderNotificationDto.of(item, notificationsByItem);
 	}

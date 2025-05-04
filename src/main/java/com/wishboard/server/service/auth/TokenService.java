@@ -27,10 +27,10 @@ public class TokenService {
 
 	@Transactional
 	public TokenResponseDto getRefreshToken(TokenRequestDto request, String deviceInfo) {
-		if (!jwtProvider.validateToken(request.getRefreshToken())) {
-			throw new UnAuthorizedException(String.format("주어진 리프레시 토큰 (%s) 이 유효하지 않습니다.", request.getRefreshToken()), INVALID_TOKEN);
+		if (!jwtProvider.validateToken(request.refreshToken())) {
+			throw new UnAuthorizedException(String.format("주어진 리프레시 토큰 (%s) 이 유효하지 않습니다.", request.refreshToken()), INVALID_TOKEN);
 		}
-		Long userId = jwtProvider.getUserIdFromJwt(request.getAccessToken());
+		Long userId = jwtProvider.getUserIdFromJwt(request.accessToken());
 		String refreshToken = jwtProvider.getRefreshToken(userId, deviceInfo);
 		Boolean isLogoutDevice = jwtProvider.isLogoutDevice(userId, deviceInfo);
 
@@ -40,10 +40,10 @@ public class TokenService {
 		}
 
 		if (Objects.isNull(refreshToken)) {
-			throw new UnAuthorizedException(String.format("이미 만료된 리프레시 토큰 (%s) 입니다.", request.getRefreshToken()), TOKEN_EXPIRED);
+			throw new UnAuthorizedException(String.format("이미 만료된 리프레시 토큰 (%s) 입니다.", request.refreshToken()), TOKEN_EXPIRED);
 		}
-		if (!refreshToken.equals(request.getRefreshToken())) {
-			throw new UnAuthorizedException(String.format("해당 리프레시 토큰의 정보 (%s) 가 일치하지 않습니다.", request.getRefreshToken()), INVALID_TOKEN);
+		if (!refreshToken.equals(request.refreshToken())) {
+			throw new UnAuthorizedException(String.format("해당 리프레시 토큰의 정보 (%s) 가 일치하지 않습니다.", request.refreshToken()), INVALID_TOKEN);
 		}
 		return jwtProvider.createTokenInfo(userId, deviceInfo);
 	}
