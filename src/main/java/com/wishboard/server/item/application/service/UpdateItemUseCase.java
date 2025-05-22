@@ -22,7 +22,8 @@ import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
 import com.wishboard.server.item.domain.model.ItemImage;
-import com.wishboard.server.notifications.domain.model.NotificationId;
+// import com.wishboard.server.notifications.domain.model.NotificationId; // Removed
+import com.wishboard.server.notifications.domain.model.Notifications; // Added for type hint
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
 import com.wishboard.server.user.application.service.support.UserReader;
 
@@ -47,9 +48,9 @@ public class UpdateItemUseCase {
 		var item = itemReader.findById(itemId, user.getId());
 
 		// 폴더 변경
-		if (updateItemCommand.itemName() != null) {
-			var folder = folderReader.findByIdAndUser(updateItemCommand.folderId(), user);
-			item.updateFolder(folder);
+		if (updateItemCommand.folderId() != null) { // Check if folderId is provided in the command
+			var folder = folderReader.findByIdAndUserId(updateItemCommand.folderId(), user.getId()); // Use userId
+			item.updateFolderId(folder.getId()); // Update with folderId
 		}
 
 		// 이미지 변경
@@ -77,7 +78,7 @@ public class UpdateItemUseCase {
 			updateItemCommand.itemMemo());
 
 		// 알림 수정
-		var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item))
+		Notifications notificationsByItem = notificationsRepository.findByUserIdAndItemId(item.getUser().getId(), item.getId())
 			.orElseThrow(
 				() -> new NotFoundException(String.format("알림이 존재하지 않습니다. (itemId: %s, userId: %s)", item.getId(), item.getUser().getId()),
 					NOT_FOUND_NOTIFICATION_EXCEPTION));
@@ -87,7 +88,8 @@ public class UpdateItemUseCase {
 				updateItemCommand.itemNotificationType(),
 				LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter)
 			);
+			// notificationsRepository.save(notificationsByItem); // Not strictly necessary if @Transactional manages the update
 		}
-		return ItemFolderNotificationDto.of(item, notificationsByItem);
+		return ItemFolderNotificationDto.of(item, notificationsByItem.getItemNotificationType(), notificationsByItem.getItemNotificationDate());
 	}
 }

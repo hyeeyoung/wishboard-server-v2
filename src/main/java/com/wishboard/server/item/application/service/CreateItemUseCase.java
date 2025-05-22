@@ -65,7 +65,7 @@ public class CreateItemUseCase {
 		}
 		// 폴더 추가
 		if (createItemCommand.folderId() != null) {
-			var folder = folderReader.findByIdAndUser(createItemCommand.folderId(), user); // This line is fine for validation
+			var folder = folderReader.findByIdAndUserId(createItemCommand.folderId(), user.getId()); // Changed to use userId
 			item.updateFolderId(folder.getId()); // Update with the ID
 		}
 		// 알림 추가 -> 이벤트 발행으로 변경

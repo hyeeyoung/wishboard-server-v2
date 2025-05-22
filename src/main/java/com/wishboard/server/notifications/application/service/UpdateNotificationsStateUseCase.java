@@ -10,7 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wishboard.server.common.exception.NotFoundException;
 import com.wishboard.server.item.application.service.support.ItemReader;
 import com.wishboard.server.notifications.application.dto.ItemNotificationDto;
-import com.wishboard.server.notifications.domain.model.NotificationId;
+// import com.wishboard.server.notifications.domain.model.NotificationId; // Removed
+import com.wishboard.server.notifications.domain.model.Notifications; // Added for type hint
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
 import com.wishboard.server.user.application.service.support.UserReader;
 
@@ -26,13 +27,18 @@ public class UpdateNotificationsStateUseCase {
 	private final NotificationsRepository notificationsRepository;
 
 	public List<ItemNotificationDto> execute(Long userId, Long itemId) {
-		var user = userReader.findById(userId);
-		var item = itemReader.findById(itemId, userId);
-		var notifications = notificationsRepository.findByNotificationId(new NotificationId(user, item))
-			.orElseThrow(() -> new NotFoundException(String.format("존재하지 않는 알림 (userId: %s, itemId: %s) 입니다.", user.getId(), item.getId()),
+		var user = userReader.findById(userId); // user object is available
+		// var item = itemReader.findById(itemId, userId); // item object is not strictly needed for the notification fetch if we use itemId directly
+
+		// Fetch the notification using userId and itemId
+		Notifications notification = notificationsRepository.findByUserIdAndItemId(userId, itemId)
+			.orElseThrow(() -> new NotFoundException(String.format("존재하지 않는 알림 (userId: %s, itemId: %s) 입니다.", userId, itemId),
 				NOT_FOUND_NOTIFICATION_EXCEPTION));
-		notifications.confirmRead();
-		return notificationsRepository.findUpcomingNotificationsByUserId(user.getId());
+		
+		notification.confirmRead();
+		// notificationsRepository.save(notification); // Not strictly necessary if @Transactional manages the update
+		
+		return notificationsRepository.findUpcomingNotificationsByUserId(userId); // Use userId directly
 	}
 
 }

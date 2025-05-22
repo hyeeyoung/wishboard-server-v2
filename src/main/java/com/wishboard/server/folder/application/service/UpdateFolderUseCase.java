@@ -24,8 +24,9 @@ public class UpdateFolderUseCase {
 
 	public FolderDto execute(Long userId, Long folderId, UpdateFolderCommand updateFolderCommand) {
 		var user = userReader.findById(userId);
-		folderValidator.checkDuplicateFolderName(user, updateFolderCommand.folderName());
-		var folder = folderReader.findByIdAndUser(folderId, user);
+		// Assuming folderValidator.checkDuplicateFolderName will also be updated to take userId
+		folderValidator.checkDuplicateFolderName(user.getId(), updateFolderCommand.folderName()); 
+		var folder = folderReader.findByIdAndUserId(folderId, user.getId()); // Changed to use userId
 		folder.updateFolderName(updateFolderCommand.folderName());
 		return modelMapper.map(folder, FolderDto.class);
 	}

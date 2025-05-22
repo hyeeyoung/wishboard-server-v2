@@ -40,7 +40,7 @@ public class DeleteUserUseCase {
 		notificationsRepository.deleteAllByUserId(user.getId());
 
 		// 아이템 삭제
-		var items = itemRepository.findAllByUser(user);
+		var items = itemRepository.findAllByUserId(user.getId()); // Changed to use userId
 		if (!items.isEmpty()) {
 			items.forEach(item -> {
 				var itemImages = item.getImages();
@@ -54,10 +54,10 @@ public class DeleteUserUseCase {
 				item.getImages().clear();
 			});
 		}
-		itemRepository.deleteAllByUser(user);
+		itemRepository.deleteAllByUserId(user.getId()); // Changed to use userId
 
 		// 폴더 삭제
-		folderRepository.deleteAllByUser(user);
+		folderRepository.deleteAllByUserId(user.getId()); // Changed to use userId
 
 		// 유저 삭제
 		userRepository.delete(user);

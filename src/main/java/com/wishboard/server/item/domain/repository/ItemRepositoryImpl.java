@@ -39,8 +39,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.selectDistinct(item, itemImage, folder, notifications)
 			.from(item)
 			.leftJoin(item.images, itemImage).fetchJoin()
-			.leftJoin(folder).on(item.folderId.eq(folder.id)) // Changed: item.folder.eq(folder) to item.folderId.eq(folder.id)
-			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
+			.leftJoin(folder).on(item.folderId.eq(folder.id)) 
+			.leftJoin(notifications).on(item.id.eq(notifications.itemId).and(item.user.id.eq(notifications.userId))) // Ensure notification matches item and its user
 			.where(item.user.id.eq(userId))
 			.orderBy(item.createdAt.desc())
 			.offset(pageable.getOffset())
@@ -49,14 +49,16 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 		List<ItemFolderNotificationDto> dtoList = results.stream()
 			.map(tuple -> {
 				Item item = tuple.get(QItem.item);
-				ItemImage itemImage = tuple.get(QItemImage.itemImage);
-				Notifications notifications = tuple.get(QNotifications.notifications);
+				// ItemImage itemImage = tuple.get(QItemImage.itemImage); // itemImage is fetched but not directly used in DTO construction here
+				Notifications notifications = tuple.get(QNotifications.notifications); // This might be null due to leftJoin
 				if (ObjectUtils.isEmpty(item)) {
-					return new ItemFolderNotificationDto();
+					return new ItemFolderNotificationDto(); // Should ideally not happen if item is root and results exist
 				}
-				return ItemFolderNotificationDto.of(item, notifications);
+				return ItemFolderNotificationDto.of(item, 
+												    notifications != null ? notifications.getItemNotificationType() : null, 
+												    notifications != null ? notifications.getItemNotificationDate() : null);
 			}).toList();
-		return new PageImpl<>(dtoList, pageable, results.size());
+		return new PageImpl<>(dtoList, pageable, results.size()); // Consider if results.size() is accurate for total elements if distinct is used
 	}
 
 	@Override

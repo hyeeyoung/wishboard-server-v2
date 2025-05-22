@@ -17,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 public class FolderValidator {
 	private final FolderRepository folderRepository;
 
-	public void checkDuplicateFolderName(@NotNull User user, @NotBlank String folderName) {
-		var folder = folderRepository.findByUserAndFolderName(user, folderName);
+	public void checkDuplicateFolderName(@NotNull Long userId, @NotBlank String folderName) {
+		var folder = folderRepository.findByUserIdAndFolderName(userId, folderName); // Changed to use userId
 		if (folder.isPresent()) {
 			throw new ValidationException("이미 존재하는 폴더명입니다.", VALIDATION_FOLDER_NAME_DUPLICATE_EXCEPTION);
 		}
