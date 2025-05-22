@@ -19,5 +19,5 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
 
 	void deleteAllByUser(User user);
 
-	List<Item> findAllByFolder(Folder folder);
+	List<Item> findAllByFolderId(Long folderId);
 }

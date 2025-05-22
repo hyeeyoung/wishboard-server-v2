@@ -39,7 +39,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.selectDistinct(item, itemImage, folder, notifications)
 			.from(item)
 			.leftJoin(item.images, itemImage).fetchJoin()
-			.leftJoin(folder).on(item.folder.eq(folder))
+			.leftJoin(folder).on(item.folderId.eq(folder.id)) // Changed: item.folder.eq(folder) to item.folderId.eq(folder.id)
 			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
 			.where(item.user.id.eq(userId))
 			.orderBy(item.createdAt.desc())
@@ -63,14 +63,14 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 	public Map<Long, FolderItemDto> findLatestItemByFolderIds(List<Long> folderIds) {
 		List<Item> items = queryFactory
 			.selectFrom(item)
-			.where(item.folder.id.in(folderIds))
-			.orderBy(item.folder.id.asc(), item.createdAt.desc())
+			.where(item.folderId.in(folderIds)) // Changed: item.folder.id.in(folderIds) to item.folderId.in(folderIds)
+			.orderBy(item.folderId.asc(), item.createdAt.desc()) // Changed: item.folder.id.asc() to item.folderId.asc()
 			.fetch();
 
 		// createdAt 내림차순으로 정렬된 items에서 folderId를 키로 하여 첫 번째 아이템만 남김
 		Map<Long, Item> lastItemImage = items.stream()
 			.collect(Collectors.toMap(
-				item -> item.getFolder().getId(),
+				item -> item.getFolderId(), // Changed: item.getFolder().getId() to item.getFolderId()
 				Function.identity(),
 				(oldValue, newValue) -> oldValue) // createdAt 내림차순 → 첫 번째만 유지
 			);
@@ -79,7 +79,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 		Map<Long, Long> itemCountMap = folderIds.stream()
 			.collect(Collectors.toMap(
 				folderId -> folderId,
-				folderId -> items.stream().filter(item -> item.getFolder().getId().equals(folderId)).count()
+				folderId -> items.stream().filter(item -> item.getFolderId().equals(folderId)).count() // Changed: item.getFolder().getId() to item.getFolderId()
 			));
 
 		return folderIds.stream()

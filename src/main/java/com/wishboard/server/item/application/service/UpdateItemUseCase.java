@@ -16,7 +16,8 @@ import com.wishboard.server.common.exception.NotFoundException;
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.folder.application.service.support.FolderReader;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.dto.service.S3Provider;
+// import com.wishboard.server.image.application.dto.service.S3Provider; // Remove this
+import com.wishboard.server.common.application.port.out.FileStorageService; // Add this
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
@@ -35,7 +36,8 @@ public class UpdateItemUseCase {
 	private final FolderReader folderReader;
 	private final ItemReader itemReader;
 
-	private final S3Provider s3Provider;
+	// private final S3Provider s3Provider; // Remove this
+	private final FileStorageService fileStorageService; // Add this
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private final NotificationsRepository notificationsRepository;
@@ -54,7 +56,7 @@ public class UpdateItemUseCase {
 		if (!item.getImages().isEmpty()) {
 			item.getImages().forEach(image -> {
 				if (StringUtils.hasText(image.getItemImageUrl())) {
-					s3Provider.deleteFile(image.getItemImageUrl());
+					fileStorageService.deleteFile(image.getItemImageUrl()); // Changed s3Provider to fileStorageService
 				}
 			});
 			item.getImages().clear();
@@ -64,7 +66,7 @@ public class UpdateItemUseCase {
 				.map(image -> {
 					if (image != null && !image.isEmpty()) {
 						return new ItemImage(image.getOriginalFilename(),
-							s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item);
+							fileStorageService.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item); // Changed s3Provider to fileStorageService
 					}
 					return null;
 				})
