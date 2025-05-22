@@ -26,7 +26,7 @@ public class CreateFolderUseCase {
 
 	public FolderDto execute(Long userId, CreateFolderCommand createFolderCommand) {
 		var user = userReader.findById(userId);
-		folderValidator.checkDuplicateFolderName(user, createFolderCommand.folderName());
+		folderValidator.checkDuplicateFolderName(user.getId(), createFolderCommand.folderName()); // Changed to use userId
 		var folder = folderRepository.save(Folder.newInstance(user, createFolderCommand.folderName()));
 		return modelMapper.map(folder, FolderDto.class);
 	}

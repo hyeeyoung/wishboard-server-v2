@@ -32,19 +32,21 @@ public class ItemFolderNotificationDto {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	public static ItemFolderNotificationDto of(Item item, Notifications notifications) {
+	// Updated to accept notification details directly instead of a Notifications object
+	public static ItemFolderNotificationDto of(Item item, ItemNotificationType itemNotificationType, LocalDateTime itemNotificationDate) {
 		return ItemFolderNotificationDto.builder()
 			.id(item.getId())
 			.userId(item.getUser() == null ? null : item.getUser().getId())
-			.folderId(item.getFolder() == null ? null : item.getFolder().getId())
-			.folderName(item.getFolder() == null ? null : item.getFolder().getFolderName())
+			.folderId(item.getFolderId()) // Use the new getFolderId() method
+			.folderName(null) // Needs to be populated by the service layer after fetching Folder by folderId
 			.itemImages(item.getImages().stream().map(image -> new ItemImageDto(image.getItemImg(), image.getItemImageUrl())).toList())
 			.itemMemo(item.getItemMemo())
 			.itemName(item.getItemName())
 			.itemPrice(item.getItemPrice())
 			.itemUrl(item.getItemUrl())
-			.itemNotificationType(notifications == null ? null : notifications.getItemNotificationType())
-			.itemNotificationDate(notifications == null ? null : notifications.getItemNotificationDate())
+			.itemNotificationType(itemNotificationType) // Directly from parameters
+			.itemNotificationDate(itemNotificationDate) // Directly from parameters
+			.readState(itemNotificationType == null ? null : Boolean.FALSE) // Default to false if a notification is expected
 			.createdAt(item.getCreatedAt())
 			.updatedAt(item.getUpdatedAt())
 			.build();

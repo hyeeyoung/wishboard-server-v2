@@ -7,7 +7,8 @@ import org.springframework.util.StringUtils;
 import com.wishboard.server.item.domain.repository.ItemRepository;
 import com.wishboard.server.folder.domain.repository.FolderRepository;
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
-import com.wishboard.server.image.application.dto.service.S3Provider;
+// import com.wishboard.server.image.application.dto.service.S3Provider; // Remove this
+import com.wishboard.server.common.application.port.out.FileStorageService; // Add this
 import com.wishboard.server.user.application.service.support.UserReader;
 import com.wishboard.server.user.domain.repository.UserRepository;
 
@@ -19,7 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class DeleteUserUseCase {
 
 	private final UserReader userReader;
-	private final S3Provider s3Provider;
+	// private final S3Provider s3Provider; // Remove this
+	private final FileStorageService fileStorageService; // Add this
 
 	private final UserRepository userRepository;
 	private final NotificationsRepository notificationsRepository;
@@ -30,7 +32,7 @@ public class DeleteUserUseCase {
 		var user = userReader.findById(userId);
 		// 프로필 이미지 삭제
 		if (user.getProfileImgUrl() != null) {
-			s3Provider.deleteFile(user.getProfileImgUrl());
+			fileStorageService.deleteFile(user.getProfileImgUrl()); // Changed s3Provider to fileStorageService
 		}
 		user.getFcmTokens().clear();
 
@@ -38,24 +40,24 @@ public class DeleteUserUseCase {
 		notificationsRepository.deleteAllByUserId(user.getId());
 
 		// 아이템 삭제
-		var items = itemRepository.findAllByUser(user);
+		var items = itemRepository.findAllByUserId(user.getId()); // Changed to use userId
 		if (!items.isEmpty()) {
 			items.forEach(item -> {
 				var itemImages = item.getImages();
 				if (!itemImages.isEmpty()) {
 					itemImages.forEach(image -> {
 						if (StringUtils.hasText(image.getItemImageUrl())) {
-							s3Provider.deleteFile(image.getItemImageUrl());
+							fileStorageService.deleteFile(image.getItemImageUrl()); // Changed s3Provider to fileStorageService
 						}
 					});
 				}
 				item.getImages().clear();
 			});
 		}
-		itemRepository.deleteAllByUser(user);
+		itemRepository.deleteAllByUserId(user.getId()); // Changed to use userId
 
 		// 폴더 삭제
-		folderRepository.deleteAllByUser(user);
+		folderRepository.deleteAllByUserId(user.getId()); // Changed to use userId
 
 		// 유저 삭제
 		userRepository.delete(user);

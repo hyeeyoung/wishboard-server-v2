@@ -22,10 +22,10 @@ public class DeleteFolderUseCase {
 
 	public void execute(Long userId, Long folderId) {
 		var user = userReader.findById(userId);
-		var folder = folderReader.findByIdAndUser(folderId, user);
-		var items = itemRepository.findAllByFolder(folder);
+		var folder = folderReader.findByIdAndUserId(folderId, user.getId()); // Changed to use userId
+		var items = itemRepository.findAllByFolderId(folder.getId()); // Changed to use folderId
 		if (!items.isEmpty()) {
-			items.forEach(item -> item.updateFolder(null));
+			items.forEach(item -> item.updateFolderId(null)); // Changed to updateFolderId
 		}
 		folderRepository.delete(folder);
 	}

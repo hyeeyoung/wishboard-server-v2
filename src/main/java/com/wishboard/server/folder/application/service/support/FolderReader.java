@@ -16,9 +16,9 @@ import lombok.RequiredArgsConstructor;
 public class FolderReader {
 	private final FolderRepository folderRepository;
 
-	public Folder findByIdAndUser(Long folderId, User user) {
-		return folderRepository.findFolderByIdAndUser(folderId, user)
+	public Folder findByIdAndUserId(Long folderId, Long userId) {
+		return folderRepository.findFolderByIdAndUserId(folderId, userId)
 			.orElseThrow(
-				() -> new NotFoundException(String.format("해당 유저 (%s) 가 생성하지 않는 폴더 (%s) 입니다", user.getId(), folderId), NOT_FOUND_FOLDER_EXCEPTION));
+				() -> new NotFoundException(String.format("해당 유저 (%s) 가 생성하지 않는 폴더 (%s) 입니다", userId, folderId), NOT_FOUND_FOLDER_EXCEPTION));
 	}
 }

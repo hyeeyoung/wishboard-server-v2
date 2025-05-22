@@ -7,10 +7,12 @@ import com.wishboard.server.common.domain.AuditingTimeEntity;
 import com.wishboard.server.common.domain.ItemNotificationType;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,8 +24,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notifications extends AuditingTimeEntity {
 
-	@EmbeddedId
-	private NotificationId notificationId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "notification_id")
+	private Long id;
+
+	@Column(name = "user_id", nullable = false)
+	private Long userId;
+
+	@Column(name = "item_id", nullable = false)
+	private Long itemId;
 
 	@Column(name = "item_notification_type", nullable = false, length = 20)
 	@Enumerated(EnumType.STRING)
@@ -36,16 +46,17 @@ public class Notifications extends AuditingTimeEntity {
 	@Column(name = "read_state", nullable = false)
 	private Boolean readState = false;
 
-	private Notifications(NotificationId notificationId, ItemNotificationType itemNotificationType, LocalDateTime itemNotificationDate) {
-		this.notificationId = notificationId;
+	private Notifications(Long userId, Long itemId, ItemNotificationType itemNotificationType, LocalDateTime itemNotificationDate) {
+		this.userId = userId;
+		this.itemId = itemId;
 		this.itemNotificationType = itemNotificationType;
 		this.itemNotificationDate = itemNotificationDate;
 		this.readState = Boolean.FALSE;
 	}
 
-	public static Notifications newInstance(NotificationId notificationId, ItemNotificationType itemNotificationType,
+	public static Notifications newInstance(Long userId, Long itemId, ItemNotificationType itemNotificationType,
 		LocalDateTime itemNotificationDate) {
-		return new Notifications(notificationId, itemNotificationType, itemNotificationDate);
+		return new Notifications(userId, itemId, itemNotificationType, itemNotificationDate);
 	}
 
 	public void updateState(ItemNotificationType itemNotificationType, LocalDateTime itemNotificationDate) {

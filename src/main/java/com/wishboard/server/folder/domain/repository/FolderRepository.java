@@ -11,13 +11,13 @@ import com.wishboard.server.folder.domain.model.Folder;
 import com.wishboard.server.user.domain.model.User;
 
 public interface FolderRepository extends JpaRepository<Folder, Long>, FolderRepositoryCustom {
-	Optional<Folder> findFolderByIdAndUser(Long id, User user);
+	Optional<Folder> findFolderByIdAndUserId(Long id, Long userId);
 
-	Optional<Folder> findByUserAndFolderName(User user, String folderName);
+	Optional<Folder> findByUserIdAndFolderName(Long userId, String folderName);
 
-	Page<Folder> findAllByUser(User user, Pageable pageable);
+	Page<Folder> findAllByUserId(Long userId, Pageable pageable);
 
-	List<Folder> findAllByUserOrderByCreatedAtDesc(User user);
+	List<Folder> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 
-	void deleteAllByUser(User user);
+	void deleteAllByUserId(Long userId);
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.wishboard.server.common.domain.AuditingTimeEntity;
-import com.wishboard.server.folder.domain.model.Folder;
 import com.wishboard.server.user.domain.model.User;
 
 import jakarta.persistence.CascadeType;
@@ -39,9 +38,8 @@ public class Item extends AuditingTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "folder_id")
-	private Folder folder;
+	@Column(name = "folder_id")
+	private Long folderId;
 
 	@Column(name = "item_name", length = 512, nullable = false)
 	private String itemName;
@@ -72,14 +70,14 @@ public class Item extends AuditingTimeEntity {
 	}
 
 	@Builder
-	public Item(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType, Folder folder) {
+	public Item(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType, Long folderId) {
 		this.user = user;
 		this.itemName = itemName;
 		this.itemPrice = itemPrice;
 		this.itemUrl = itemUrl;
 		this.itemMemo = itemMemo;
 		this.addType = addType;
-		this.folder = folder;
+		this.folderId = folderId;
 	}
 
 	public static Item newInstance(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType) {
@@ -93,11 +91,16 @@ public class Item extends AuditingTimeEntity {
 		}
 	}
 
-	public void updateFolder(Folder folder) {
-		if (this.folder != null && this.folder.equals(folder)) {
-			return;
-		}
-		this.folder = folder;
+	public void updateFolderId(Long folderId) {
+		// Optional: Check if the new folderId is the same as the current one.
+		// if (this.folderId != null && this.folderId.equals(folderId)) {
+		//     return;
+		// }
+		this.folderId = folderId;
+	}
+
+	public Long getFolderId() {
+		return folderId;
 	}
 
 	public void updateItemInfo(String itemName, String itemPrice, String itemUrl, String itemMemo) {

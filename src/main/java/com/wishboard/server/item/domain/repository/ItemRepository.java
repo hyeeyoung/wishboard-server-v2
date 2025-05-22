@@ -15,9 +15,9 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
 	Optional<Item> findById(Long id);
 
 	@EntityGraph(attributePaths = {"images"})
-	List<Item> findAllByUser(User user);
+	List<Item> findAllByUserId(Long userId);
 
-	void deleteAllByUser(User user);
+	void deleteAllByUserId(Long userId);
 
-	List<Item> findAllByFolder(Folder folder);
+	List<Item> findAllByFolderId(Long folderId);
 }

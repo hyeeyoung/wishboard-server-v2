@@ -33,7 +33,7 @@ public class GetFolderListUseCase {
 		var user = userReader.findById(userId);
 
 		// 해당 유저의 전체 폴더 목록
-		var folders = folderRepository.findAllByUser(user, pageable);
+		var folders = folderRepository.findAllByUserId(user.getId(), pageable); // Changed to use userId
 		List<Long> folderIds = folders.getContent().stream().map(Folder::getId).toList();
 
 		// 폴더에 저장된 최신 아이템 이미지 (섬네일) 및 아이템 개수 추출
@@ -50,7 +50,7 @@ public class GetFolderListUseCase {
 		var user = userReader.findById(userId);
 
 		// 해당 유저의 전체 폴더 목록
-		var folders = folderRepository.findAllByUserOrderByCreatedAtDesc(user);
+		var folders = folderRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId()); // Changed to use userId
 		List<Long> folderIds = folders.stream().map(Folder::getId).toList();
 
 		// 폴더에 저장된 최신 아이템 이미지 (섬네일) 및 아이템 개수 추출

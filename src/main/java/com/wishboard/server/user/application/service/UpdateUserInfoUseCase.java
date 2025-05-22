@@ -8,7 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.dto.service.S3Provider;
+// import com.wishboard.server.image.application.dto.service.S3Provider; // Remove this
+import com.wishboard.server.common.application.port.out.FileStorageService; // Add this
 import com.wishboard.server.user.application.dto.UserDto;
 import com.wishboard.server.user.application.dto.command.UpdateUserCommand;
 import com.wishboard.server.user.application.service.support.UserReader;
@@ -20,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class UpdateUserInfoUseCase {
 	private final UserReader userReader;
-
-	private final S3Provider s3Provider;
+	// private final S3Provider s3Provider; // Remove this
+	private final FileStorageService fileStorageService; // Add this
 	private final ModelMapper modelMapper;
 
 	public UserDto excute(Long userId, UpdateUserCommand updateUserCommand, MultipartFile image) {
@@ -30,10 +31,10 @@ public class UpdateUserInfoUseCase {
 		if (image != null && !image.isEmpty()) {
 			String previousImageUrl = user.getProfileImgUrl();
 			if (StringUtils.hasText(previousImageUrl)) {
-				s3Provider.deleteFile(previousImageUrl);
+				fileStorageService.deleteFile(previousImageUrl); // Changed s3Provider to fileStorageService
 			}
 
-			String profileImageUrl = s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.PROFILE_IMAGE), image);
+			String profileImageUrl = fileStorageService.uploadFile(ImageUploadFileRequest.of(FileType.PROFILE_IMAGE), image); // Changed s3Provider to fileStorageService
 			if (StringUtils.hasText(profileImageUrl)) {
 				user.updateProfileImage(image.getOriginalFilename(), profileImageUrl);
 			}

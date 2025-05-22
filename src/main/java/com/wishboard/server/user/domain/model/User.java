@@ -7,10 +7,10 @@ import org.springframework.util.StringUtils;
 
 import com.wishboard.server.common.domain.AuditingTimeEntity;
 import com.wishboard.server.common.domain.OsType;
-import com.wishboard.server.folder.domain.model.Folder;
-import com.wishboard.server.notifications.domain.model.Notifications;
+// import com.wishboard.server.folder.domain.model.Folder; // Removed
+// import com.wishboard.server.notifications.domain.model.Notifications; // Removed
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.CascadeType; // Keep for fcmTokens
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -73,11 +73,11 @@ public class User extends AuditingTimeEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserToken> fcmTokens = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Folder> folders = new ArrayList<>();
+	// @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // Removed
+	// private List<Folder> folders = new ArrayList<>(); // Removed
 
-	@OneToMany(mappedBy = "notificationId.user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Notifications> notifications = new ArrayList<>();
+	// @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true) // Removed
+	// private List<Notifications> notifications = new ArrayList<>(); // Removed
 
 	private User(String socialId, AuthType authType, UserProviderType socialType) {
 		this.authType = authType;
