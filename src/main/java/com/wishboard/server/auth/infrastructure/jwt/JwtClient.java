@@ -102,13 +102,13 @@ public class JwtClient {
 			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 			return true;
 		} catch (SecurityException | MalformedJwtException e) {
-			log.info("Invalid JWT Token", e);
+			log.error("Invalid JWT Token", e);
 		} catch (ExpiredJwtException e) {
-			log.info("Expired JWT Token", e);
+			log.error("Expired JWT Token", e);
 		} catch (UnsupportedJwtException e) {
-			log.info("Unsupported JWT Token", e);
+			log.error("Unsupported JWT Token", e);
 		} catch (IllegalArgumentException e) {
-			log.info("JWT claims string is empty.", e);
+			log.error("JWT claims string is empty.", e);
 		}
 		return false;
 	}
@@ -171,7 +171,7 @@ public class JwtClient {
 				String oldRefreshTokenKeyName = oldest.iterator().next().toString();
 				expireRefreshToken(oldRefreshTokenKeyName);
 				redisTemplate.opsForZSet().remove(zsetKeyName, oldRefreshTokenKeyName);
-				log.info("Exceeded device limit. Deleted oldest refresh token: {}", oldRefreshTokenKeyName);
+				log.debug("Exceeded device limit. Deleted oldest refresh token: {}", oldRefreshTokenKeyName);
 				String oldKeyDeviceInfo = oldRefreshTokenKeyName.split("_")[1];
 				redisTemplate.opsForValue()
 					.set(generateKeyName(RedisKey.LOGOUT_FLAG, oldKeyDeviceInfo, String.valueOf(userId)), String.valueOf(true));

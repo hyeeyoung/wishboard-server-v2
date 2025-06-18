@@ -42,7 +42,7 @@ public class HttpHeaderUtils {
 		for (String ipHeader : IP_HEADERS) {
 			String clientIp = request.getHeader(ipHeader);
 			if (StringUtils.hasText(clientIp) && !"unknown".equalsIgnoreCase(clientIp)) {
-				log.info("헤더 {}: {}", ipHeader, clientIp);
+				log.debug("@@ header {}: {}", ipHeader, clientIp);
 				return clientIp;
 			}
 		}
