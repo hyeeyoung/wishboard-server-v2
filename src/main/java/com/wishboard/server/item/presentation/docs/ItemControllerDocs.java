@@ -68,6 +68,8 @@ public interface ItemControllerDocs {
 			3. 알림 날짜는 현재 날짜보다 같거나 미래만 가능합니다.
 			4. 알림 날짜는 30분 단위로만 등록 가능합니다. (00분 또는 30분)
 			5. 허용하지 않는 User-Agent의 요청입니다.
+			6. 아이템 이름은 512자 이하로 입력해주세요.
+			7. 아이템 링크는 1024자 이하로 입력해주세요.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -93,6 +95,8 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 			1. 아이템 이름을 입력해주세요.
 			2. 허용하지 않는 User-Agent의 요청입니다.
+			3. 아이템 이름은 512자 이하로 입력해주세요.
+			4. 아이템 링크는 1024자 이하로 입력해주세요.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.

@@ -55,6 +55,7 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 			1. 닉네임을 입력해주세요.
 			2. 허용하지 않는 User-Agent의 요청입니다.
+			3. 닉네임은 10자 이하로 입력해주세요.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.

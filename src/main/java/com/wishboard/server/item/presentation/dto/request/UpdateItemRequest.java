@@ -4,6 +4,7 @@ import com.wishboard.server.common.domain.ItemNotificationType;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 
 public record UpdateItemRequest(
@@ -12,6 +13,7 @@ public record UpdateItemRequest(
 
 	@Schema(description = "itemName", example = "나이키 V2K")
 	@NotBlank(message = "{item.itemName.notBlank}")
+	@Max(value = 512, message = "{item.itemName.maxLength")
 	String itemName,
 
 	@Schema(description = "itemPrice", example = "12300")
@@ -21,6 +23,7 @@ public record UpdateItemRequest(
 	String itemMemo,
 
 	@Schema(description = "itemUrl", example = "https://naver.com")
+	@Max(value = 1024, message = "{item.itemUrl.maxLength")
 	String itemUrl,
 
 	@Schema(description = "알림 타입", example = "REMINDER")

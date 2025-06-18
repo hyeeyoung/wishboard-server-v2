@@ -47,6 +47,7 @@ public interface FolderControllerDocs {
 				1. 폴더 이름을 입력해주세요.
 				2. 이미 존재하는 폴더명입니다.
 				3. 허용하지 않는 User-Agent의 요청입니다.
+				4. 폴더 이름은 10자 이하로 입력해주세요.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -65,6 +66,7 @@ public interface FolderControllerDocs {
 				1. 폴더 이름을 입력해주세요.
 				2. 이미 존재하는 폴더명입니다.
 				3. 허용하지 않는 User-Agent의 요청입니다.
+				4. 폴더 이름은 10자 이하로 입력해주세요.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
