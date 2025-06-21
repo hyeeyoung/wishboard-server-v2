@@ -56,7 +56,7 @@ jobs:
         shell: bash
 
       - name: Make zip file
-        run: zip -r ./wishboard-v2-dev-build.zip .
+        run: zip -r ./wishboard-v2-build-dev.zip .
         shell: bash
 
       - name: Configure AWS credentials
@@ -67,4 +67,4 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./wishboard-v2-dev-build.zip s3://$AWS_S3_BUCKET_NAME/wishboard-v2-dev-build.zip
+        run: aws s3 cp --region ap-northeast-2 ./wishboard-v2-build-dev.zip s3://$AWS_S3_BUCKET_NAME/wishboard-v2-build-dev.zip
