@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.wishboard'
-version = '0.0.1-SNAPSHOT'
+version = '2.0.0' // TODO 버전 업데이트 시 같이 반영
 
 java {
     toolchain {
