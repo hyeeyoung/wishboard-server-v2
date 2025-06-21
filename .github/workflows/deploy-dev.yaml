@@ -56,34 +56,26 @@ jobs:
         shell: bash
 
       - name: Make zip file
-        run: zip -r ./wishboard-v2-build-dev.zip .
+        run: mkdir -p wishboard-v2-build-dev
         shell: bash
 
-      - name: copy file via ssh key
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_SSH_HOST }}
-          username: ${{ secrets.EC2_SSH_USER_NAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT }}
-          source: "wishboard-v2-build-dev.zip"
-          target: "/home/wishboard-v2/dev/current"
+      - name: Copy build files
+        run: |
+          cp -r ./build/libs/* ./wishboard-v2-build-dev/ && \
+          cp -r ./v2-pm2-run-config.js ./wishboard-v2-build-dev/ && \
+          cp -r ./deploy.sh ./wishboard-v2-build-dev/ && \
+        shell: bash
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    # ssh에 접속하여 script 실행
-    steps:
-      - name: excuting remote ssh commands
-        uses: appleboy/ssh-action@master
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          host: ${{ secrets.EC2_SSH_HOST }}
-          username: ${{ secrets.EC2_SSH_USER_NAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT }}
-          script: |
-            cd /home/ubuntu/wishboard-v2/dev/current
-            unzip -o wishboard-v2-build-dev.zip
-            chmod +x ./deploy-server.sh
-            sh ./deploy-server.sh
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
+          aws-region: ap-northeast-2
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp \
+            --recursive \
+            --region ap-northeast-2 \
+            wishboard-v2-build-dev s3://$AWS_S3_BUCKET_NAME/wishboadr-v2-build-dev
