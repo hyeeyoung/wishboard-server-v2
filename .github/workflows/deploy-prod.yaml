@@ -61,9 +61,9 @@ jobs:
 
       - name: Copy build files
         run: |
-          cp -r ./build/libs/* ./wishboard-v2-build-prod/ && \
-          cp -r ./v2-pm2-run-config.js ./wishboard-v2-build-prod/ && \
-          cp -r ./deploy.sh ./wishboard-v2-build-prod/ && \
+          cp -r ./build/libs/* ./wishboard-v2-build-prod/ 
+          cp -r ./v2-pm2-run-config.js ./wishboard-v2-build-prod/ 
+          cp -r ./deploy.sh ./wishboard-v2-build-prod/
         shell: bash
 
       - name: Configure AWS credentials
