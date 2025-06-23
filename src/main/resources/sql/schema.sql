@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS deploy;
 CREATE TABLE `deploy` (
                           `id` bigint NOT NULL AUTO_INCREMENT,
                           `create_at` datetime default current_timestamp,
-                          `update_at` default current_timestamp on update current_timestamp,
+                          `update_at` datetime default current_timestamp on update current_timestamp,
                           `min_version` varchar(20) NOT NULL,
                           `platform` varchar(20) NOT NULL,
                           `recommended_version` varchar(20) NOT NULL,
@@ -128,3 +128,6 @@ CREATE TABLE `item_image` (
                               foreign key (`item_id`) references `items` (`item_id`) on update cascade on delete cascade,
                               PRIMARY KEY (`id`)
 )
+
+
+
