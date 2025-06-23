@@ -78,4 +78,4 @@ jobs:
           aws s3 cp \
             --recursive \
             --region ap-northeast-2 \
-            wishboard-v2-build-dev s3://$AWS_S3_BUCKET_NAME/wishboadr-v2-build-dev
+            wishboard-v2-build-dev s3://$AWS_S3_BUCKET_NAME/wishboard-v2-build-dev

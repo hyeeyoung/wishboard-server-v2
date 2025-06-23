@@ -10,6 +10,10 @@ DEPLOY_DIR="/home/wishboard-v2/$PHASE/current"
 PM2_SCRIPT_FILE="v2-pm2-run-config.js"
 PM2_APP_NAME="v2-api-server-$PHASE"
 
+echo ">> zip file name: $ZIP_NAME"
+echo ">> deploy dir name: $DEPLOY_DIR"
+echo ">> pm2 app name: $PM2_APP_NAME"
+
 echo "********  Download new build from S3 ******** "
 aws s3 cp s3://$S3_BUCKET/$ZIP_NAME $DEPLOY_DIR --recursive
 
