@@ -1,44 +1,75 @@
-# This is a basic workflow to help you get started with Actions
-
-name: deploy-prod
+name: main-monorepo-deploy
 
 on:
-  # push 시 자동 트리거
   push:
     branches: [ main ]
   # 직접 트리거
   workflow_dispatch:
     inputs:
       branch:
-        description: '배포할 브랜치'
+        description: 'Branch to main'
         required: true
         default: 'main'
+      module:
+        description: 'Module to deploy (api | parsing-api | push)'
+        required: true
+        default: 'api'
 
 env:
-  AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME_PROD }}
+  AWS_REGION: ap-northeast-2
+  AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+  BUILD_DIR_NAME: wishboard-v2-build-prod
 
 jobs:
-  build:
+  changes:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      parsing_api: ${{ steps.filter.outputs.parsing_api }}
+      push: ${{ steps.filter.outputs.push }}
     steps:
-      - name: Checkout
+      - uses: actions/checkout@v3
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            api:
+              - 'api/**'
+            parsing_api:
+              - 'parsing-api/**'
+            push:
+              - 'push/**'
+
+      - name: Print changed outputs
+        run: |
+          echo "api changed: ${{ steps.filter.outputs.api }}"
+          echo "parsing-api changed: ${{ steps.filter.outputs.parsing_api }}"
+          echo "push changed: ${{ steps.filter.outputs.push }}"
+  # ---------------------------------------------------------------------------
+  # Spring API (Gradle / JDK 21)
+  # ---------------------------------------------------------------------------
+  build-api:
+    needs: [ changes ]
+    if: |
+      (github.event_name == 'push' && needs.changes.outputs.api == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'api')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: create secret files
-        working-directory: ./src/main/resources
+      - name: Create Spring secret files
         run: |
-          touch application.yml
-          touch application-prod.yml
-          echo "${{ secrets.APPLICATION_YML }}" >> application.yml
-          echo "${{ secrets.APPLICATION_PROD_YML }}" >> application-prod.yml
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-dev.yml
 
-      #          mkdir firebase
-      #          touch ./firebase/firebase_service_key.json
-      #          echo "${{ secrets.FIREBASE_SERVICE_KEY_JSON }}" >> ./firebase/firebase_service_key.json
-      #          sed -i 's/#/"/g' ./firebase/firebase_service_key.json
-
-      - name: Set up JDK 21
+      - name: Set up JDK 21 (Corretto)
         uses: actions/setup-java@v3
         with:
           distribution: 'corretto'
@@ -46,36 +77,142 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-        shell: bash
 
-      #      - name: Test with Gradle
-      #          run: ./gradlew test
-
-      - name: Build with Gradle without test
+      - name: Build (skip tests)
         run: ./gradlew build -x test
-        shell: bash
 
-      - name: Make zip file
-        run: mkdir -p wishboard-v2-build-prod
-        shell: bash
-
-      - name: Copy build files
+      - name: Package artefacts
         run: |
-          cp -r ./build/libs/* ./wishboard-v2-build-prod/ 
-          cp -r ./v2-pm2-run-config.js ./wishboard-v2-build-prod/ 
-          cp -r ./deploy.sh ./wishboard-v2-build-prod/
-        shell: bash
+          mkdir -p api
+          cp -r build/libs/* api/
+          cp v2-pm2-run-config.js api/
+          cp deploy.sh api/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
-          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
-          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload to S3
         run: |
-          aws s3 cp \
-            --recursive \
-            --region ap-northeast-2 \
-            wishboard-v2-build-prod s3://$AWS_S3_BUCKET_NAME/wishboadr-v2-build-prod
+          aws s3 cp --recursive ./api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
+
+  # ---------------------------------------------------------------------------
+  # parsing-api (Node 18.x)
+  # ---------------------------------------------------------------------------
+  build-parsing-api:
+    needs: [ changes ]
+    if: |
+      (github.event_name == 'push' && needs.changes.outputs.parsing_api == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'parsing-api')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: parsing-api
+    strategy:
+      matrix:
+        node-version: [ 18.20.8 ]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Verify npm version
+        run: npm -v
+
+      - name: npm ci (clean install)
+        run: npm ci
+
+      #      - name: ESLint check
+      #        run: npm run lint
+
+      - name: Create .env
+        run: |
+          touch .env
+          echo NODE_ENV="development" >> .env
+          echo "${{ secrets.PARSING_API_ENV }}" > .env
+
+      - name: Build (dev)
+        run: npm run build --if-present
+
+      - name: Copy ecosystem.config.js
+        run: cp ./ecosystem.config.js ./dist
+
+      - name: Rename build directory
+        run: mv dist parsing-api
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload dist to S3
+        run: |
+          aws s3 cp --recursive ./parsing-api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
+
+  # ---------------------------------------------------------------------------
+  # push (Node 18.x)
+  # ---------------------------------------------------------------------------
+  build-push:
+    needs: [ changes ]
+    if: |
+      (github.event_name == 'push' && needs.changes.outputs.push == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'push')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: push
+    strategy:
+      matrix:
+        node-version: [ 18.20.8 ]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Verify npm version
+        run: npm -v
+
+      - name: npm ci (clean install)
+        run: npm ci
+
+      #      - name: ESLint check
+      #        run: npm run lint
+
+      - name: Create .env
+        run: |
+          touch .env
+          echo NODE_ENV="development" >> .env
+          echo "${{ secrets.PUSH_ENV }}" > .env
+
+      - name: Build (dev)
+        run: npm run build --if-present
+
+      - name: Copy ecosystem.config.js
+        run: cp ./ecosystem.config.js ./dist
+
+      - name: Rename build directory
+        run: mv dist push
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload dist to S3
+        run: |
+          aws s3 cp --recursive ./push s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
