@@ -24,6 +24,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -100,6 +101,8 @@ public class JwtClient {
 		try {
 			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
 			return true;
+		} catch (SignatureException e) {
+			log.error("JWT signature does not match locally computed signature. JWT validity cannot be asserted and should not be trusted.", e);
 		} catch (SecurityException | MalformedJwtException e) {
 			log.error("Invalid JWT Token", e);
 		} catch (ExpiredJwtException e) {
