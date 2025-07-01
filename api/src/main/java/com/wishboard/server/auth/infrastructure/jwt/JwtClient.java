@@ -39,7 +39,7 @@ public class JwtClient {
 	@Value("${jwt.refresh-token-expire-time}")
 	private Long refreshTokenExpireTime;
 
-	public JwtClient(@Value("${jwt.secret}") String secret, RedisTemplate redisTemplate) {
+	public JwtClient(@Value("${jwt.secret}") String secret, RedisTemplate<String, Object> redisTemplate) {
 		this.redisTemplate = redisTemplate;
 		byte[] keyBytes = Decoders.BASE64.decode(secret);
 		this.secretKey = Keys.hmacShaKeyFor(keyBytes);
