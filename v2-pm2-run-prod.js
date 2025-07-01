@@ -19,8 +19,10 @@ module.exports = {
             name: 'wishboard-v2-api-server-prod',
             script: 'java',
             args: [
+                '-Xmx512m -Xms128m',
                 '-jar',
-                '/home/ubuntu/wishboard-v2/prod/current/server-2.0.0.jar' // TODO 버전 변경 시 여기 수정
+                '/home/ubuntu/wishboard-v2/prod/current/server-2.0.0.jar', // TODO 버전 변경 시 여기 수정
+                '--spring.profiles.active=prod'
             ],
             cwd: '/home/ubuntu/wishboard-v2/prod/current',
             exec_mode: 'fork',
