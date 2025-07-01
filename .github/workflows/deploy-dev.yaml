@@ -22,31 +22,36 @@ env:
 
 jobs:
   changes:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     outputs:
-      api: ${{ steps.filter.outputs.api }}
-      parsing_api: ${{ steps.filter.outputs.parsing_api }}
-      push: ${{ steps.filter.outputs.push }}
+      api: ${{ steps.filter.outputs.api         || steps.fallback.outputs.api }}
+      parsing_api: ${{ steps.filter.outputs.parsing_api || steps.fallback.outputs.parsing_api }}
+      push: ${{ steps.filter.outputs.push        || steps.fallback.outputs.push }}
     steps:
       - uses: actions/checkout@v3
 
       - id: filter
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            api:
-              - 'api/**'
-            parsing_api:
-              - 'parsing-api/**'
-            push:
-              - 'push/**'
+            api:          [ 'api/**' ]
+            parsing_api:  [ 'parsing-api/**' ]
+            push:         [ 'push/**' ]
+
+      - id: fallback
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "api=${{ github.event.inputs.module == 'api' }}" >> "$GITHUB_OUTPUT"
+          echo "parsing_api=${{ github.event.inputs.module == 'parsing-api' }}" >> "$GITHUB_OUTPUT"
+          echo "push=${{ github.event.inputs.module == 'push' }}" >> "$GITHUB_OUTPUT"
 
       - name: Print changed outputs
         run: |
-          echo "api changed: ${{ steps.filter.outputs.api }}"
-          echo "parsing-api changed: ${{ steps.filter.outputs.parsing_api }}"
-          echo "push changed: ${{ steps.filter.outputs.push }}"
+          echo "api changed: ${{ steps.filter.outputs.api || steps.fallback.outputs.api }}"
+          echo "parsing-api changed: ${{ steps.filter.outputs.parsing_api || steps.fallback.outputs.parsing_api }}"
+          echo "push changed: ${{ steps.filter.outputs.push || steps.fallback.outputs.push }}"
+
   # ---------------------------------------------------------------------------
   # Spring API (Gradle / JDK 21)
   # ---------------------------------------------------------------------------
