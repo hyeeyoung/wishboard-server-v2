@@ -19,7 +19,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Version", description = "버전 관리용 API")
 public interface VersionControllerDocs {
 
-	@Operation(summary = "OS별 버전 정보 조회")
+	@Operation(summary = "OS별 버전 정보 조회", description = """
+		각 OS 별로 버전 정보를 조회합니다. 
+		
+		v2부터는 OS 정보를 따로 쿼리 파라미터로 받지 않고, header의 User-Agent를 통해 OS 정보를 추출합니다.
+	""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "버전 정보 조회 성공입니다."),
 		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),

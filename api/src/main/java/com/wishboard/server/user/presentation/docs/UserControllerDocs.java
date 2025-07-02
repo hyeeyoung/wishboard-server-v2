@@ -50,8 +50,9 @@ public interface UserControllerDocs {
 		@Parameter(name = "pushState", example = "true") boolean pushState);
 
 	@Operation(summary = "사용자 정보 변경", description = """
-		v2 로 변경되면서 사용자 정보 수정 시 이미지가 존재하는 경우, 기존 이미지를 모두 삭제하고, request 로 전달주신 이미지를 다시 저장하는 형태로 변경했습니다.
-		참고 부탁드립니다.
+		v2 로 변경되면서 아래 사항이 수정되었으니 참고 부탁드립니다.
+		- 사용자 정보 수정 시 이미지가 존재하는 경우, 기존 이미지를 모두 삭제하고, request 로 전달주신 이미지를 다시 저장하는 형태로 변경했습니다.
+		- 기존에는 닉네임만 수정하는 경우 -> 닉네임만 전달하는 형태였지만, v2 에서는 닉네임과 이미지 모두 전달해주세요.
 	""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "사용자 정보 변경 성공입니다."),
