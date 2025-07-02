@@ -13,6 +13,7 @@ const { NotFound } = require('./utils/errors');
 const { ErrorMessage } = require('./utils/response');
 
 const rateLimit = require('./middleware/rateLimiter');
+app.set('trust proxy', 1 /* number of proxies between user and server */);
 
 /** 기본 설정 */
 // 서버 환경에 따라 다르게 설정 (배포/개발)
