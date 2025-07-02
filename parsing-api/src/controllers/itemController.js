@@ -42,7 +42,11 @@ module.exports = {
           return res.status(StatusCode.OK).json({
             success: true,
             message: SuccessMessage.itemParse,
-            data,
+            data: {
+              itemImageUrl: data.item_img,
+              itemName: data.item_name,
+              itemPrice: data.item_price
+            },
           });
         })
         .catch((parserFailError) => next(parserFailError));
