@@ -28,6 +28,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Item", description = "아이템 관련 API")
 public interface ItemControllerDocs {
 
+	@Operation(summary = "아이템 파싱", description = """
+		아이템 파싱에 대한 api 는 기존 api 서버를 그대로 사용합니다. 
+		명세만 작성하였으니 참고 부탁드립니다. 
+	""")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "아이템 파싱 성공"),
+		@ApiResponse(responseCode = "204", description = "아이템 파싱은 성공했지만, 전달할 값이 없는 경우"),
+		@ApiResponse(responseCode = "400", description = """
+			1. 잘못된 요청입니다. (query 파라미터 (site) 가 누락된 경우)
+			2. 요청하신 URL은 유효한 링크가 아닙니다.
+		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "404", description = "아이템 파싱 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "500", description = "wishboard 서버 에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+	})
+	SuccessResponse<ItemInfoResponse> parseItemInfo( @Parameter(name = "site", example = "https://naver.com")String site);
+
+
 	@Operation(summary = "아이템 리스트 조회 (홈화면 조회)", description = "정렬은 최신순으로 고정이므로 size와 page 만 전달해주세요.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 리스트 조회 성공입니다."),
@@ -56,7 +73,9 @@ public interface ItemControllerDocs {
 	})
 	SuccessResponse<ItemInfoResponse> getItemInfo(@Parameter(hidden = true) Long userId, @Parameter(name = "itemId", example = "1") Long itemId);
 
-	@Operation(summary = "아이템 생성")
+	@Operation(summary = "아이템 생성", description = """
+		AddType이 MANUAL인 경우, 이미지는 최소 1장 필요합니다.
+	""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = """
 			1. 아이템 생성 성공입니다.
@@ -70,6 +89,8 @@ public interface ItemControllerDocs {
 			5. 허용하지 않는 User-Agent의 요청입니다.
 			6. 아이템 이름은 512자 이하로 입력해주세요.
 			7. 아이템 링크는 1024자 이하로 입력해주세요.
+			8. 아이템 이미지는 최소 1장부터 최대 10장까지 가능합니다.
+			9. 이미지 최대 크기는 720x720 입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -86,7 +107,10 @@ public interface ItemControllerDocs {
 	SuccessResponse<ItemInfoResponse> createItem(@Parameter(hidden = true) Long userId, CreateItemRequest request, List<MultipartFile> images,
 		AddType addType);
 
-	@Operation(summary = "아이템 수정")
+	@Operation(summary = "아이템 수정", description = """
+		v2 로 변경되면서 아이템 수정 시 기존 이미지를 모두 삭제하고, request 로 전달주신 이미지를 다시 저장하는 형태로 변경했습니다.
+		참고 부탁드립니다.
+	""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = """
 			1. 아이템 수정 성공입니다.
@@ -97,6 +121,8 @@ public interface ItemControllerDocs {
 			2. 허용하지 않는 User-Agent의 요청입니다.
 			3. 아이템 이름은 512자 이하로 입력해주세요.
 			4. 아이템 링크는 1024자 이하로 입력해주세요.
+			5. 아이템 이미지는 최소 1장부터 최대 10장까지 가능합니다.
+			6. 이미지 최대 크기는 720x720 입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.

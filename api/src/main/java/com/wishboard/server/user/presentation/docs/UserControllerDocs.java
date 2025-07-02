@@ -49,13 +49,17 @@ public interface UserControllerDocs {
 	SuccessResponse<UserInfoResponse> updatePushState(@Parameter(hidden = true) Long userId,
 		@Parameter(name = "pushState", example = "true") boolean pushState);
 
-	@Operation(summary = "사용자 정보 변경")
+	@Operation(summary = "사용자 정보 변경", description = """
+		v2 로 변경되면서 사용자 정보 수정 시 이미지가 존재하는 경우, 기존 이미지를 모두 삭제하고, request 로 전달주신 이미지를 다시 저장하는 형태로 변경했습니다.
+		참고 부탁드립니다.
+	""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "사용자 정보 변경 성공입니다."),
 		@ApiResponse(responseCode = "400", description = """
 			1. 닉네임을 입력해주세요.
 			2. 허용하지 않는 User-Agent의 요청입니다.
 			3. 닉네임은 10자 이하로 입력해주세요.
+			4. 이미지 최대 크기는 720x720 입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.

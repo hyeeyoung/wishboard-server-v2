@@ -1,5 +1,7 @@
 package com.wishboard.server.image.infrastructure;
 
+import static com.wishboard.server.common.exception.ErrorCode.*;
+
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
@@ -8,6 +10,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.wishboard.server.common.exception.InternalServerException;
+import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.image.infrastructure.dto.FileStorageClient;
 
 import lombok.RequiredArgsConstructor;

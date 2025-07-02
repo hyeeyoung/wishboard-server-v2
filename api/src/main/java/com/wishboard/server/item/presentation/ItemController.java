@@ -1,5 +1,7 @@
 package com.wishboard.server.item.presentation;
 
+import static com.wishboard.server.common.exception.ErrorCode.*;
+
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.dto.SuccessResponse;
+import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.common.success.SuccessCode;
 import com.wishboard.server.config.interceptor.Auth;
 import com.wishboard.server.config.resolver.UserId;
@@ -51,6 +54,13 @@ public class ItemController implements ItemControllerDocs {
 
 	private final ModelMapper modelMapper;
 
+	// 현재 해당 API 는 parse-api 모듈에 존재하지만 명세를 위해 작성
+	@GetMapping("/v2/item/parse")
+	@Override
+	public SuccessResponse<ItemInfoResponse> parseItemInfo(@RequestParam("site") String site) {
+		return null;
+	}
+
 	@Auth
 	@GetMapping("/v2/item")
 	@Override
@@ -75,6 +85,9 @@ public class ItemController implements ItemControllerDocs {
 	@Override
 	public SuccessResponse<ItemInfoResponse> createItem(@UserId Long userId, @Valid @RequestPart("request") CreateItemRequest request,
 		@RequestPart(required = false, value = "itemImages") List<MultipartFile> images, @RequestParam("type") AddType addType) {
+		if(addType.equals(AddType.MANUAL) && (images.isEmpty() || images.size() > 10)) {
+			throw new ValidationException("이미지는 1개 이상 10개 이하로 업로드 가능합니다.", VALIDATION_ITEM_IMAGE_MAX_COUNT_EXCEPTION);
+		}
 		var itemNotificationDto = createItemUseCase.execute(userId, request.toCommand(), images, addType);
 		if (request.itemNotificationType() != null && request.itemNotificationDate() != null) {
 			return SuccessResponse.success(SuccessCode.ITEM_AND_NOTIFICATION_CREATE_SUCCESS,
@@ -88,6 +101,9 @@ public class ItemController implements ItemControllerDocs {
 	@Override
 	public SuccessResponse<ItemInfoResponse> updateItem(@UserId Long userId, @Valid @RequestPart("request") UpdateItemRequest request,
 		@RequestPart(required = false, value = "itemImages") List<MultipartFile> images, @PathVariable Long itemId) {
+		if(images.isEmpty() || images.size() > 10) {
+			throw new ValidationException("이미지는 1개 이상 10개 이하로 업로드 가능합니다.", VALIDATION_ITEM_IMAGE_MAX_COUNT_EXCEPTION);
+		}
 		var itemNotificationDto = updateItemUseCase.execute(userId, itemId, request.toCommand(), images);
 		if (request.itemNotificationType() != null && request.itemNotificationDate() != null) {
 			return SuccessResponse.success(SuccessCode.ITEM_AND_NOTIFICATION_UPDATE_SUCCESS,
