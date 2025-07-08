@@ -38,6 +38,7 @@ import com.wishboard.server.item.presentation.docs.ItemControllerDocs;
 import com.wishboard.server.item.presentation.dto.request.CreateItemRequest;
 import com.wishboard.server.item.presentation.dto.request.UpdateItemRequest;
 import com.wishboard.server.item.presentation.dto.response.ItemInfoResponse;
+import com.wishboard.server.item.presentation.dto.response.ItemParseResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class ItemController implements ItemControllerDocs {
 	// 현재 해당 API 는 parse-api 모듈에 존재하지만 명세를 위해 작성
 	@GetMapping("/v2/item/parse")
 	@Override
-	public SuccessResponse<ItemInfoResponse> parseItemInfo(@RequestParam("site") String site) {
+	public SuccessResponse<ItemParseResponse> parseItemInfo(@RequestParam("site") String site) {
 		return null;
 	}
 

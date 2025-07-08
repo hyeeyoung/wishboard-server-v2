@@ -29,31 +29,31 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "Auth", description = "인증 관련 API")
 public interface AuthControllerDocs {
 
-	// @Operation(
-	// 	summary = "[X] 로그인 요청",
-	// 	description = """
-	// 		카카오 로그인, 애플 로그인을 요청합니다.
-	// 		최초 로그인의 경우 회원가입 처리 후 로그인됩니다.
-	// 		socialType - KAKAO (카카오), APPLE (애플)
-	// 		"""
-	// )
-	// @ApiResponses(value = {
-	// 	@ApiResponse(responseCode = "200", description = "로그인 성공입니다."),
-	// 	@ApiResponse(responseCode = "400", description = """
-	// 		1. 유저의 socialType 를 입력해주세요.
-	// 		2. access token 을 입력해주세요.
-	// 		3. fcmToken 을 입력해주세요.
-	// 		4. Request Header에 디바이스 정보가 없습니다.
-	// 		5. 허용하지 않는 User-Agent의 요청입니다.
-	// 		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-	// 	@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰입니다."),
-	// 	@ApiResponse(responseCode = "409", description = """
-	// 		이미 해당 계정으로 회원가입하셨습니다.
-	// 		로그인 해주세요.
-	// 		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-	// 	@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-	// })
-	// @Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
+	@Operation(
+		summary = "[X] 로그인 요청",
+		description = """
+			카카오 로그인, 애플 로그인을 요청합니다.
+			최초 로그인의 경우 회원가입 처리 후 로그인됩니다.
+			socialType - KAKAO (카카오), APPLE (애플)
+			"""
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "로그인 성공입니다."),
+		@ApiResponse(responseCode = "400", description = """
+			1. 유저의 socialType 를 입력해주세요.
+			2. access token 을 입력해주세요.
+			3. fcmToken 을 입력해주세요.
+			4. Request Header에 디바이스 정보가 없습니다.
+			5. 허용하지 않는 User-Agent의 요청입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰입니다."),
+		@ApiResponse(responseCode = "409", description = """
+			이미 해당 계정으로 회원가입하셨습니다.
+			로그인 해주세요.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<SocialLoginResponse> socialLogin(SocialLoginRequest request, @Parameter(hidden = true) HttpServletRequest servletRequest);
 
 	@Operation(

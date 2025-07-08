@@ -15,6 +15,7 @@ import com.wishboard.server.item.domain.model.AddType;
 import com.wishboard.server.item.presentation.dto.request.CreateItemRequest;
 import com.wishboard.server.item.presentation.dto.request.UpdateItemRequest;
 import com.wishboard.server.item.presentation.dto.response.ItemInfoResponse;
+import com.wishboard.server.item.presentation.dto.response.ItemParseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,7 +43,7 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "404", description = "아이템 파싱 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "wishboard 서버 에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
-	SuccessResponse<ItemInfoResponse> parseItemInfo( @Parameter(name = "site", example = "https://naver.com")String site);
+	SuccessResponse<ItemParseResponse> parseItemInfo( @Parameter(name = "site", example = "https://naver.com")String site);
 
 
 	@Operation(summary = "아이템 리스트 조회 (홈화면 조회)", description = "정렬은 최신순으로 고정이므로 size와 page 만 전달해주세요.")
