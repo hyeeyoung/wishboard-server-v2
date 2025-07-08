@@ -7,42 +7,47 @@ const Slack = require('../lib/slack');
 const sendFcmTokenToFirebase = async (notiList) => {
   try {
     const messages = [];
-    Object.keys(notiList).forEach((token) => {
-      const numOfNotiItems = notiList[token].length;
-      const message = {
-        notification: {
-          title: Strings.notiMessageTitle,
-          body: '',
-        },
-        android: {
-          data: {
+    Object.keys(notiList).forEach((userId) => {
+      const numOfNotiItems = notiList[userId].notiTypes.length;
+      const tokens = notiList[userId].tokens;
+
+      for (const token of tokens) {
+        const message = {
+          notification: {
             title: Strings.notiMessageTitle,
             body: '',
           },
-        },
-        apns: {
-          payload: {
-            aps: {
-              alert: {
-                title: Strings.notiMessageTitle,
-                body: '',
+          android: {
+            data: {
+              title: Strings.notiMessageTitle,
+              body: '',
+            },
+          },
+          apns: {
+            payload: {
+              aps: {
+                alert: {
+                  title: Strings.notiMessageTitle,
+                  body: '',
+                },
               },
             },
           },
-        },
-        token: '',
-      };
-      if (numOfNotiItems === 1) {
-        message.notification.body = `${Strings.after30minutes} ${notiList[token][0].notiType} ${Strings.notiMessageDescription}`;
-        message.android.data.body = `${Strings.after30minutes} ${notiList[token][0].notiType} ${Strings.notiMessageDescription}`;
-        message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[token][0].notiType} ${Strings.notiMessageDescription}`;
-      } else {
-        message.notification.body = `${Strings.after30minutes} ${notiList[token][0].notiType} ${Strings.notiMessageDescription}`;
-        message.android.data.body = `${Strings.after30minutes} ${notiList[token][0].notiType} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
-        message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[token][0].notiType} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+          token: '',
+        };
+  
+        if (numOfNotiItems === 1) {
+          message.notification.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
+          message.android.data.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
+          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
+        } else {
+          message.notification.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
+          message.android.data.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+        }
+        message.token = token;
+        messages.push(message);
       }
-      message.token = token;
-      messages.push(message);
     });
 
     const failedTokens = [];
@@ -78,6 +83,7 @@ const sendFcmTokenToFirebase = async (notiList) => {
         text: `\`\`\`${JSON.stringify(reResponse)}\`\`\``,
       });
     });
+
     return true;
   } catch (e) {
     const firebaseError = { err: e };

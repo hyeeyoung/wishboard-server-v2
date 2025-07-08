@@ -15,6 +15,6 @@ module.exports = {
           logger.error(ErrorMessage.notiSendFailed);
         });
       })
-      .catch((err) => logger.info(err));
+      .catch((err) => logger.error(err));
   },
 };

@@ -1,17 +1,29 @@
 function generateNotiItem(notiList) {
-  return notiList.reduce((notiItems, data) => {
+  const result = {};
+
+  for (const data of notiList) {
+    const userId = data.user_id;
+    const notiType = data.item_notification_type;
     const token = data.fcm_token;
-    const notiData = {
-      itemId: data.item_id,
-      notiType: data.item_notification_type,
-    };
-    if (notiItems[token]) {
-      notiItems[token].push(notiData);
-    } else {
-      notiItems[token] = [notiData];
+
+    if (!result[userId]) {
+      result[userId] = {
+        notiTypes: new Set(),
+        tokens: new Set(),
+      };
     }
-    return notiItems;
-  }, []);
+
+    result[userId].notiTypes.add(notiType);
+    result[userId].tokens.add(token);
+  }
+
+  // Set -> Array
+  Object.keys(result).forEach((userId) => {
+    result[userId].notiTypes = Array.from(result[userId].notiTypes);
+    result[userId].tokens = Array.from(result[userId].tokens);
+  });
+
+  return result;
 }
 
 module.exports = { generateNotiItem };
