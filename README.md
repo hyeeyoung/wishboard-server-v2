@@ -72,7 +72,8 @@ Spring Boot 기반으로 구축된 메인 백엔드 API 서버입니다. Wishboa
     - **빌드 도구**: Gradle
     - **기타**: ModelMapper, Spring WebFlux (부분적 사용), Spring Mail
 - **아키텍처**:
-    - 전형적인 계층형 아키텍처 (Controller - Service - Repository)를 따릅니다.
+    - 도메인 주도 설계(DDD)를 기반으로 아키텍처를 구성하고 있습니다.
+    - 주요 레이어는 Presentation(Controller), Application(Service), Domain, Infrastructure(Repository, 외부 서비스 연동 등)로 구분됩니다.
     - RESTful API를 통해 클라이언트와 통신합니다.
     - `@ControllerAdvice`를 사용한 전역 예외 처리.
     - AOP를 활용한 공통 관심사 처리 (로깅 등).
