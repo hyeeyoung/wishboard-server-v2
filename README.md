@@ -72,11 +72,24 @@ Spring Boot 기반으로 구축된 메인 백엔드 API 서버입니다. Wishboa
     - **빌드 도구**: Gradle
     - **기타**: ModelMapper, Spring WebFlux (부분적 사용), Spring Mail
 - **아키텍처**:
-    - 도메인 주도 설계(DDD)를 기반으로 아키텍처를 구성하고 있습니다.
-    - 주요 레이어는 Presentation(Controller), Application(Service), Domain, Infrastructure(Repository, 외부 서비스 연동 등)로 구분됩니다.
-    - RESTful API를 통해 클라이언트와 통신합니다.
-    - `@ControllerAdvice`를 사용한 전역 예외 처리.
-    - AOP를 활용한 공통 관심사 처리 (로깅 등).
+    - **도메인 주도 설계(DDD) 기반**: 핵심 비즈니스 로직을 도메인 모델에 집중시켜 복잡성을 관리합니다.
+    - **패키지 구조**: 기능적 모듈화(예: `auth`, `item`, `folder`, `user` 등)를 따르며, 각 모듈은 DDD의 계층형 아키텍처 스타일을 반영합니다.
+        - `com.wishboard.server.<도메인명>.presentation`:
+            - `Controller`: HTTP 요청을 받아 Application Service에 처리를 위임하고, 결과를 HTTP 응답으로 반환합니다. (예: `ItemController.java`)
+            - `dto`: 프레젠테이션 계층에서 사용하는 데이터 전송 객체 (요청/응답 DTO)를 정의합니다.
+            - `docs`: API 문서화 관련 클래스 (Swagger 등)를 포함할 수 있습니다.
+        - `com.wishboard.server.<도메인명>.application`:
+            - `service`: 애플리케이션의 유스케이스를 구현합니다. 도메인 객체와 인프라스트럭처 계층을 조정하여 비즈니스 로직을 수행합니다. (예: `ItemService.java`)
+            - `dto`: 애플리케이션 서비스에서 사용하는 데이터 전송 객체를 정의합니다.
+        - `com.wishboard.server.<도메인명>.domain`:
+            - `model`: 도메인 엔티티, 값 객체(VO) 등 핵심 도메인 모델을 정의합니다. (예: `Item.java`, `Folder.java`)
+            - `repository`: 도메인 객체의 영속성을 위한 인터페이스를 정의합니다. (예: `ItemRepository.java`)
+        - `com.wishboard.server.<도메인명>.infrastructure`:
+            - 리포지토리의 실제 구현체(JPA, QueryDSL 등 활용), 외부 서비스(S3, 메일 서버 등)와의 연동 로직 등을 포함합니다. (예: `ItemRepositoryImpl.java`, `S3FileStorageClient.java`)
+    - **API**: RESTful API를 통해 클라이언트(모바일 앱 등)와 통신합니다.
+    - **예외 처리**: `@ControllerAdvice`를 사용하여 전역적으로 예외를 처리하고, 일관된 오류 응답 형식을 제공합니다.
+    - **공통 관심사**: Spring AOP를 활용하여 로깅, 트랜잭션 관리 등 공통 관심사를 모듈화하여 처리합니다.
+    - **설정 및 공통 유틸리티**: `com.wishboard.server.config` 패키지에서 각종 설정(보안, Swagger, Redis, S3 등)을 관리하고, `com.wishboard.server.common` 패키지에서 공통적으로 사용되는 유틸리티, 예외 클래스, 응답 DTO 등을 제공합니다.
 
 ### parsing-api (상품 정보 파싱 API 서버)
 
