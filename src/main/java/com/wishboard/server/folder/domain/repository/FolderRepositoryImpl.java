@@ -31,8 +31,8 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 		List<Tuple> results = queryFactory
 			.select(item, folder, notifications)
 			.from(item)
-			.leftJoin(folder).on(item.folder.eq(folder))
-			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
+			.leftJoin(folder).on(item.folderId.eq(folder.id)) // Changed to use folderId
+			.leftJoin(notifications).on(item.id.eq(notifications.itemId).and(item.user.id.eq(notifications.userId))) // Changed to use itemId and userId
 			.where(
 				item.user.id.eq(userId),
 				folder.id.eq(folderId)
@@ -44,12 +44,18 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 		List<ItemFolderNotificationDto> dtoList = results.stream()
 			.map(tuple -> {
 				Item item = tuple.get(QItem.item);
-				Notifications notifications = tuple.get(QNotifications.notifications);
+				Notifications notifications = tuple.get(QNotifications.notifications); // This might be null due to leftJoin
 				if (ObjectUtils.isEmpty(item)) {
-					return new ItemFolderNotificationDto();
+					// This case should ideally not happen if item is the root of the query and results are non-empty.
+					// If it can, returning an empty DTO or handling it as an error might be options.
+					// For now, assume 'item' will be present if 'results' has entries.
+					return new ItemFolderNotificationDto(); 
 				}
-				return ItemFolderNotificationDto.of(item, notifications);
+				// Pass notification details if notifications object is not null
+				return ItemFolderNotificationDto.of(item, 
+												    notifications != null ? notifications.getItemNotificationType() : null, 
+												    notifications != null ? notifications.getItemNotificationDate() : null);
 			}).toList();
-		return new PageImpl<>(dtoList, pageable, results.size());
+		return new PageImpl<>(dtoList, pageable, results.size()); // Note: results.size() might not be the total count for pagination if distinct items are fewer than tuples.
 	}
 }

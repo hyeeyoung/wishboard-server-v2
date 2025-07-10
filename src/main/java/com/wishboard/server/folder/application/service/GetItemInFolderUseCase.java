@@ -23,7 +23,7 @@ public class GetItemInFolderUseCase {
 
 	public Page<ItemFolderNotificationDto> execute(Long userId, Long folderId, Pageable pageable) {
 		var user = userReader.findById(userId);
-		var folder = folderReader.findByIdAndUser(folderId, user);
+		var folder = folderReader.findByIdAndUserId(folderId, user.getId()); // Changed to use userId
 		return folderRepository.findItemListByUserIdAndFolderId(user.getId(), folder.getId(), pageable);
 	}
 

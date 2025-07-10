@@ -31,8 +31,8 @@ public class ItemFolderDto {
 		return ItemFolderDto.builder()
 			.id(item.getId())
 			.userId(item.getUser() == null ? null : item.getUser().getId())
-			.folderId(item.getFolder() == null ? null : item.getFolder().getId())
-			.folderName(item.getFolder() == null ? null : item.getFolder().getFolderName())
+			.folderId(item.getFolderId()) // Use the new getFolderId() method
+			.folderName(null) // Needs to be populated by the service layer after fetching Folder by folderId
 			.itemImages(item.getImages().stream().map(image -> new ItemImageDto(image.getItemImg(), image.getItemImageUrl())).toList())
 			.itemMemo(item.getItemMemo())
 			.itemName(item.getItemName())

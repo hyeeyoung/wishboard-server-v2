@@ -28,8 +28,8 @@ public class NotificationsRepositoryImpl implements NotificationsRepositoryCusto
 		List<Tuple> results = queryFactory
 			.select(item, notifications)
 			.from(notifications)
-			.join(item).on(notifications.notificationId.item.eq(item))
-			.where(notifications.notificationId.user.id.eq(userId))
+			.join(item).on(notifications.itemId.eq(item.id))
+			.where(notifications.userId.eq(userId))
 			.orderBy(notifications.createdAt.desc())
 			.fetch();
 		return results.stream()
@@ -50,9 +50,9 @@ public class NotificationsRepositoryImpl implements NotificationsRepositoryCusto
 		List<Tuple> results = queryFactory
 			.select(item, notifications)
 			.from(notifications)
-			.join(item).on(notifications.notificationId.item.eq(item))
+			.join(item).on(notifications.itemId.eq(item.id))
 			.where(
-				notifications.notificationId.user.id.eq(userId),
+				notifications.userId.eq(userId),
 				notifications.itemNotificationDate.loe(nowPlus30Min)
 			)
 			.orderBy(notifications.itemNotificationDate.asc())
@@ -72,7 +72,7 @@ public class NotificationsRepositoryImpl implements NotificationsRepositoryCusto
 	public void deleteAllByUserId(Long userId) {
 		queryFactory
 			.delete(notifications)
-			.where(notifications.notificationId.user.id.eq(userId))
+			.where(notifications.userId.eq(userId))
 			.execute();
 	}
 }

@@ -16,12 +16,14 @@ import com.wishboard.server.common.exception.NotFoundException;
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.folder.application.service.support.FolderReader;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.dto.service.S3Provider;
+// import com.wishboard.server.image.application.dto.service.S3Provider; // Remove this
+import com.wishboard.server.common.application.port.out.FileStorageService; // Add this
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
 import com.wishboard.server.item.domain.model.ItemImage;
-import com.wishboard.server.notifications.domain.model.NotificationId;
+// import com.wishboard.server.notifications.domain.model.NotificationId; // Removed
+import com.wishboard.server.notifications.domain.model.Notifications; // Added for type hint
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
 import com.wishboard.server.user.application.service.support.UserReader;
 
@@ -35,7 +37,8 @@ public class UpdateItemUseCase {
 	private final FolderReader folderReader;
 	private final ItemReader itemReader;
 
-	private final S3Provider s3Provider;
+	// private final S3Provider s3Provider; // Remove this
+	private final FileStorageService fileStorageService; // Add this
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private final NotificationsRepository notificationsRepository;
@@ -45,16 +48,16 @@ public class UpdateItemUseCase {
 		var item = itemReader.findById(itemId, user.getId());
 
 		// 폴더 변경
-		if (updateItemCommand.itemName() != null) {
-			var folder = folderReader.findByIdAndUser(updateItemCommand.folderId(), user);
-			item.updateFolder(folder);
+		if (updateItemCommand.folderId() != null) { // Check if folderId is provided in the command
+			var folder = folderReader.findByIdAndUserId(updateItemCommand.folderId(), user.getId()); // Use userId
+			item.updateFolderId(folder.getId()); // Update with folderId
 		}
 
 		// 이미지 변경
 		if (!item.getImages().isEmpty()) {
 			item.getImages().forEach(image -> {
 				if (StringUtils.hasText(image.getItemImageUrl())) {
-					s3Provider.deleteFile(image.getItemImageUrl());
+					fileStorageService.deleteFile(image.getItemImageUrl()); // Changed s3Provider to fileStorageService
 				}
 			});
 			item.getImages().clear();
@@ -64,7 +67,7 @@ public class UpdateItemUseCase {
 				.map(image -> {
 					if (image != null && !image.isEmpty()) {
 						return new ItemImage(image.getOriginalFilename(),
-							s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item);
+							fileStorageService.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item); // Changed s3Provider to fileStorageService
 					}
 					return null;
 				})
@@ -75,7 +78,7 @@ public class UpdateItemUseCase {
 			updateItemCommand.itemMemo());
 
 		// 알림 수정
-		var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item))
+		Notifications notificationsByItem = notificationsRepository.findByUserIdAndItemId(item.getUser().getId(), item.getId())
 			.orElseThrow(
 				() -> new NotFoundException(String.format("알림이 존재하지 않습니다. (itemId: %s, userId: %s)", item.getId(), item.getUser().getId()),
 					NOT_FOUND_NOTIFICATION_EXCEPTION));
@@ -85,7 +88,8 @@ public class UpdateItemUseCase {
 				updateItemCommand.itemNotificationType(),
 				LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter)
 			);
+			// notificationsRepository.save(notificationsByItem); // Not strictly necessary if @Transactional manages the update
 		}
-		return ItemFolderNotificationDto.of(item, notificationsByItem);
+		return ItemFolderNotificationDto.of(item, notificationsByItem.getItemNotificationType(), notificationsByItem.getItemNotificationDate());
 	}
 }
