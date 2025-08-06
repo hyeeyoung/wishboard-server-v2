@@ -45,15 +45,15 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "201", description = "폴더 생성 성공입니다."),
 		@ApiResponse(responseCode = "400", description = """
 				1. 폴더 이름을 입력해주세요.
-				2. 이미 존재하는 폴더명입니다.
-				3. 허용하지 않는 User-Agent의 요청입니다.
-				4. 폴더 이름은 10자 이하로 입력해주세요.
+				2. 허용하지 않는 User-Agent의 요청입니다.
+				3. 폴더 이름은 10자 이하로 입력해주세요.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "409", description = "이미 존재하는 폴더명입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	SuccessResponse<FolderInfoWithoutItemCountResponse> createFolder(@Parameter(hidden = true) @UserId Long userId,
@@ -64,9 +64,8 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "200", description = "폴더명 수정 성공입니다."),
 		@ApiResponse(responseCode = "400", description = """
 				1. 폴더 이름을 입력해주세요.
-				2. 이미 존재하는 폴더명입니다.
-				3. 허용하지 않는 User-Agent의 요청입니다.
-				4. 폴더 이름은 10자 이하로 입력해주세요.
+				2. 허용하지 않는 User-Agent의 요청입니다.
+				3. 폴더 이름은 10자 이하로 입력해주세요.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -76,6 +75,7 @@ public interface FolderControllerDocs {
 				1.탈퇴했거나 존재하지 않는 유저입니다.
 				2. 존재하지 않는 폴더입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "409", description = "이미 존재하는 폴더명입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	SuccessResponse<FolderInfoWithoutItemCountResponse> updateFolder(@Parameter(hidden = true) @UserId Long userId,
