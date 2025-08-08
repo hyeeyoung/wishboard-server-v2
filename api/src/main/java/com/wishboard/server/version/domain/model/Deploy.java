@@ -1,6 +1,6 @@
 package com.wishboard.server.version.domain.model;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wishboard.server.common.domain.AuditingTimeEntity;
