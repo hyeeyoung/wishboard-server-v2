@@ -86,7 +86,7 @@ public class ItemController implements ItemControllerDocs {
 	@Override
 	public SuccessResponse<ItemInfoResponse> createItem(@UserId Long userId, @Valid @RequestPart("request") CreateItemRequest request,
 		@RequestPart(required = false, value = "itemImages") List<MultipartFile> images, @RequestParam("type") AddType addType) {
-		if(addType.equals(AddType.MANUAL) && (images.isEmpty() || images.size() > 10)) {
+		if(addType.equals(AddType.MANUAL) && !isValidImageCount(images)) {
 			throw new ValidationException("이미지는 1개 이상 10개 이하로 업로드 가능합니다.", VALIDATION_ITEM_IMAGE_MAX_COUNT_EXCEPTION);
 		}
 		var itemNotificationDto = createItemUseCase.execute(userId, request.toCommand(), images, addType);
@@ -102,7 +102,7 @@ public class ItemController implements ItemControllerDocs {
 	@Override
 	public SuccessResponse<ItemInfoResponse> updateItem(@UserId Long userId, @Valid @RequestPart("request") UpdateItemRequest request,
 		@RequestPart(required = false, value = "itemImages") List<MultipartFile> images, @PathVariable Long itemId) {
-		if(images.isEmpty() || images.size() > 10) {
+		if(!isValidImageCount(images)) {
 			throw new ValidationException("이미지는 1개 이상 10개 이하로 업로드 가능합니다.", VALIDATION_ITEM_IMAGE_MAX_COUNT_EXCEPTION);
 		}
 		var itemNotificationDto = updateItemUseCase.execute(userId, itemId, request.toCommand(), images);
@@ -127,5 +127,9 @@ public class ItemController implements ItemControllerDocs {
 	public SuccessResponse<ItemInfoResponse> updateItemFolder(@UserId Long userId, @PathVariable Long itemId, @PathVariable Long folderId) {
 		var itemNotificationDto = updateItemFolderUseCase.execute(userId, itemId, folderId);
 		return SuccessResponse.success(SuccessCode.ITEM_FOLDER_UPDATE_SUCCESS, modelMapper.map(itemNotificationDto, ItemInfoResponse.class));
+	}
+
+	private boolean isValidImageCount(List<MultipartFile> images) {
+		return images != null && !images.isEmpty() && images.size() <= 10;
 	}
 }
