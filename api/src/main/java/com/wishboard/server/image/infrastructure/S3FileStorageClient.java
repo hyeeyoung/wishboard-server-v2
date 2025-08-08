@@ -3,6 +3,7 @@ package com.wishboard.server.image.infrastructure;
 import com.wishboard.server.common.exception.InternalServerException;
 import com.wishboard.server.image.infrastructure.dto.FileStorageClient;
 import io.awspring.cloud.s3.ObjectMetadata;
+import io.awspring.cloud.s3.S3Exception;
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ public class S3FileStorageClient implements FileStorageClient {
 			throw new InternalServerException(
 				String.format("파일 (%s) 입력 스트림을 가져오는 중 에러가 발생했습니다", file.getOriginalFilename())
 			);
-		} catch (RuntimeException e) {
+		} catch (S3Exception e) {
 			throw new InternalServerException(
 				String.format("파일 (%s) 업로드 중 내부 에러가 발생했습니다", file.getOriginalFilename())
 			);
@@ -49,7 +50,7 @@ public class S3FileStorageClient implements FileStorageClient {
 	public void deleteFile(String fileName) {
 		try {
 			s3Template.deleteObject(bucket, fileName);
-		} catch (RuntimeException e) {
+		} catch (S3Exception e) {
 			throw new InternalServerException(
 				String.format("파일 (%s) 삭제 중 내부 에러가 발생했습니다", fileName)
 			);
