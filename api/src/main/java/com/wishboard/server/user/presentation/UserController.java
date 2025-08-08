@@ -60,7 +60,7 @@ public class UserController implements UserControllerDocs {
 	public SuccessResponse<UserInfoResponse> updateUserInfo(@UserId Long userId,
 		@Valid @RequestPart("request") UpdateUserInfoRequest request,
 		@RequestPart(required = false, name = "profileImage") MultipartFile image) {
-		var userDto = updateUserInfoUseCase.excute(userId, request.toCommand(), image);
+		var userDto = updateUserInfoUseCase.execute(userId, request.toCommand(), image);
 		return SuccessResponse.success(SuccessCode.USER_INFO_UPDATE_SUCCESS, modelMapper.map(userDto, UserInfoResponse.class));
 	}
 

@@ -26,7 +26,7 @@ public class UpdateUserInfoUseCase {
 	private final S3Provider s3Provider;
 	private final ModelMapper modelMapper;
 
-	public UserDto excute(Long userId, UpdateUserCommand updateUserCommand, MultipartFile image) {
+	public UserDto execute(Long userId, UpdateUserCommand updateUserCommand, MultipartFile image) {
 		var user = userReader.findById(userId);
 		userValidator.validateNicknameUnique(updateUserCommand.nickname());
 		user.updateUserNickname(updateUserCommand.nickname());
