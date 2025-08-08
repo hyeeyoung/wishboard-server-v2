@@ -36,4 +36,10 @@ public class UserValidator {
 				CONFLICT_USER_EXCEPTION);
 		}
 	}
+
+	public void validateNicknameUnique(String nickname) {
+		if (userRepository.existsByNickname(nickname)) {
+			throw new ConflictException(String.format("이미 존재하는 유저 닉네임 (%s) 입니다.", nickname), CONFLICT_USER_NICKNAME_EXCEPTION);
+		}
+	}
 }

@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
 	@EntityGraph(attributePaths = {"fcmTokens"})
 	Optional<User> findUserById(final Long id);
+
+	boolean existsByNickname(String nickname);
 }

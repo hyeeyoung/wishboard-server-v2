@@ -12,6 +12,7 @@ import com.wishboard.server.image.application.dto.service.S3Provider;
 import com.wishboard.server.user.application.dto.UserDto;
 import com.wishboard.server.user.application.dto.command.UpdateUserCommand;
 import com.wishboard.server.user.application.service.support.UserReader;
+import com.wishboard.server.user.application.service.support.UserValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,12 +21,14 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class UpdateUserInfoUseCase {
 	private final UserReader userReader;
+	private final UserValidator userValidator;
 
 	private final S3Provider s3Provider;
 	private final ModelMapper modelMapper;
 
 	public UserDto excute(Long userId, UpdateUserCommand updateUserCommand, MultipartFile image) {
 		var user = userReader.findById(userId);
+		userValidator.validateNicknameUnique(updateUserCommand.nickname());
 		user.updateUserNickname(updateUserCommand.nickname());
 		if (image != null && !image.isEmpty()) {
 			String previousImageUrl = user.getProfileImgUrl();
