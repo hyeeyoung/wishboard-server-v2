@@ -32,13 +32,14 @@ public class UpdateUserInfoUseCase {
 		user.updateUserNickname(updateUserCommand.nickname());
 		if (image != null && !image.isEmpty()) {
 			String previousImageUrl = user.getProfileImgUrl();
-			if (StringUtils.hasText(previousImageUrl)) {
-				s3Provider.deleteFile(previousImageUrl);
-			}
 
 			String profileImageUrl = s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.PROFILE_IMAGE), image);
 			if (StringUtils.hasText(profileImageUrl)) {
 				user.updateProfileImage(image.getOriginalFilename(), profileImageUrl);
+			}
+
+			if (StringUtils.hasText(previousImageUrl)) {
+				s3Provider.deleteFile(previousImageUrl);
 			}
 		}
 		return modelMapper.map(user, UserDto.class);

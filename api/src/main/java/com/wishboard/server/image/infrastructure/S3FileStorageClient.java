@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 
@@ -18,6 +20,7 @@ import java.net.URL;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class S3FileStorageClient implements FileStorageClient {
 
 	private final S3Template s3Template; // 업로드/삭제는 그대로 사용
@@ -37,10 +40,12 @@ public class S3FileStorageClient implements FileStorageClient {
 			// 퍼블릭 공개는 "버킷 정책"으로 처리. 여기선 ACL 건드리지 않음.
 			s3Template.upload(bucket, fileName, in, meta);
 		} catch (IOException e) {
+			log.error("file stream read failed. fileName: {}", file.getOriginalFilename(), e);
 			throw new InternalServerException(
 				String.format("파일 (%s) 입력 스트림을 가져오는 중 에러가 발생했습니다", file.getOriginalFilename())
 			);
 		} catch (S3Exception e) {
+			log.error("S3 file upload failed for file: {}", file.getOriginalFilename(), e);
 			throw new InternalServerException(
 				String.format("파일 (%s) 업로드 중 내부 에러가 발생했습니다", file.getOriginalFilename())
 			);
@@ -51,6 +56,7 @@ public class S3FileStorageClient implements FileStorageClient {
 		try {
 			s3Template.deleteObject(bucket, fileName);
 		} catch (S3Exception e) {
+			log.error("S3 file delete failed for file: {}", fileName, e);
 			throw new InternalServerException(
 				String.format("파일 (%s) 삭제 중 내부 에러가 발생했습니다", fileName)
 			);
