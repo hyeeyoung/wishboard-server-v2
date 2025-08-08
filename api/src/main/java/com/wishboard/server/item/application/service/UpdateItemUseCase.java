@@ -51,14 +51,6 @@ public class UpdateItemUseCase {
 		}
 
 		// 이미지 변경
-		if (!item.getImages().isEmpty()) {
-			item.getImages().forEach(image -> {
-				if (StringUtils.hasText(image.getItemImageUrl())) {
-					s3Provider.deleteFile(image.getItemImageUrl());
-				}
-			});
-			item.getImages().clear();
-		}
 		if (images != null && !images.isEmpty()) {
 			List<ItemImage> imageUrls = images.stream()
 				.map(image -> {
@@ -70,6 +62,14 @@ public class UpdateItemUseCase {
 				})
 				.collect(Collectors.toList());
 			item.addItemImage(imageUrls);
+		}
+		if (!item.getImages().isEmpty()) {
+			item.getImages().forEach(image -> {
+				if (StringUtils.hasText(image.getItemImageUrl())) {
+					s3Provider.deleteFile(image.getItemImageUrl());
+				}
+			});
+			item.getImages().clear();
 		}
 		item.updateItemInfo(updateItemCommand.itemName(), String.valueOf(updateItemCommand.itemPrice()), updateItemCommand.itemUrl(),
 			updateItemCommand.itemMemo());
