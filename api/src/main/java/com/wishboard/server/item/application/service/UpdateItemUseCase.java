@@ -16,7 +16,7 @@ import com.wishboard.server.common.exception.NotFoundException;
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.folder.application.service.support.FolderReader;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.dto.service.S3Provider;
+import com.wishboard.server.image.application.service.service.S3Provider;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
@@ -45,7 +45,7 @@ public class UpdateItemUseCase {
 		var item = itemReader.findById(itemId, user.getId());
 
 		// 폴더 변경
-		if (updateItemCommand.itemName() != null) {
+		if (updateItemCommand.folderId() != null) {
 			var folder = folderReader.findByIdAndUser(updateItemCommand.folderId(), user);
 			item.updateFolder(folder);
 		}

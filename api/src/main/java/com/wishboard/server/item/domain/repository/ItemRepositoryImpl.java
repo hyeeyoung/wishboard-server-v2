@@ -35,10 +35,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 
 	@Override
 	public Page<ItemFolderNotificationDto> findAllByUserId(Long userId, Pageable pageable) {
-		List<Tuple> results = queryFactory
-			.selectDistinct(item, itemImage, folder, notifications)
+		long totalElements = queryFactory
+			.select(item.id.count())
 			.from(item)
-			.leftJoin(item.images, itemImage).fetchJoin()
+			.where(item.user.id.eq(userId))
+			.fetchOne();
+
+		List<Tuple> results = queryFactory
+			.selectDistinct(item, folder, notifications)
+			.from(item)
 			.leftJoin(folder).on(item.folder.eq(folder))
 			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
 			.where(item.user.id.eq(userId))
@@ -49,14 +54,13 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 		List<ItemFolderNotificationDto> dtoList = results.stream()
 			.map(tuple -> {
 				Item item = tuple.get(QItem.item);
-				ItemImage itemImage = tuple.get(QItemImage.itemImage);
 				Notifications notifications = tuple.get(QNotifications.notifications);
 				if (ObjectUtils.isEmpty(item)) {
 					return new ItemFolderNotificationDto();
 				}
 				return ItemFolderNotificationDto.of(item, notifications);
 			}).toList();
-		return new PageImpl<>(dtoList, pageable, results.size());
+		return new PageImpl<>(dtoList, pageable, totalElements);
 	}
 
 	@Override

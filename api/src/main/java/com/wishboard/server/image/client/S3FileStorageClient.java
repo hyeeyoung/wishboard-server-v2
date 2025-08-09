@@ -1,7 +1,7 @@
-package com.wishboard.server.image.infrastructure;
+package com.wishboard.server.image.client;
 
 import com.wishboard.server.common.exception.InternalServerException;
-import com.wishboard.server.image.infrastructure.dto.FileStorageClient;
+
 import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Exception;
 import io.awspring.cloud.s3.S3Template;

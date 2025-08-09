@@ -1,14 +1,13 @@
 package com.wishboard.server.common.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -18,13 +17,11 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class AuditingTimeEntity {
 
-	@CreatedDate
-	@Column(name = "createAt", columnDefinition = "datetime")
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "Asia/Seoul")
+	@CreationTimestamp
+	@Column(name = "createAt")
 	private LocalDateTime createdAt;
 
-	@LastModifiedDate
-	@Column(name = "updateAt", columnDefinition = "datetime")
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "Asia/Seoul")
+	@UpdateTimestamp
+	@Column(name = "updateAt")
 	private LocalDateTime updatedAt;
 }

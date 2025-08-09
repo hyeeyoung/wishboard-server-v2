@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.folder.application.service.support.FolderReader;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.dto.service.S3Provider;
+import com.wishboard.server.image.application.service.service.S3Provider;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.CreateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemValidator;
@@ -48,23 +48,21 @@ public class CreateItemUseCase {
 				createItemCommand.itemMemo(), addType));
 
 		// 이미지 추가
-		if (images != null && !images.isEmpty()) {
-			List<ItemImage> imageUrls = images.stream()
-				.map(image -> {
-					if (image != null && !image.isEmpty()) {
-						return new ItemImage(image.getOriginalFilename(),
-							s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item);
-					}
-					return null;
-				})
-				.collect(Collectors.toList());
-			item.addItemImage(imageUrls);
-		}
+		List<ItemImage> imageUrls = images.stream()
+			.filter(image -> image != null && !image.isEmpty())
+			.map(image -> new ItemImage(
+				image.getOriginalFilename(),
+				s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image),
+				item))
+			.toList();
+		item.addItemImage(imageUrls);
+
 		// 폴더 추가
 		if (createItemCommand.folderId() != null) {
 			var folder = folderReader.findByIdAndUser(createItemCommand.folderId(), user);
 			item.updateFolder(folder);
 		}
+
 		// 알림 추가
 		Notifications notifications = null;
 		if (createItemCommand.itemNotificationType() != null && createItemCommand.itemNotificationDate() != null) {
