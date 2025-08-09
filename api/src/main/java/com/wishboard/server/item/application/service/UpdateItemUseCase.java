@@ -22,6 +22,7 @@ import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
 import com.wishboard.server.item.domain.model.ItemImage;
 import com.wishboard.server.notifications.domain.model.NotificationId;
+import com.wishboard.server.notifications.domain.model.Notifications;
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
 import com.wishboard.server.user.application.service.support.UserReader;
 
@@ -59,33 +60,31 @@ public class UpdateItemUseCase {
 			});
 			item.getImages().clear();
 		}
-		if (images != null && !images.isEmpty()) {
-			List<ItemImage> imageUrls = images.stream()
-				.map(image -> {
-					if (image != null && !image.isEmpty()) {
-						return new ItemImage(image.getOriginalFilename(),
-							s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item);
-					}
-					return null;
-				})
-				.collect(Collectors.toList());
-			item.addItemImage(imageUrls);
-		}
+		List<ItemImage> imageUrls = images.stream()
+			.filter(image -> image != null & !image.isEmpty())
+			.map(image -> new ItemImage(image.getOriginalFilename(),
+					s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item))
+			.toList();
+		item.addItemImage(imageUrls);
 		item.updateItemInfo(updateItemCommand.itemName(), String.valueOf(updateItemCommand.itemPrice()), updateItemCommand.itemUrl(),
 			updateItemCommand.itemMemo());
 
 		// 알림 수정
-		var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item))
-			.orElseThrow(
-				() -> new NotFoundException(String.format("알림이 존재하지 않습니다. (itemId: %s, userId: %s)", item.getId(), item.getUser().getId()),
-					NOT_FOUND_NOTIFICATION_EXCEPTION));
-
+		Notifications notifications = null;
 		if (updateItemCommand.itemNotificationType() != null && updateItemCommand.itemNotificationDate() != null) {
-			notificationsByItem.updateState(
-				updateItemCommand.itemNotificationType(),
-				LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter)
-			);
+			var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item));
+			if (notificationsByItem.isEmpty()) {
+				notifications = Notifications.newInstance(
+					new NotificationId(item.getUser(), item),
+					updateItemCommand.itemNotificationType(),
+					LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter
+					)
+				);
+			} else {
+				notifications = notificationsByItem.get();
+				notifications.updateState(updateItemCommand.itemNotificationType(), LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter));
+			}
 		}
-		return ItemFolderNotificationDto.of(item, notificationsByItem);
+		return ItemFolderNotificationDto.of(item, notifications);
 	}
 }
