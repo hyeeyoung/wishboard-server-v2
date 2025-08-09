@@ -50,14 +50,11 @@ public class CreateItemUseCase {
 		// 이미지 추가
 		if (images != null && !images.isEmpty()) {
 			List<ItemImage> imageUrls = images.stream()
-				.map(image -> {
-					if (image != null && !image.isEmpty()) {
-						return new ItemImage(image.getOriginalFilename(),
-							s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item);
-					}
-					return null;
-				})
-				.collect(Collectors.toList());
+				.map(image -> new ItemImage(
+					image.getOriginalFilename(),
+					s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image),
+					item))
+				.toList();
 			item.addItemImage(imageUrls);
 		}
 		// 폴더 추가
