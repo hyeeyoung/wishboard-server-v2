@@ -145,7 +145,6 @@ public class ControllerExceptionAdvice {
 			log.warn(exception.getMessage(), exception);
 		} else {
 			log.error(exception.getMessage(), exception);
-			Sentry.captureException(exception);
 		}
 
 		if (exception.getErrorCodeDetail() != null) {
