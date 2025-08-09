@@ -1,4 +1,4 @@
-package com.wishboard.server.image.infrastructure.dto;
+package com.wishboard.server.image.client;
 
 import org.springframework.web.multipart.MultipartFile;
 

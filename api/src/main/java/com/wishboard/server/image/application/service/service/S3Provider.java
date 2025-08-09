@@ -1,13 +1,10 @@
-package com.wishboard.server.image.application.dto.service;
-
-import static com.wishboard.server.common.exception.ErrorCode.*;
+package com.wishboard.server.image.application.service.service;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.wishboard.server.common.exception.ValidationException;
 import com.wishboard.server.image.application.dto.request.UploadFileRequest;
-import com.wishboard.server.image.infrastructure.S3FileStorageClient;
+import com.wishboard.server.image.client.S3FileStorageClient;
 
 import lombok.RequiredArgsConstructor;
 

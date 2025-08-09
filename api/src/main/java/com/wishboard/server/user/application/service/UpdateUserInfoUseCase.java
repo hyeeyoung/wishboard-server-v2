@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.dto.service.S3Provider;
+import com.wishboard.server.image.application.service.service.S3Provider;
 import com.wishboard.server.user.application.dto.UserDto;
 import com.wishboard.server.user.application.dto.command.UpdateUserCommand;
 import com.wishboard.server.user.application.service.support.UserReader;
