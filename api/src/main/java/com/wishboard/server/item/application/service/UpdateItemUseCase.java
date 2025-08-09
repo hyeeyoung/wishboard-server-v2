@@ -63,12 +63,14 @@ public class UpdateItemUseCase {
 			});
 			item.getImages().clear();
 		}
-		List<ItemImage> imageUrls = images.stream()
-			.filter(image -> image != null && !image.isEmpty())
-			.map(image -> new ItemImage(image.getOriginalFilename(),
+		if (images != null) {
+			List<ItemImage> imageUrls = images.stream()
+				.filter(image -> image != null && !image.isEmpty())
+				.map(image -> new ItemImage(image.getOriginalFilename(),
 					s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item))
-			.toList();
-		item.addItemImage(imageUrls);
+				.toList();
+			item.addItemImage(imageUrls);
+		}
 		item.updateItemInfo(updateItemCommand.itemName(), String.valueOf(updateItemCommand.itemPrice()), updateItemCommand.itemUrl(),
 			updateItemCommand.itemMemo());
 

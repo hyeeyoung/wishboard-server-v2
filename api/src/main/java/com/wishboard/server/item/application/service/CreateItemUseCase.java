@@ -47,14 +47,16 @@ public class CreateItemUseCase {
 				createItemCommand.itemMemo(), addType));
 
 		// 이미지 추가
-		List<ItemImage> imageUrls = images.stream()
-			.filter(image -> image != null && !image.isEmpty())
-			.map(image -> new ItemImage(
-				image.getOriginalFilename(),
-				s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image),
-				item))
-			.toList();
-		item.addItemImage(imageUrls);
+		if (images != null) {
+			List<ItemImage> imageUrls = images.stream()
+				.filter(image -> image != null && !image.isEmpty())
+				.map(image -> new ItemImage(
+					image.getOriginalFilename(),
+					s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image),
+					item))
+				.toList();
+			item.addItemImage(imageUrls);
+		}
 
 		// 폴더 추가
 		if (createItemCommand.folderId() != null) {
