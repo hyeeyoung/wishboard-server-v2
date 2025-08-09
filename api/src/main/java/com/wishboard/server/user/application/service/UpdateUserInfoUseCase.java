@@ -28,7 +28,9 @@ public class UpdateUserInfoUseCase {
 
 	public UserDto execute(Long userId, UpdateUserCommand updateUserCommand, MultipartFile image) {
 		var user = userReader.findById(userId);
-		userValidator.validateNicknameUnique(updateUserCommand.nickname());
+		if (user.getNickname() == null || !user.getNickname().equals(updateUserCommand.nickname())) {
+			userValidator.validateNicknameUnique(updateUserCommand.nickname());
+		}
 		user.updateUserNickname(updateUserCommand.nickname());
 		if (image != null && !image.isEmpty()) {
 			String previousImageUrl = user.getProfileImgUrl();
