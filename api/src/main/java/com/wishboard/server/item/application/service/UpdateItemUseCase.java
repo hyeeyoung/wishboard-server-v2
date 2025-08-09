@@ -69,10 +69,10 @@ public class UpdateItemUseCase {
 		item.updateItemInfo(updateItemCommand.itemName(), String.valueOf(updateItemCommand.itemPrice()), updateItemCommand.itemUrl(),
 			updateItemCommand.itemMemo());
 
-		// 알림 수정
 		Notifications notifications = null;
+		var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item));
 		if (updateItemCommand.itemNotificationType() != null && updateItemCommand.itemNotificationDate() != null) {
-			var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item));
+			// 알림 생성
 			if (notificationsByItem.isEmpty()) {
 				notifications = Notifications.newInstance(
 					new NotificationId(item.getUser(), item),
@@ -80,10 +80,16 @@ public class UpdateItemUseCase {
 					LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter
 					)
 				);
-			} else {
+			}
+			// 알림 수정
+			else {
 				notifications = notificationsByItem.get();
 				notifications.updateState(updateItemCommand.itemNotificationType(), LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter));
 			}
+		}
+		// 알림 삭제
+		else {
+			notificationsByItem.ifPresent(notificationsRepository::delete);
 		}
 		return ItemFolderNotificationDto.of(item, notifications);
 	}
