@@ -45,7 +45,7 @@ public class UpdateItemUseCase {
 		var item = itemReader.findById(itemId, user.getId());
 
 		// 폴더 변경
-		if (updateItemCommand.itemName() != null) {
+		if (updateItemCommand.folderId() != null) {
 			var folder = folderReader.findByIdAndUser(updateItemCommand.folderId(), user);
 			item.updateFolder(folder);
 		}
