@@ -28,6 +28,12 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 
 	@Override
 	public Page<ItemFolderNotificationDto> findItemListByUserIdAndFolderId(Long userId, Long folderId, Pageable pageable) {
+		long totalElements = queryFactory
+			.select(item.id.count())
+			.from(item)
+			.where(item.user.id.eq(userId))
+			.fetchOne();
+
 		List<Tuple> results = queryFactory
 			.select(item, folder, notifications)
 			.from(item)
@@ -50,6 +56,6 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 				}
 				return ItemFolderNotificationDto.of(item, notifications);
 			}).toList();
-		return new PageImpl<>(dtoList, pageable, results.size());
+		return new PageImpl<>(dtoList, pageable, totalElements);
 	}
 }

@@ -35,6 +35,12 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 
 	@Override
 	public Page<ItemFolderNotificationDto> findAllByUserId(Long userId, Pageable pageable) {
+		long totalElements = queryFactory
+			.select(item.id.count())
+			.from(item)
+			.where(item.user.id.eq(userId))
+			.fetchOne();
+
 		List<Tuple> results = queryFactory
 			.selectDistinct(item, itemImage, folder, notifications)
 			.from(item)
@@ -56,7 +62,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				}
 				return ItemFolderNotificationDto.of(item, notifications);
 			}).toList();
-		return new PageImpl<>(dtoList, pageable, results.size());
+		return new PageImpl<>(dtoList, pageable, totalElements);
 	}
 
 	@Override
