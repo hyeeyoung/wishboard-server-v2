@@ -42,9 +42,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.fetchOne();
 
 		List<Tuple> results = queryFactory
-			.selectDistinct(item, itemImage, folder, notifications)
+			.selectDistinct(item, folder, notifications)
 			.from(item)
-			.leftJoin(item.images, itemImage).fetchJoin()
 			.leftJoin(folder).on(item.folder.eq(folder))
 			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
 			.where(item.user.id.eq(userId))
@@ -55,7 +54,6 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 		List<ItemFolderNotificationDto> dtoList = results.stream()
 			.map(tuple -> {
 				Item item = tuple.get(QItem.item);
-				ItemImage itemImage = tuple.get(QItemImage.itemImage);
 				Notifications notifications = tuple.get(QNotifications.notifications);
 				if (ObjectUtils.isEmpty(item)) {
 					return new ItemFolderNotificationDto();
