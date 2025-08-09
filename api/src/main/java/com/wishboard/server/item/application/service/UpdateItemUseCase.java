@@ -5,6 +5,7 @@ import static com.wishboard.server.common.exception.ErrorCode.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.wishboard.server.common.domain.ItemNotificationType;
 import com.wishboard.server.common.exception.NotFoundException;
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.folder.application.service.support.FolderReader;
@@ -20,6 +22,7 @@ import com.wishboard.server.image.application.service.service.S3Provider;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
+import com.wishboard.server.item.domain.model.Item;
 import com.wishboard.server.item.domain.model.ItemImage;
 import com.wishboard.server.notifications.domain.model.NotificationId;
 import com.wishboard.server.notifications.domain.model.Notifications;
@@ -61,7 +64,7 @@ public class UpdateItemUseCase {
 			item.getImages().clear();
 		}
 		List<ItemImage> imageUrls = images.stream()
-			.filter(image -> image != null & !image.isEmpty())
+			.filter(image -> image != null && !image.isEmpty())
 			.map(image -> new ItemImage(image.getOriginalFilename(),
 					s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item))
 			.toList();
@@ -74,23 +77,32 @@ public class UpdateItemUseCase {
 		if (updateItemCommand.itemNotificationType() != null && updateItemCommand.itemNotificationDate() != null) {
 			// 알림 생성
 			if (notificationsByItem.isEmpty()) {
-				notifications = Notifications.newInstance(
-					new NotificationId(item.getUser(), item),
-					updateItemCommand.itemNotificationType(),
-					LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter
-					)
-				);
+				notifications = createNotification(item, updateItemCommand.itemNotificationType(),updateItemCommand.itemNotificationDate());
 			}
 			// 알림 수정
 			else {
 				notifications = notificationsByItem.get();
-				notifications.updateState(updateItemCommand.itemNotificationType(), LocalDateTime.parse(updateItemCommand.itemNotificationDate(), formatter));
+				updateNotification(notifications, updateItemCommand.itemNotificationType(), updateItemCommand.itemNotificationDate());
 			}
 		}
 		// 알림 삭제
 		else {
-			notificationsByItem.ifPresent(notificationsRepository::delete);
+			deleteNotification(notificationsByItem);
 		}
 		return ItemFolderNotificationDto.of(item, notifications);
+	}
+
+	private Notifications createNotification(Item item, ItemNotificationType itemNotificationType, String itemNotificationDate) {
+			return Notifications.newInstance(
+				new NotificationId(item.getUser(), item), itemNotificationType, LocalDateTime.parse(itemNotificationDate, formatter)
+			);
+	}
+
+	private void updateNotification(Notifications notifications, ItemNotificationType itemNotificationType, String itemNotificationDate) {
+		notifications.updateState(itemNotificationType, LocalDateTime.parse(itemNotificationDate, formatter));
+	}
+
+	private void deleteNotification(Optional<Notifications> notifications) {
+		notifications.ifPresent(notificationsRepository::delete);
 	}
 }
