@@ -16,6 +16,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.domain.model.Item;
 import com.wishboard.server.item.domain.model.QItem;
+import com.wishboard.server.item.domain.model.QItemImage;
 import com.wishboard.server.notifications.domain.model.Notifications;
 import com.wishboard.server.notifications.domain.model.QNotifications;
 
@@ -39,6 +40,7 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 		List<Tuple> results = queryFactory
 			.select(item, folder, notifications)
 			.from(item)
+			.leftJoin(item.images, QItemImage.itemImage).fetchJoin()
 			.leftJoin(folder).on(item.folder.eq(folder))
 			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
 			.where(
