@@ -31,7 +31,9 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 		long totalElements = queryFactory
 			.select(item.id.count())
 			.from(item)
-			.where(item.user.id.eq(userId))
+			.where(item.user.id.eq(userId),
+				item.folder.id.eq(folderId)
+			)
 			.fetchOne();
 
 		List<Tuple> results = queryFactory
@@ -47,6 +49,7 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
+
 		List<ItemFolderNotificationDto> dtoList = results.stream()
 			.map(tuple -> {
 				Item item = tuple.get(QItem.item);
