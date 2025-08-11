@@ -203,6 +203,9 @@ jobs:
           touch .env
           echo NODE_ENV="development" >> .env
           echo "${{ secrets.PUSH_ENV_DEV }}" > .env
+          
+          echo "== '\n' 인식 문제로 인해 재할당 =="
+          echo FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} >> .env
 
       - name: Build (dev)
         run: npm run build --if-present
