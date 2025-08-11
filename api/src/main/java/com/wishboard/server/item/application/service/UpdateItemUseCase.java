@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.management.Notification;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -49,8 +51,12 @@ public class UpdateItemUseCase {
 		var item = itemReader.findById(itemId, user.getId());
 
 		// 폴더 변경
-		var folder = folderReader.findByIdAndUser(updateItemCommand.folderId(), user);
-		item.updateFolder(folder);
+		if (updateItemCommand.folderId() != null) {
+			var folder = folderReader.findByIdAndUser(updateItemCommand.folderId(), user);
+			item.updateFolder(folder);
+		} else {
+			item.updateFolder(null);
+		}
 
 		// 이미지 변경
 		if (!item.getImages().isEmpty()) {
@@ -72,23 +78,29 @@ public class UpdateItemUseCase {
 		item.updateItemInfo(updateItemCommand.itemName(), String.valueOf(updateItemCommand.itemPrice()), updateItemCommand.itemUrl(),
 			updateItemCommand.itemMemo());
 
+		var maybeNotification = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item));
+
+		var reqType = updateItemCommand.itemNotificationType();
+		var reqDateStr = updateItemCommand.itemNotificationDate();
+
 		Notifications notifications = null;
-		var notificationsByItem = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item));
-		if (updateItemCommand.itemNotificationType() != null && updateItemCommand.itemNotificationDate() != null) {
-			// 알림 생성
-			if (notificationsByItem.isEmpty()) {
-				notifications = createNotification(item, updateItemCommand.itemNotificationType(),updateItemCommand.itemNotificationDate());
-				notificationsRepository.save(notifications);
+
+		// 1) 생성/수정
+		if (reqType != null && reqDateStr != null) {
+			if (maybeNotification.isEmpty()) {
+				notifications = createNotification(item, reqType, reqDateStr);
+				notifications = notificationsRepository.save(notifications);
+			} else {
+				updateNotification(maybeNotification.get(), reqType, reqDateStr);
 			}
-			// 알림 수정
-			else {
-				notifications = notificationsByItem.get();
-				updateNotification(notifications, updateItemCommand.itemNotificationType(), updateItemCommand.itemNotificationDate());
+			// 2) 삭제
+		} else if (reqType == null && reqDateStr == null) {
+			if (maybeNotification.isPresent()) {
+				deleteNotification(maybeNotification);
 			}
-		}
-		// 알림 삭제
-		else if (updateItemCommand.itemNotificationType() == null && updateItemCommand.itemNotificationDate() == null) {
-			deleteNotification(notificationsByItem);
+		} else {
+			// 1개라도 null 인 경우 기존 값 그대로 유지
+			notifications = maybeNotification.orElse(null);
 		}
 		return ItemFolderNotificationDto.of(item, notifications);
 	}
