@@ -80,6 +80,7 @@ public class UpdateItemUseCase {
 			// 알림 생성
 			if (notificationsByItem.isEmpty()) {
 				notifications = createNotification(item, updateItemCommand.itemNotificationType(),updateItemCommand.itemNotificationDate());
+				notificationsRepository.save(notifications);
 			}
 			// 알림 수정
 			else {
@@ -88,7 +89,7 @@ public class UpdateItemUseCase {
 			}
 		}
 		// 알림 삭제
-		else {
+		else if (updateItemCommand.itemNotificationType() == null && updateItemCommand.itemNotificationDate() == null) {
 			deleteNotification(notificationsByItem);
 		}
 		return ItemFolderNotificationDto.of(item, notifications);
