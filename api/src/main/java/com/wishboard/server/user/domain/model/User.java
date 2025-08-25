@@ -2,6 +2,7 @@ package com.wishboard.server.user.domain.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.util.StringUtils;
 
@@ -108,11 +109,12 @@ public class User extends AuditingTimeEntity {
 	}
 
 	public void updateDeviceInformation(String fcmToken, OsType osType, String deviceInfo) {
+		// 디바이스/토큰 업데이트 정책: 디바이스 당 1개 토큰 유지
 		if (StringUtils.hasText(fcmToken)) {
-			List<String> fcmTokenList = this.fcmTokens.stream().map(UserToken::getFcmToken).toList();
-			if (!fcmTokenList.contains(fcmToken)) {
-				addFcmToken(fcmToken, deviceInfo, this);
-			}
+			// 1) 같은 device에 대한 기존 엔트리 제거
+			this.fcmTokens.removeIf(t -> Objects.equals(t.getDevice(), deviceInfo));
+			// 2) 새 토큰 삽입
+			addFcmToken(fcmToken, deviceInfo, this);
 		}
 		if (osType != null && !StringUtils.hasText(osType.getValue())) {
 			this.osType = osType;
