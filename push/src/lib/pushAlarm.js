@@ -41,7 +41,7 @@ const sendFcmTokenToFirebase = async (notiList) => {
           message.android.data.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
           message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
         } else {
-          message.notification.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
+          message.notification.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
           message.android.data.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
           message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
         }
