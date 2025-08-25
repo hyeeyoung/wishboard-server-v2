@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.util.ObjectUtils;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wishboard.server.item.domain.model.Item;
 import com.wishboard.server.item.domain.model.QItem;
@@ -53,7 +54,9 @@ public class NotificationsRepositoryImpl implements NotificationsRepositoryCusto
 			.join(item).on(notifications.notificationId.item.eq(item))
 			.where(
 				notifications.notificationId.user.id.eq(userId),
-				notifications.itemNotificationDate.loe(nowPlus30Min)
+				Expressions.dateTimeTemplate(
+					LocalDateTime.class, "DATE_FORMAT({0}, {1}", notifications.itemNotificationDate,  "%Y-%m-%d %H:%i:%s"
+				).loe(nowPlus30Min)
 			)
 			.orderBy(notifications.itemNotificationDate.asc())
 			.fetch();
