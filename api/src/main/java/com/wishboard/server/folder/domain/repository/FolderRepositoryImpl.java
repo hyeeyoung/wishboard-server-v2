@@ -40,7 +40,6 @@ public class FolderRepositoryImpl implements FolderRepositoryCustom {
 		List<Tuple> results = queryFactory
 			.select(item, folder, notifications)
 			.from(item)
-			.leftJoin(item.images, QItemImage.itemImage).fetchJoin()
 			.leftJoin(folder).on(item.folder.eq(folder))
 			.leftJoin(notifications).on(item.eq(notifications.notificationId.item))
 			.where(
