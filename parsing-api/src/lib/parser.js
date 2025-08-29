@@ -1,6 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const logger = require('./config/winston');
+const logger = require('../config/winston');
 const { NotFound } = require('../utils/errors');
 const { ErrorMessage } = require('../utils/response');
 
