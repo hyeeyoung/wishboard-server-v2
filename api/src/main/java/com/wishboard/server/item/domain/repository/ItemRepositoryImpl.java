@@ -20,9 +20,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wishboard.server.item.application.dto.FolderItemDto;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.domain.model.Item;
-import com.wishboard.server.item.domain.model.ItemImage;
 import com.wishboard.server.item.domain.model.QItem;
-import com.wishboard.server.item.domain.model.QItemImage;
 import com.wishboard.server.notifications.domain.model.Notifications;
 import com.wishboard.server.notifications.domain.model.QNotifications;
 
