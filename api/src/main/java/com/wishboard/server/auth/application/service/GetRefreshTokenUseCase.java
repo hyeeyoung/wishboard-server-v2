@@ -25,11 +25,12 @@ public class GetRefreshTokenUseCase {
 		if (!jwtClient.validateToken(tokenCommand.getRefreshToken())) {
 			throw new UnAuthorizedException(String.format("주어진 리프레시 토큰 (%s) 이 유효하지 않습니다.", tokenCommand.getRefreshToken()), INVALID_TOKEN);
 		}
-		Long userId = jwtClient.getUserIdFromJwt(tokenCommand.getRefreshToken());
+		Long userId = jwtClient.getUserIdFromJwt(tokenCommand.getAccessToken());
 		String refreshToken = jwtClient.getRefreshToken(userId, deviceInfo);
 		Boolean isLogoutDevice = jwtClient.isLogoutDevice(userId, deviceInfo);
+		System.out.println("isLogoutDevice = " + isLogoutDevice);
 
-		if (isLogoutDevice.equals(Boolean.TRUE)) {
+		if (isLogoutDevice) {
 			throw new UnAuthorizedException(String.format("중복 로그인 기기 대수 초과(3대)로 자동으로 로그아웃 처리되었습니다. userId: %s, deviceInfo: %s", userId, deviceInfo),
 				LOGOUT_BY_DEVICE_OVERFLOW);
 		}

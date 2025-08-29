@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtClient {
 
-	private static final long EXPIRED_TIME = 1L;
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final Key secretKey;
 
@@ -75,14 +74,14 @@ public class JwtClient {
 	}
 
 	private void expireRefreshToken(String keyName) {
-		redisTemplate.opsForValue().set(keyName, "", EXPIRED_TIME, TimeUnit.MILLISECONDS);
+		redisTemplate.delete(keyName);
 	}
 
 	public String getRefreshToken(Long userId, String deviceInfo) {
 		// v2 전 기존 키 형식의 토큰이 존재한다면
-		String refreshToken = (String)redisTemplate.opsForValue().get(String.valueOf(userId));
-		if (StringUtils.hasText(refreshToken)) {
-			return refreshToken;
+		String legacy = (String)redisTemplate.opsForValue().get(String.valueOf(userId));
+		if (StringUtils.hasText(legacy)) {
+			return legacy;
 		}
 
 		return (String)redisTemplate.opsForValue().get(generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId)));
@@ -90,7 +89,7 @@ public class JwtClient {
 
 	public Boolean isLogoutDevice(Long userId, String deviceInfo) {
 		String logoutDeviceKeyName = generateKeyName(RedisKey.LOGOUT_FLAG, deviceInfo, String.valueOf(userId));
-		if (Boolean.TRUE.equals(redisTemplate.hasKey(logoutDeviceKeyName))) {
+		if (redisTemplate.hasKey(logoutDeviceKeyName)) {
 			redisTemplate.delete(logoutDeviceKeyName);
 			return true;
 		}
@@ -128,17 +127,15 @@ public class JwtClient {
 	}
 
 	private String generateKeyName(String... names) {
-		return String.join("_", names);
+		return String.join(":", names);
 	}
 
 	private void saveRefreshTokenToRedis(Long userId, String deviceInfo, String refreshToken, Long now) {
 		String refreshTokenKeyName = generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId));
 		String zsetKeyName = generateKeyName(RedisKey.USER_DEVICE, String.valueOf(userId));
 
-		// (legacy) v1 에 저장된 형태를 마이그레이션 하면서 v2 형태로 저장
-		if (migrateLegacyRefreshTokenIfExist(userId, refreshTokenKeyName, zsetKeyName, now)) {
-			return;
-		}
+		// legacy 토큰이 존재한다면 삭제
+		cleanupLegacyRefreshTokenIfExist(userId);
 
 		// 신규 토큰 저장
 		saveNewRefreshToken(refreshTokenKeyName, refreshToken, zsetKeyName, now);
@@ -147,17 +144,12 @@ public class JwtClient {
 		removeOldestDeviceIfExceedLimit(zsetKeyName, userId);
 	}
 
-	private boolean migrateLegacyRefreshTokenIfExist(Long userId, String newRefreshTokenKeyName, String zsetKeyName, Long now) {
+	private void cleanupLegacyRefreshTokenIfExist(Long userId) {
 		String legacyRefreshTokenKeyName = String.valueOf(userId);
-		if (Boolean.TRUE.equals(redisTemplate.hasKey(legacyRefreshTokenKeyName))) {
-			String legacyRefreshToken = (String)redisTemplate.opsForValue().get(legacyRefreshTokenKeyName);
-			if (StringUtils.hasText(legacyRefreshToken)) {
-				saveNewRefreshToken(newRefreshTokenKeyName, legacyRefreshToken, zsetKeyName, now);
-				expireRefreshToken(legacyRefreshTokenKeyName);
-				return true;
-			}
+		if (redisTemplate.hasKey(legacyRefreshTokenKeyName)) {
+			expireRefreshToken(legacyRefreshTokenKeyName);
+			log.warn("@@ Deleted legacy refresh token key: {}", legacyRefreshTokenKeyName);
 		}
-		return false;
 	}
 
 	private void saveNewRefreshToken(String refreshTokenKeyName, String refreshToken, String zsetKeyName, Long now) {
@@ -171,12 +163,14 @@ public class JwtClient {
 			Set<Object> oldest = redisTemplate.opsForZSet().range(zsetKeyName, 0, 0);
 			if (oldest != null && !oldest.isEmpty()) {
 				String oldRefreshTokenKeyName = oldest.iterator().next().toString();
+
 				expireRefreshToken(oldRefreshTokenKeyName);
 				redisTemplate.opsForZSet().remove(zsetKeyName, oldRefreshTokenKeyName);
-				log.debug("Exceeded device limit. Deleted oldest refresh token: {}", oldRefreshTokenKeyName);
-				String oldKeyDeviceInfo = oldRefreshTokenKeyName.split("_")[1];
+
+				String oldKeyDeviceInfo = oldRefreshTokenKeyName.split(":")[1];
 				redisTemplate.opsForValue()
 					.set(generateKeyName(RedisKey.LOGOUT_FLAG, oldKeyDeviceInfo, String.valueOf(userId)), String.valueOf(true));
+				log.warn("@@ Exceeded device limit. Deleted oldest refresh token: {}", oldRefreshTokenKeyName);
 			}
 		}
 	}
