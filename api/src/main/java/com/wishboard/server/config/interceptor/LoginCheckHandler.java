@@ -1,5 +1,7 @@
 package com.wishboard.server.config.interceptor;
 
+import static com.wishboard.server.common.exception.ErrorDetailCode.*;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -24,8 +26,10 @@ public class LoginCheckHandler {
 				if (userId != null) {
 					return userId;
 				}
+			} else {
+				throw new UnAuthorizedException(String.format("만료된 JWT (%s) 입니다.", bearerToken), TOKEN_EXPIRED);
 			}
 		}
-		throw new UnAuthorizedException(String.format("잘못된 JWT (%s) 입니다.", bearerToken));
+		throw new UnAuthorizedException(String.format("잘못된 JWT (%s) 입니다.", bearerToken), INVALID_TOKEN);
 	}
 }
