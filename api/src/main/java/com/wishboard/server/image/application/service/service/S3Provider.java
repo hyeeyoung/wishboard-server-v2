@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Component
 public class S3Provider {
-	private static final int MAX_FILE_BYTES = 1 * 1024 * 1024; // 1MB
+	private static final int MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
 
 	private final S3FileStorageClient fileStorageClient;
 
