@@ -54,11 +54,9 @@ public class NotificationsRepositoryImpl implements NotificationsRepositoryCusto
 			.join(item).on(notifications.notificationId.item.eq(item))
 			.where(
 				notifications.notificationId.user.id.eq(userId),
-				Expressions.dateTimeTemplate(
-					LocalDateTime.class, "DATE_FORMAT({0}, {1}", notifications.itemNotificationDate,  "%Y-%m-%d %H:%i:%s"
-				).loe(nowPlus30Min)
+				notifications.itemNotificationDate.loe(nowPlus30Min)
 			)
-			.orderBy(notifications.itemNotificationDate.asc())
+			.orderBy(notifications.itemNotificationDate.desc())
 			.fetch();
 		return results.stream()
 			.map(tuple -> {
