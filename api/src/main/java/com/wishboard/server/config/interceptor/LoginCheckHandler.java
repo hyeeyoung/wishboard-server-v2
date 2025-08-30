@@ -31,9 +31,9 @@ public class LoginCheckHandler {
 				}
 				return userId;
 			} else {
-				throw new UnAuthorizedException(String.format("만료된 JWT (%s) 입니다.", bearerToken), TOKEN_EXPIRED);
+				throw new UnAuthorizedException(String.format("만료된 JWT (%s) 입니다.", bearerToken), UNAUTHORIZED_EXCEPTION, TOKEN_EXPIRED);
 			}
 		}
-		throw new UnAuthorizedException(String.format("잘못된 JWT (%s) 입니다.", bearerToken), INVALID_TOKEN);
+		throw new UnAuthorizedException(String.format("잘못된 JWT (%s) 입니다.", bearerToken), UNAUTHORIZED_INVALID_TOKEN_EXCEPTION, INVALID_TOKEN);
 	}
 }
