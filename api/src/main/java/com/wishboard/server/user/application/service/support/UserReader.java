@@ -17,6 +17,10 @@ import lombok.RequiredArgsConstructor;
 public class UserReader {
 	private final UserRepository userRepository;
 
+	public boolean existsById(Long userId) {
+		return userRepository.existsById(userId);
+	}
+
 	public User findById(Long userId) {
 		return userRepository.findUserById(userId)
 			.orElseThrow(() -> new NotFoundException(
