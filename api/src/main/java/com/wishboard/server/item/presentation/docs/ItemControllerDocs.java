@@ -92,7 +92,7 @@ public interface ItemControllerDocs {
 			6. 아이템 이름은 512자 이하로 입력해주세요.
 			7. 아이템 링크는 1024자 이하로 입력해주세요.
 			8. 아이템 이미지는 최소 1장부터 최대 10장까지 가능합니다.
-			9. 이미지 최대 크기는 1MB 입니다.
+			9. 이미지 1개당 최대 크기는 10MB 입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -125,7 +125,7 @@ public interface ItemControllerDocs {
 			3. 아이템 이름은 512자 이하로 입력해주세요.
 			4. 아이템 링크는 1024자 이하로 입력해주세요.
 			5. 아이템 이미지는 최소 1장부터 최대 10장까지 가능합니다.
-			6. 이미지 최대 크기는 1MB 입니다.
+			6. 이미지 1개당 최대 크기는 10MB 입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
