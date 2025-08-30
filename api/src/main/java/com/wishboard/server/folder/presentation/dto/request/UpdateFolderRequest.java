@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 public record UpdateFolderRequest(
 	@Schema(description = "folderName", example = "상의")
 	@NotBlank(message = "{folder.folderName.notBlank}")
-	@Size(max = 10, message = "{folder.folderName.maxLength")
+	@Size(max = 10, message = "{folder.folderName.max")
 	String folderName
 ) {
 	public UpdateFolderCommand toCommand() {

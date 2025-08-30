@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record ReSigninRequest(
 	@Schema(description = "verify", example = "true")
-	@NotNull(message = "{auth.verify.notNull")
+	@NotNull(message = "{auth.verify.notNull}")
 	Boolean verify,
 
 	@Schema(description = "email", example = "wishboard123@gmail.com")

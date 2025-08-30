@@ -14,7 +14,7 @@ public record CreateItemRequest(
 
 	@Schema(description = "itemName", example = "나이키 V2K")
 	@NotBlank(message = "{item.itemName.notBlank}")
-	@Size(max = 512, message = "{item.itemName.maxLength")
+	@Size(max = 512, message = "{item.itemName.max")
 	String itemName,
 
 	@Schema(description = "itemPrice", example = "12300")
@@ -24,7 +24,7 @@ public record CreateItemRequest(
 	String itemMemo,
 
 	@Schema(description = "itemUrl", example = "https://naver.com")
-	@Size(max = 1024, message = "{item.itemUrl.maxLength")
+	@Size(max = 1024, message = "{item.itemUrl.max")
 	String itemUrl,
 
 	@Schema(description = "알림 타입", example = "REMINDER")

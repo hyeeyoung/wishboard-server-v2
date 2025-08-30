@@ -8,8 +8,8 @@ import jakarta.validation.constraints.Size;
 
 public record UpdateUserInfoRequest(
 	@Schema(description = "nickname", example = "김위시보드")
-	@NotBlank(message = "{user.nickname.notBlank")
-	@Size(max = 10, message = "{user.nickname.maxLength}")
+	@NotBlank(message = "{user.nickname.notBlank}")
+	@Size(max = 10, message = "{user.nickname.max}")
 	String nickname
 ) {
 	public UpdateUserCommand toCommand() {

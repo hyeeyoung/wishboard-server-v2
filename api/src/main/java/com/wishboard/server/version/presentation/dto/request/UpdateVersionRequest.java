@@ -7,11 +7,11 @@ import jakarta.validation.constraints.NotBlank;
 
 public record UpdateVersionRequest(
 	@Schema(description = "minVersion", example = "1.0.0")
-	@NotBlank(message = "{version.minVersion.notBlank")
+	@NotBlank(message = "{version.minVersion.notBlank}")
 	String minVersion,
 
 	@Schema(description = "recommendedVersion", example = "1.0.0")
-	@NotBlank(message = "{version.recommendedVersion.notBlank")
+	@NotBlank(message = "{version.recommendedVersion.notBlank}")
 	String recommendedVersion
 ) {
 	public UpdateVersionCommand toCommand() {
