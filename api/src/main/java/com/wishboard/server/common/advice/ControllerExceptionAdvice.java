@@ -4,6 +4,7 @@ import static com.wishboard.server.common.exception.ErrorCode.*;
 
 import java.util.Objects;
 
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.wishboard.server.common.dto.ErrorResponse;
@@ -102,6 +104,19 @@ public class ControllerExceptionAdvice {
 	protected ErrorResponse handleInvalidFormatException(final Exception e) {
 		log.warn(e.getMessage());
 		return ErrorResponse.error(VALIDATION_EXCEPTION);
+	}
+
+	/**
+	 * 400 BadRequest
+	 */
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler({
+		FileSizeLimitExceededException.class,
+		MaxUploadSizeExceededException.class
+	})
+	protected ErrorResponse handleMultiPartFileMaxLimitExceededException(final Exception e) {
+		log.warn(e.getMessage());
+		return ErrorResponse.error(VALIDATION_MULTIPART_MAX_SIZE_LIMIT_EXCEPTION);
 	}
 
 	/**
