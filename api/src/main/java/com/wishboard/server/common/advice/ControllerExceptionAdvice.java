@@ -40,7 +40,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(BindException.class)
 	protected ErrorResponse handleBadRequest(final BindException e) {
-		log.error(e.getMessage(), e);
+		log.warn(e.getMessage(), e);
 		FieldError fieldError = Objects.requireNonNull(e.getFieldError());
 		return ErrorResponse.error(VALIDATION_EXCEPTION, String.format("%s (%s)", fieldError.getDefaultMessage(), fieldError.getField()));
 	}
@@ -52,7 +52,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(ConstraintViolationException.class)
 	protected ErrorResponse handleConstraintViolationException(final ConstraintViolationException e) {
-		log.error(e.getMessage());
+		log.warn(e.getMessage());
 		return ErrorResponse.error(VALIDATION_SORT_TYPE_EXCEPTION);
 	}
 
@@ -63,7 +63,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	protected ErrorResponse handleHttpMessageNotReadableException(final HttpMessageNotReadableException e) {
-		log.error(e.getMessage());
+		log.warn(e.getMessage());
 		return ErrorResponse.error(VALIDATION_EXCEPTION);
 	}
 
@@ -74,7 +74,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MissingRequestValueException.class)
 	protected ErrorResponse handle(final MissingRequestValueException e) {
-		log.error(e.getMessage());
+		log.warn(e.getMessage());
 		return ErrorResponse.error(VALIDATION_REQUEST_MISSING_EXCEPTION);
 	}
 
@@ -85,7 +85,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(TypeMismatchException.class)
 	protected ErrorResponse handleTypeMismatchException(final TypeMismatchException e) {
-		log.error(e.getMessage());
+		log.warn(e.getMessage());
 		return ErrorResponse.error(VALIDATION_WRONG_TYPE_EXCEPTION,
 			String.format("%s (%s)", VALIDATION_WRONG_TYPE_EXCEPTION.getMessage(), e.getValue()));
 	}
@@ -100,7 +100,7 @@ public class ControllerExceptionAdvice {
 		MethodArgumentTypeMismatchException.class
 	})
 	protected ErrorResponse handleInvalidFormatException(final Exception e) {
-		log.error(e.getMessage());
+		log.warn(e.getMessage());
 		return ErrorResponse.error(VALIDATION_EXCEPTION);
 	}
 
@@ -111,7 +111,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	protected ErrorResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-		log.error(e.getMessage());
+		log.warn(e.getMessage());
 		return ErrorResponse.error(METHOD_NOT_ALLOWED_EXCEPTION);
 	}
 
@@ -121,7 +121,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
 	@ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
 	protected ErrorResponse handleHttpMediaTypeNotAcceptableException(HttpMediaTypeNotAcceptableException e) {
-		log.error(e.getMessage());
+		log.warn(e.getMessage());
 		return ErrorResponse.error(NOT_ACCEPTABLE_EXCEPTION);
 	}
 
@@ -132,7 +132,7 @@ public class ControllerExceptionAdvice {
 	@ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
 	@ExceptionHandler(HttpMediaTypeException.class)
 	protected ErrorResponse handleHttpMediaTypeException(final HttpMediaTypeException e) {
-		log.error(e.getMessage(), e);
+		log.warn(e.getMessage(), e);
 		return ErrorResponse.error(UNSUPPORTED_MEDIA_TYPE_EXCEPTION);
 	}
 
