@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 
 import com.wishboard.server.auth.infrastructure.jwt.JwtClient;
 import com.wishboard.server.common.exception.UnAuthorizedException;
+import com.wishboard.server.common.util.HttpHeaderUtils;
 import com.wishboard.server.user.application.service.support.UserReader;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,16 +19,22 @@ import lombok.RequiredArgsConstructor;
 public class LoginCheckHandler {
 
 	private final UserReader userReader;
-	private final JwtClient jwtProvider;
+	private final JwtClient jwtClient;
 
 	public Long getUserId(HttpServletRequest request) {
 		String bearerToken = request.getHeader("Authorization");
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
 			String accessToken = bearerToken.substring("Bearer ".length());
-			if (jwtProvider.validateToken(accessToken)) {
-				Long userId = jwtProvider.getUserIdFromJwt(accessToken);
+			if (jwtClient.validateToken(accessToken)) {
+				Long userId = jwtClient.getUserIdFromJwt(accessToken);
 				if (userId == null || !userReader.existsById(userId)) {
 					throw new UnAuthorizedException(String.format("존재하지 않는 유저 (%s) 입니다.", userId), NOT_FOUND_USER_EXCEPTION, NOT_FOUND_USER);
+				}
+				String deviceInfo = HttpHeaderUtils.getDeviceInfoFromHeader(request);
+				Boolean isLogoutDevice = jwtClient.isLogoutDevice(userId, deviceInfo);
+				if (isLogoutDevice) {
+					throw new UnAuthorizedException(String.format("중복 로그인 기기 대수 초과(3대)로 자동으로 로그아웃 처리되었습니다. userId: %s, deviceInfo: %s", userId, deviceInfo),
+						UNAUTHORIZED_EXCEPTION, LOGOUT_BY_DEVICE_OVERFLOW);
 				}
 				return userId;
 			} else {
