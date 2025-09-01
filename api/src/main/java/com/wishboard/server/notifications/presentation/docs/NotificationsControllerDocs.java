@@ -21,7 +21,10 @@ public interface NotificationsControllerDocs {
 	@Operation(summary = "알림 내역 조회 (알림탭 조회)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "알림 내역 조회 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 허용하지 않는 User-Agent의 요청입니다.
+			2. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -35,7 +38,10 @@ public interface NotificationsControllerDocs {
 	@Operation(summary = "알림 확인")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 읽음 상태 수정 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 허용하지 않는 User-Agent의 요청입니다.
+			2. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -54,7 +60,10 @@ public interface NotificationsControllerDocs {
 	@Operation(summary = "알림 캘린더 확인")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "알림 전체 조회 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 허용하지 않는 User-Agent의 요청입니다.
+			2. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.

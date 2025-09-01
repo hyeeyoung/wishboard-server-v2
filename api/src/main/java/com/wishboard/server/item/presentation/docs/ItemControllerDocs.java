@@ -39,6 +39,8 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 			1. 잘못된 요청입니다. (query 파라미터 (site) 가 누락된 경우)
 			2. 요청하신 URL은 유효한 링크가 아닙니다.
+			3. 허용하지 않는 User-Agent의 요청입니다.
+			4. Request Header에 디바이스 정보가 없습니다.
 		""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "아이템 파싱 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "wishboard 서버 에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -49,7 +51,10 @@ public interface ItemControllerDocs {
 	@Operation(summary = "아이템 리스트 조회 (홈화면 조회)", description = "정렬은 최신순으로 고정이므로 size와 page 만 전달해주세요.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 리스트 조회 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 허용하지 않는 User-Agent의 요청입니다.
+			2. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -64,6 +69,10 @@ public interface ItemControllerDocs {
 	@Operation(summary = "아이템 정보 조회")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 정보 조회 성공입니다."),
+		@ApiResponse(responseCode = "400", description = """
+			1. 허용하지 않는 User-Agent의 요청입니다.
+			2. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -93,6 +102,7 @@ public interface ItemControllerDocs {
 			7. 아이템 링크는 1024자 이하로 입력해주세요.
 			8. 아이템 이미지는 최소 1장부터 최대 10장까지 가능합니다.
 			9. 이미지 1개당 최대 크기는 10MB 입니다.
+			10. Request Header에 디바이스 정보가 없습니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -126,6 +136,7 @@ public interface ItemControllerDocs {
 			4. 아이템 링크는 1024자 이하로 입력해주세요.
 			5. 아이템 이미지는 최소 1장부터 최대 10장까지 가능합니다.
 			6. 이미지 1개당 최대 크기는 10MB 입니다.
+			7. Request Header에 디바이스 정보가 없습니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
@@ -148,7 +159,10 @@ public interface ItemControllerDocs {
 	@Operation(summary = "아이템 삭제")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "사용자 삭제 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 허용하지 않는 User-Agent의 요청입니다.
+			2. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
@@ -165,7 +179,10 @@ public interface ItemControllerDocs {
 	@Operation(summary = "아이템 폴더 수정")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "아이템 폴더 수정 성공입니다."),
-		@ApiResponse(responseCode = "400", description = "허용하지 않는 User-Agent의 요청입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "400", description = """
+			1. 허용하지 않는 User-Agent의 요청입니다.
+			2. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
