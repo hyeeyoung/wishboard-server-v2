@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.dto.ErrorResponse;
+import com.wishboard.server.common.dto.ErrorResponseWithCode;
 import com.wishboard.server.common.dto.SuccessResponse;
 import com.wishboard.server.config.swagger.SwaggerBody;
 import com.wishboard.server.config.swagger.SwaggerPageable;
@@ -59,7 +60,7 @@ public interface ItemControllerDocs {
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
 				3. 탈퇴했거나 존재하지 않는 유저입니다.
-			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			""", content = @Content(schema = @Schema(implementation = ErrorResponseWithCode.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
@@ -77,7 +78,7 @@ public interface ItemControllerDocs {
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
 				3. 탈퇴했거나 존재하지 않는 유저입니다.
-			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			""", content = @Content(schema = @Schema(implementation = ErrorResponseWithCode.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = "다른 사용자의 아이템입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -108,7 +109,7 @@ public interface ItemControllerDocs {
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
 				3. 탈퇴했거나 존재하지 않는 유저입니다.
-			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			""", content = @Content(schema = @Schema(implementation = ErrorResponseWithCode.class))),
 		@ApiResponse(responseCode = "404", description = """
 			1. 탈퇴했거나 존재하지 않는 유저입니다.
 			2. 존재하지 않는 폴더입니다.
@@ -142,7 +143,7 @@ public interface ItemControllerDocs {
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
 				3. 탈퇴했거나 존재하지 않는 유저입니다.
-			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			""", content = @Content(schema = @Schema(implementation = ErrorResponseWithCode.class))),
 		@ApiResponse(responseCode = "404", description = """
 			1. 탈퇴했거나 존재하지 않는 유저입니다.
 			2. 존재하지 않는 아이템입니다.
@@ -167,7 +168,7 @@ public interface ItemControllerDocs {
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
 				3. 탈퇴했거나 존재하지 않는 유저입니다.
-			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			""", content = @Content(schema = @Schema(implementation = ErrorResponseWithCode.class))),
 		@ApiResponse(responseCode = "404", description = """
 			1. 탈퇴했거나 존재하지 않는 유저입니다.
 			2. 존재하지 않는 아이템입니다."""
@@ -187,7 +188,7 @@ public interface ItemControllerDocs {
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
 				2. 유효하지 않은 토큰입니다.
 				3. 탈퇴했거나 존재하지 않는 유저입니다.
-			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			""", content = @Content(schema = @Schema(implementation = ErrorResponseWithCode.class))),
 		@ApiResponse(responseCode = "404", description = """
 			1. 탈퇴했거나 존재하지 않는 유저입니다.
 			2. 존재하지 않는 아이템입니다.

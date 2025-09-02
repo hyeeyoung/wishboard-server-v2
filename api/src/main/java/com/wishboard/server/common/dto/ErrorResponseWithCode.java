@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ErrorResponseWithCode extends ErrorResponse {
 
-	private String code;
+	private ErrorDetailCode code;
 
 	private ErrorResponseWithCode(ErrorCode errorCode, String message, ErrorDetailCode detailCode) {
 		super(errorCode.getStatus(), false, message);
-		this.code = detailCode.name();
+		this.code = detailCode;
 	}
 
 	public static ErrorResponseWithCode error(ErrorCode errorCode, ErrorDetailCode detailCode) {
