@@ -18,6 +18,7 @@ import com.wishboard.server.item.presentation.dto.response.ItemInfoResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,6 +44,7 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	@SwaggerPageable
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<Page<FolderListResponse>> getFolderList(@Parameter(hidden = true) @UserId Long userId, Pageable pageable);
 
 	@Operation(summary = "폴더 생성")
@@ -63,6 +65,7 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "409", description = "이미 존재하는 폴더명입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<FolderInfoWithoutItemCountResponse> createFolder(@Parameter(hidden = true) @UserId Long userId,
 		CreateFolderRequest createFolderRequest);
 
@@ -87,6 +90,7 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "409", description = "이미 존재하는 폴더명입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<FolderInfoWithoutItemCountResponse> updateFolder(@Parameter(hidden = true) @UserId Long userId,
 		@Parameter(name = "folderId", example = "1") Long folderId, UpdateFolderRequest updateFolderRequest);
 
@@ -108,6 +112,7 @@ public interface FolderControllerDocs {
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<Object> deleteFolder(@Parameter(hidden = true) @UserId Long userId,
 		@Parameter(name = "folderId", example = "1") Long folderId);
 
@@ -129,6 +134,7 @@ public interface FolderControllerDocs {
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	@SwaggerPageable
 	SuccessResponse<Page<ItemInfoResponse>> getItemListInFolder(@Parameter(hidden = true) @UserId Long userId,
 		@Parameter(name = "folderId", example = "1") Long folderId, Pageable pageable);
@@ -148,5 +154,6 @@ public interface FolderControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<List<FolderInfoWithoutItemCountResponse>> getFolderListWithoutItemCount(@Parameter(hidden = true) @UserId Long userId);
 }

@@ -20,6 +20,7 @@ import com.wishboard.server.item.presentation.dto.response.ItemParseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,6 +47,7 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "404", description = "아이템 파싱 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "wishboard 서버 에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<ItemParseResponse> parseItemInfo( @Parameter(name = "site", example = "https://naver.com")String site);
 
 
@@ -64,6 +66,7 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	@SwaggerPageable
 	SuccessResponse<Page<ItemInfoResponse>> getAllItemInfo(@Parameter(hidden = true) Long userId, Pageable pageable);
 
@@ -83,6 +86,7 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "409", description = "다른 사용자의 아이템입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<ItemInfoResponse> getItemInfo(@Parameter(hidden = true) Long userId, @Parameter(name = "itemId", example = "1") Long itemId);
 
 	@Operation(summary = "아이템 생성", description = """
@@ -116,6 +120,7 @@ public interface ItemControllerDocs {
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	@SwaggerBody(content = @Content(
 		encoding = @Encoding(name = "request", contentType = MediaType.APPLICATION_JSON_VALUE)))
 	SuccessResponse<ItemInfoResponse> createItem(@Parameter(hidden = true) Long userId, CreateItemRequest request, List<MultipartFile> images,
@@ -152,6 +157,7 @@ public interface ItemControllerDocs {
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	@SwaggerBody(content = @Content(
 		encoding = @Encoding(name = "request", contentType = MediaType.APPLICATION_JSON_VALUE)))
 	SuccessResponse<ItemInfoResponse> updateItem(@Parameter(hidden = true) Long userId, UpdateItemRequest request, List<MultipartFile> images,
@@ -175,6 +181,7 @@ public interface ItemControllerDocs {
 			, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<Object> deleteItem(@Parameter(hidden = true) Long userId, @Parameter(name = "itemId", example = "1") Long itemId);
 
 	@Operation(summary = "아이템 폴더 수정")
@@ -197,6 +204,7 @@ public interface ItemControllerDocs {
 		@ApiResponse(responseCode = "409", description = "다른 사용자의 아이템입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<ItemInfoResponse> updateItemFolder(@Parameter(hidden = true) Long userId, @Parameter(name = "itemId", example = "1") Long itemId,
 		@Parameter(name = "folderId", example = "1") Long folderId);
 

@@ -13,6 +13,7 @@ import com.wishboard.server.user.presentation.dto.response.UserInfoResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,6 +39,7 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<UserInfoResponse> getUserInfo(@Parameter(hidden = true) Long userId);
 
 	@Operation(summary = "푸쉬 알림 설정 변경")
@@ -55,6 +57,7 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<UserInfoResponse> updatePushState(@Parameter(hidden = true) Long userId,
 		@Parameter(name = "pushState", example = "true") boolean pushState);
 
@@ -81,6 +84,7 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "409", description = "이미 존재하는 닉네임입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	@SwaggerBody(content = @Content(
 		encoding = @Encoding(name = "request", contentType = MediaType.APPLICATION_JSON_VALUE)))
 	SuccessResponse<UserInfoResponse> updateUserInfo(@Parameter(hidden = true) Long userId, UpdateUserInfoRequest request, MultipartFile images);
@@ -102,6 +106,7 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<UserInfoResponse> updatePassword(@Parameter(hidden = true) Long userId, UpdatePasswordRequest request);
 
 	@Operation(summary = "사용자 탈퇴")
@@ -119,5 +124,6 @@ public interface UserControllerDocs {
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<Object> deleteUser(@Parameter(hidden = true) Long userId);
 }

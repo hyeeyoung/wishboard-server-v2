@@ -142,7 +142,6 @@ public interface AuthControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 			1. @가 포함된 이메일 주소를 입력해주세요. (email)
 			2. 허용하지 않는 User-Agent의 요청입니다.
-			3. Request Header에 디바이스 정보가 없습니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = "이미 해당 계정으로 회원가입하셨습니다. 로그인 해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -184,7 +183,6 @@ public interface AuthControllerDocs {
 		@ApiResponse(responseCode = "400", description = """
 			1. @가 포함된 이메일 주소를 입력해주세요.
 			2. 허용하지 않는 User-Agent의 요청입니다.
-			3. Request Header에 디바이스 정보가 없습니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "404", description = "탈퇴했거나 존재하지 않는 유저입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "409", description = """
