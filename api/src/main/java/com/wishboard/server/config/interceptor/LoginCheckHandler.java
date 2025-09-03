@@ -28,7 +28,7 @@ public class LoginCheckHandler {
 			if (jwtClient.validateToken(accessToken)) {
 				Long userId = jwtClient.getUserIdFromJwt(accessToken);
 				if (userId == null || !userReader.existsById(userId)) {
-					throw new UnAuthorizedException(String.format("존재하지 않는 유저 (%s) 입니다.", userId), NOT_FOUND_USER_EXCEPTION, NOT_FOUND_USER);
+					throw new UnAuthorizedException(String.format("존재하지 않는 유저 (%s) 입니다.", userId), UNAUTHORIZED_EXCEPTION, NOT_FOUND_USER);
 				}
 				String deviceInfo = HttpHeaderUtils.getDeviceInfoFromHeader(request);
 				Boolean isLogoutDevice = jwtClient.isLogoutDevice(userId, deviceInfo);
