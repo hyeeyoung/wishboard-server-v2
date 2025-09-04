@@ -24,28 +24,19 @@ public class S3Provider {
 	private final S3FileStorageClient fileStorageClient;
 
 	/**
-	 * 기존 코드와 호환성을 위한 메서드 (영구 보관)
-	 */
-	public String uploadFile(UploadFileRequest request, MultipartFile file) {
-		return uploadPermanentFile(request, file);
-	}
-
-	/**
 	 * 영구 보관용 파일 업로드
 	 */
 	public String uploadPermanentFile(UploadFileRequest request, MultipartFile file) {
-		return uploadFileWithDeleteTags(request, file, null); // expireDays가 null이면 영구 보관
+		return uploadFileWithTags(request, file, null); // expireDays가 null이면 영구 보관
 	}
 
 	/**
 	 * 태그와 함께 파일 업로드하는 내부 메서드
 	 */
-	private String uploadFileWithDeleteTags(UploadFileRequest request, MultipartFile file, Integer expireDays) {
+	private String uploadFileWithTags(UploadFileRequest request, MultipartFile file, Map<String, String> tags) {
 		request.validateAvailableContentType(file.getContentType());
 		request.validateImageMaxSize(file, MAX_FILE_BYTES);
 		String fileName = request.getFileNameWithBucketDirectory(file.getOriginalFilename());
-
-		Map<String, String> tags = createDeleteTags(expireDays);
 
 		// 태그가 있으면 태그와 함께 업로드, 없으면 기본 업로드
 		if (tags.isEmpty()) {

@@ -6,21 +6,19 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import javax.management.Notification;
-
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wishboard.server.common.domain.ItemNotificationType;
-import com.wishboard.server.common.exception.NotFoundException;
+import com.wishboard.server.common.exception.ConflictException;
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.folder.application.service.support.FolderReader;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.service.service.S3Provider;
+import com.wishboard.server.image.application.service.S3Provider;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
@@ -50,6 +48,11 @@ public class UpdateItemUseCase {
 		var user = userReader.findById(userId);
 		var item = itemReader.findById(itemId, user.getId());
 
+		if (updateItemCommand.version() != null && !item.getVersion().equals(updateItemCommand.version())) {
+			throw new ConflictException(String.format("사용자 (%s)가 아이템 (%s)에 대해서 수정 중에 충돌이 발생했습니다.", userId, itemId),
+				CONFLICT_ITEM_CONCURRENTLY_EXCEPTION);
+		}
+
 		// 폴더 변경
 		if (updateItemCommand.folderId() != null) {
 			var folder = folderReader.findByIdAndUser(updateItemCommand.folderId(), user);
@@ -58,23 +61,29 @@ public class UpdateItemUseCase {
 			item.updateFolder(null);
 		}
 
-		// 이미지 변경
-		if (!item.getImages().isEmpty()) {
-			item.getImages().forEach(image -> {
-				if (StringUtils.hasText(image.getItemImageUrl())) {
-					s3Provider.deleteFile(image.getItemImageUrl());
-				}
-			});
-			item.getImages().clear();
-		}
-		if (images != null) {
+		// 기존 이미지에 삭제 태그 추가
+		if (updateItemCommand.imageChanged() && images != null && !images.isEmpty()) {
+			// 1. 기존 이미지들을 삭제 예정으로 마킹 (7일 후 자동 삭제)
+			if (!item.getImages().isEmpty()) {
+				item.getImages().forEach(image -> {
+					if (StringUtils.hasText(image.getItemImageUrl())) {
+						s3Provider.markFileForDeletion(image.getItemImageUrl(), 7);
+					}
+				});
+				item.getImages().clear();
+			}
+
+			// 2. 새 이미지들을 영구 보관으로 업로드
 			List<ItemImage> imageUrls = images.stream()
 				.filter(image -> image != null && !image.isEmpty())
-				.map(image -> new ItemImage(image.getOriginalFilename(),
-					s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image), item))
+				.map(image -> new ItemImage(
+					image.getOriginalFilename(),
+					s3Provider.uploadPermanentFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image),
+					item))
 				.toList();
 			item.addItemImage(imageUrls);
 		}
+
 		item.updateItemInfo(updateItemCommand.itemName(), String.valueOf(updateItemCommand.itemPrice()), updateItemCommand.itemUrl(),
 			updateItemCommand.itemMemo());
 

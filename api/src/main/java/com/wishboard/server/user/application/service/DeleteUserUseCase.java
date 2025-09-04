@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
 import com.wishboard.server.item.domain.repository.ItemRepository;
 import com.wishboard.server.folder.domain.repository.FolderRepository;
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
-import com.wishboard.server.image.application.service.service.S3Provider;
+import com.wishboard.server.image.application.service.S3Provider;
 import com.wishboard.server.user.application.service.support.UserReader;
 import com.wishboard.server.user.domain.repository.UserRepository;
 

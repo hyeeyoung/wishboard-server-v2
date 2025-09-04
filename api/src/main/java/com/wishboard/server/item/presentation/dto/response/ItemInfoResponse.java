@@ -25,4 +25,5 @@ public class ItemInfoResponse {
 	private LocalDateTime itemNotificationDate;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private Long version;
 }

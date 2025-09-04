@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.wishboard.server.common.type.FileType;
 import com.wishboard.server.folder.application.service.support.FolderReader;
 import com.wishboard.server.image.application.dto.request.ImageUploadFileRequest;
-import com.wishboard.server.image.application.service.service.S3Provider;
+import com.wishboard.server.image.application.service.S3Provider;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.application.dto.command.CreateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemValidator;
@@ -52,7 +52,7 @@ public class CreateItemUseCase {
 				.filter(image -> image != null && !image.isEmpty())
 				.map(image -> new ItemImage(
 					image.getOriginalFilename(),
-					s3Provider.uploadFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image),
+					s3Provider.uploadPermanentFile(ImageUploadFileRequest.of(FileType.ITEM_IMAGE), image),
 					item))
 				.toList();
 			item.addItemImage(imageUrls);

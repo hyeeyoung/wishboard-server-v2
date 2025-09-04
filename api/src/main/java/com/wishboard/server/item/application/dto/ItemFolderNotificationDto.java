@@ -31,6 +31,7 @@ public class ItemFolderNotificationDto {
 	private Boolean readState;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private Long version;
 
 	public static ItemFolderNotificationDto of(Item item, Notifications notifications) {
 		return ItemFolderNotificationDto.builder()
@@ -47,6 +48,7 @@ public class ItemFolderNotificationDto {
 			.itemNotificationDate(notifications == null ? null : notifications.getItemNotificationDate())
 			.createdAt(item.getCreatedAt())
 			.updatedAt(item.getUpdatedAt())
+			.version(item.getVersion())
 			.build();
 	}
 }

@@ -26,6 +26,7 @@ public class ItemFolderDto {
 	private String itemUrl;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private Long version;
 
 	public static ItemFolderDto of(Item item) {
 		return ItemFolderDto.builder()
@@ -40,6 +41,7 @@ public class ItemFolderDto {
 			.itemUrl(item.getItemUrl())
 			.createdAt(item.getCreatedAt())
 			.updatedAt(item.getUpdatedAt())
+			.version(item.getVersion())
 			.build();
 	}
 }

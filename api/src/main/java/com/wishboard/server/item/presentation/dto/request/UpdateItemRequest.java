@@ -30,10 +30,16 @@ public record UpdateItemRequest(
 	ItemNotificationType itemNotificationType,
 
 	@Schema(description = "알림 날짜", example = "2025-01-01 10:00:00")
-	String itemNotificationDate
+	String itemNotificationDate,
+
+	@Schema(description = "아이템 수정 시 기존 이미지 중 1개라도 변경된 경우 true로 전달", example = "true")
+	Boolean imageChanged,
+
+	@Schema(description = "해당 item의 버전 (동시성 수정 방지를 위함으로 조회 시 받은 값을 그대로 보내주시면 됩니다.")
+	Long version
 ) {
 	public UpdateItemCommand toCommand() {
 		return new UpdateItemCommand(this.folderId, this.itemName, this.itemPrice, this.itemMemo, this.itemUrl, this.itemNotificationType,
-			this.itemNotificationDate);
+			this.itemNotificationDate, this.imageChanged, this.version);
 	}
 }

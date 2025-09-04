@@ -9,6 +9,8 @@ public record UpdateItemCommand(
 	String itemMemo,
 	String itemUrl,
 	ItemNotificationType itemNotificationType,
-	String itemNotificationDate
+	String itemNotificationDate,
+	Boolean imageChanged,
+	Long version
 ) {
 }

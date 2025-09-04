@@ -8,7 +8,7 @@ import com.wishboard.server.item.application.service.support.ItemReader;
 import com.wishboard.server.item.domain.repository.ItemRepository;
 import com.wishboard.server.notifications.domain.model.NotificationId;
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
-import com.wishboard.server.image.application.service.service.S3Provider;
+import com.wishboard.server.image.application.service.S3Provider;
 import com.wishboard.server.user.application.service.support.UserReader;
 
 import lombok.RequiredArgsConstructor;
