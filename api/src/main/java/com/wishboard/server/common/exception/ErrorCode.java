@@ -71,6 +71,7 @@ public enum ErrorCode {
 	 */
 	CONFLICT_EXCEPTION(CONFLICT, "이미 존재합니다."),
 	CONFLICT_USER_EXCEPTION(CONFLICT, "이미 해당 계정으로 회원가입하셨습니다.\n로그인 해주세요."),
+	CONFLICT_ITEM_CONCURRENTLY_EXCEPTION(CONFLICT, "현재 다른 사용자가 해당 아이템을 수정 중입니다.\n잠시 후 다시 시도해주세요."),
 	CONFLICT_ITEM_EXCEPTION(CONFLICT, "다른 사용자의 아이템입니다."),
 	CONFLICT_FOLDER_NAME_DUPLICATE_EXCEPTION(CONFLICT, "이미 존재하는 폴더명입니다."),
 	CONFLICT_USER_NICKNAME_EXCEPTION(CONFLICT, "이미 존재하는 닉네임입니다."),

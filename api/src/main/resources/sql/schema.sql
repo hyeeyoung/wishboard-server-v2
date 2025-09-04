@@ -66,6 +66,7 @@ CREATE TABLE `items` (
                          `item_url` varchar(1024) DEFAULT NULL,
                          `folder_id` bigint DEFAULT NULL,
                          `user_id` bigint NOT NULL,
+                         `version` bigint,
                          foreign key (`user_id`) references `users` (`user_id`) on update cascade on delete cascade,
                          foreign key (`folder_id`) references `folders` (`folder_id`) on update cascade on delete set null,
                          primary key (`item_id`)

@@ -20,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,6 +62,9 @@ public class Item extends AuditingTimeEntity {
 
 	@OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ItemImage> images = new ArrayList<>();
+
+	@Version
+	private Long version;
 
 	private Item(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType) {
 		this.user = user;
