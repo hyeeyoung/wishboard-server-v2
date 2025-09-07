@@ -155,6 +155,7 @@ public interface ItemControllerDocs {
 			3. 존재하지 않는 폴더입니다.
 			4. 존재하지 않는 알람입니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "409", description = "현재 다른 사용자가 해당 아이템을 수정 중입니다.\n잠시 후 다시 시도해주세요.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 	})
 	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
