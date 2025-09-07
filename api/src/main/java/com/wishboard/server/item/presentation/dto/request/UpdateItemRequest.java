@@ -5,6 +5,7 @@ import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateItemRequest(
@@ -33,9 +34,11 @@ public record UpdateItemRequest(
 	String itemNotificationDate,
 
 	@Schema(description = "아이템 수정 시 기존 이미지 중 1개라도 변경된 경우 true로 전달", example = "true")
+	@NotNull(message = "{item.imageChanged.notNull}")
 	Boolean imageChanged,
 
 	@Schema(description = "해당 item의 버전 (동시성 수정 방지를 위함으로 조회 시 받은 값을 그대로 보내주시면 됩니다.")
+	@NotNull(message = "{item.version.notNull}")
 	Long version
 ) {
 	public UpdateItemCommand toCommand() {

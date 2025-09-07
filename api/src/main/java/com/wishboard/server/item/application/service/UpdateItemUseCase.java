@@ -24,6 +24,7 @@ import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 import com.wishboard.server.item.application.service.support.ItemReader;
 import com.wishboard.server.item.domain.model.Item;
 import com.wishboard.server.item.domain.model.ItemImage;
+import com.wishboard.server.item.domain.repository.ItemRepository;
 import com.wishboard.server.notifications.domain.model.NotificationId;
 import com.wishboard.server.notifications.domain.model.Notifications;
 import com.wishboard.server.notifications.domain.repository.NotificationsRepository;
@@ -43,6 +44,7 @@ public class UpdateItemUseCase {
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private final NotificationsRepository notificationsRepository;
+	private final ItemRepository itemRepository;
 
 	public ItemFolderNotificationDto execute(Long userId, Long itemId, UpdateItemCommand updateItemCommand, List<MultipartFile> images) {
 		var user = userReader.findById(userId);
@@ -87,7 +89,9 @@ public class UpdateItemUseCase {
 		item.updateItemInfo(updateItemCommand.itemName(), String.valueOf(updateItemCommand.itemPrice()), updateItemCommand.itemUrl(),
 			updateItemCommand.itemMemo());
 
-		var maybeNotification = notificationsRepository.findByNotificationId(new NotificationId(item.getUser(), item));
+		var savedItem = itemRepository.saveAndFlush(item);
+
+		var maybeNotification = notificationsRepository.findByNotificationId(new NotificationId(savedItem.getUser(), savedItem));
 
 		var reqType = updateItemCommand.itemNotificationType();
 		var reqDateStr = updateItemCommand.itemNotificationDate();
@@ -97,7 +101,7 @@ public class UpdateItemUseCase {
 		// 1) 생성/수정
 		if (reqType != null && reqDateStr != null) {
 			if (maybeNotification.isEmpty()) {
-				notifications = createNotification(item, reqType, reqDateStr);
+				notifications = createNotification(savedItem, reqType, reqDateStr);
 				notifications = notificationsRepository.save(notifications);
 			} else {
 				updateNotification(maybeNotification.get(), reqType, reqDateStr);
@@ -111,7 +115,7 @@ public class UpdateItemUseCase {
 			// 1개라도 null 인 경우 기존 값 그대로 유지
 			notifications = maybeNotification.orElse(null);
 		}
-		return ItemFolderNotificationDto.of(item, notifications);
+		return ItemFolderNotificationDto.of(savedItem, notifications);
 	}
 
 	private Notifications createNotification(Item item, ItemNotificationType itemNotificationType, String itemNotificationDate) {
