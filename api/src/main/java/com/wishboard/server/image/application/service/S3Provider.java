@@ -39,7 +39,7 @@ public class S3Provider {
 		String fileName = request.getFileNameWithBucketDirectory(file.getOriginalFilename());
 
 		// 태그가 있으면 태그와 함께 업로드, 없으면 기본 업로드
-		if (tags.isEmpty()) {
+		if (tags == null || tags.isEmpty()) {
 			fileStorageClient.uploadFile(file, fileName);
 		} else {
 			fileStorageClient.uploadFile(file, fileName, tags);
