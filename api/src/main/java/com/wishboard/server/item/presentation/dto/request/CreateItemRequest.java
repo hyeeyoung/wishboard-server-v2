@@ -18,6 +18,7 @@ public record CreateItemRequest(
 	String itemName,
 
 	@Schema(description = "itemPrice", example = "12300")
+	@Size(max = Integer.MAX_VALUE, message = "{item.itemPrice.max}")
 	int itemPrice,
 
 	@Schema(description = "itemMemo", example = "메모입니다.")
