@@ -1,0 +1,230 @@
+name: main-monorepo-deploy
+
+on:
+  push:
+    branches: [ main ]
+  # 직접 트리거
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to main'
+        required: true
+        default: 'main'
+      module:
+        description: 'Module to deploy (api | parsing-api | push)'
+        required: true
+        default: 'api'
+
+env:
+  AWS_REGION: ap-northeast-2
+  AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME_PROD }}
+  BUILD_DIR_NAME: wishboard-v2-build-prod
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api         || steps.fallback.outputs.api }}
+      parsing_api: ${{ steps.filter.outputs.parsing_api || steps.fallback.outputs.parsing_api }}
+      push: ${{ steps.filter.outputs.push        || steps.fallback.outputs.push }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: filter
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            api:          [ 'api/**' ]
+            parsing_api:  [ 'parsing-api/**' ]
+            push:         [ 'push/**' ]
+
+      - id: fallback
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "api=${{ github.event.inputs.module == 'api' }}" >> "$GITHUB_OUTPUT"
+          echo "parsing_api=${{ github.event.inputs.module == 'parsing-api' }}" >> "$GITHUB_OUTPUT"
+          echo "push=${{ github.event.inputs.module == 'push' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Print changed outputs
+        run: |
+          echo "api changed: ${{ steps.filter.outputs.api || steps.fallback.outputs.api }}"
+          echo "parsing-api changed: ${{ steps.filter.outputs.parsing_api || steps.fallback.outputs.parsing_api }}"
+          echo "push changed: ${{ steps.filter.outputs.push || steps.fallback.outputs.push }}"
+
+  # ---------------------------------------------------------------------------
+  # Spring API (Gradle / JDK 21)
+  # ---------------------------------------------------------------------------
+  build-api:
+    needs: [ changes ]
+    if: |
+      (github.event_name == 'push' && needs.changes.outputs.api == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'api')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Create Spring secret files
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
+
+      - name: Set up JDK 21 (Corretto)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build (skip tests)
+        run: ./gradlew build -x test
+
+      - name: Package artefacts
+        run: |
+          mkdir -p api
+          cp -r build/libs/* api/
+          cp ../v2-pm2-run-dev.js api/
+          cp ../deploy.sh api/
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp --recursive ./api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
+
+  # ---------------------------------------------------------------------------
+  # parsing-api (Node 18.x)
+  # ---------------------------------------------------------------------------
+  build-parsing-api:
+    needs: [ changes ]
+    if: |
+      (github.event_name == 'push' && needs.changes.outputs.parsing_api == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'parsing-api')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: parsing-api
+    strategy:
+      matrix:
+        node-version: [ 18.20.8 ]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Verify npm version
+        run: npm -v
+
+      - name: npm ci (clean install)
+        run: npm ci
+
+      #      - name: ESLint check
+      #        run: npm run lint
+
+      - name: Create .env
+        run: |
+          touch .env
+          echo NODE_ENV="production" >> .env
+          echo "${{ secrets.PARSING_API_ENV }}" > .env
+
+      - name: Build (prod)
+        run: npm run build --if-present
+
+      - name: Copy deploy artifacts
+        run: |
+          cp ../v2-pm2-run-dev.js ./dist/
+          cp ../deploy.sh ./dist/
+
+      - name: Rename build directory
+        run: mv dist parsing-api
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload dist to S3
+        run: |
+          aws s3 cp --recursive ./parsing-api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
+
+  # ---------------------------------------------------------------------------
+  # push (Node 18.x)
+  # ---------------------------------------------------------------------------
+  build-push:
+    needs: [ changes ]
+    if: |
+      (github.event_name == 'push' && needs.changes.outputs.push == 'true') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'push')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: push
+    strategy:
+      matrix:
+        node-version: [ 18.20.8 ]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Verify npm version
+        run: npm -v
+
+      - name: npm ci (clean install)
+        run: npm ci
+
+      #      - name: ESLint check
+      #        run: npm run lint
+
+      - name: Create .env
+        run: |
+          touch .env
+          echo NODE_ENV="production" >> .env
+          echo "${{ secrets.PUSH_ENV }}" > .env
+          
+          echo "== '\n' 인식 문제로 인해 재할당 =="
+          echo FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} >> .env
+
+      - name: Build (dev)
+        run: npm run build --if-present
+
+      - name: Copy deploy artifacts
+        run: |
+          cp ../v2-pm2-run-prod.js ./dist/
+          cp ../deploy.sh ./dist/
+
+      - name: Rename build directory
+        run: mv dist push
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload dist to S3
+        run: |
+          aws s3 cp --recursive ./push s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
