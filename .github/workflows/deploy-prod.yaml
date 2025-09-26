@@ -22,31 +22,36 @@ env:
 
 jobs:
   changes:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
-      api: ${{ steps.filter.outputs.api }}
-      parsing_api: ${{ steps.filter.outputs.parsing_api }}
-      push: ${{ steps.filter.outputs.push }}
+      api: ${{ steps.filter.outputs.api         || steps.fallback.outputs.api }}
+      parsing_api: ${{ steps.filter.outputs.parsing_api || steps.fallback.outputs.parsing_api }}
+      push: ${{ steps.filter.outputs.push        || steps.fallback.outputs.push }}
     steps:
       - uses: actions/checkout@v3
 
       - id: filter
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            api:
-              - 'api/**'
-            parsing_api:
-              - 'parsing-api/**'
-            push:
-              - 'push/**'
+            api:          [ 'api/**' ]
+            parsing_api:  [ 'parsing-api/**' ]
+            push:         [ 'push/**' ]
+
+      - id: fallback
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "api=${{ github.event.inputs.module == 'api' }}" >> "$GITHUB_OUTPUT"
+          echo "parsing_api=${{ github.event.inputs.module == 'parsing-api' }}" >> "$GITHUB_OUTPUT"
+          echo "push=${{ github.event.inputs.module == 'push' }}" >> "$GITHUB_OUTPUT"
 
       - name: Print changed outputs
         run: |
-          echo "api changed: ${{ steps.filter.outputs.api }}"
-          echo "parsing-api changed: ${{ steps.filter.outputs.parsing_api }}"
-          echo "push changed: ${{ steps.filter.outputs.push }}"
+          echo "api changed: ${{ steps.filter.outputs.api || steps.fallback.outputs.api }}"
+          echo "parsing-api changed: ${{ steps.filter.outputs.parsing_api || steps.fallback.outputs.parsing_api }}"
+          echo "push changed: ${{ steps.filter.outputs.push || steps.fallback.outputs.push }}"
+
   # ---------------------------------------------------------------------------
   # Spring API (Gradle / JDK 21)
   # ---------------------------------------------------------------------------
@@ -67,7 +72,7 @@ jobs:
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
-          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-dev.yml
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
 
       - name: Set up JDK 21 (Corretto)
         uses: actions/setup-java@v3
@@ -85,8 +90,8 @@ jobs:
         run: |
           mkdir -p api
           cp -r build/libs/* api/
-          cp v2-pm2-run-config.js api/
-          cp deploy.sh api/
+          cp ../v2-pm2-run-dev.js api/
+          cp ../deploy.sh api/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -135,14 +140,16 @@ jobs:
       - name: Create .env
         run: |
           touch .env
-          echo NODE_ENV="development" >> .env
+          echo NODE_ENV="production" >> .env
           echo "${{ secrets.PARSING_API_ENV }}" > .env
 
-      - name: Build (dev)
+      - name: Build (prod)
         run: npm run build --if-present
 
-      - name: Copy ecosystem.config.js
-        run: cp ./ecosystem.config.js ./dist
+      - name: Copy deploy artifacts
+        run: |
+          cp ../v2-pm2-run-dev.js ./dist/
+          cp ../deploy.sh ./dist/
 
       - name: Rename build directory
         run: mv dist parsing-api
@@ -194,17 +201,16 @@ jobs:
       - name: Create .env
         run: |
           touch .env
-          echo NODE_ENV="development" >> .env
+          echo NODE_ENV="production" >> .env
           echo "${{ secrets.PUSH_ENV }}" > .env
           
           echo "== '\n' 인식 문제로 인해 재할당 =="
           echo FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} >> .env
 
-      - name: Build (dev)
-        run: npm run build --if-present
-
-      - name: Copy ecosystem.config.js
-        run: cp ./ecosystem.config.js ./dist
+      - name: Copy deploy artifacts
+        run: |
+          cp ../v2-pm2-run-dev.js ./dist/
+          cp ../deploy.sh ./dist/
 
       - name: Rename build directory
         run: mv dist push
