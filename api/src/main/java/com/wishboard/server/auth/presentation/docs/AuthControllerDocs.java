@@ -46,6 +46,7 @@ public interface AuthControllerDocs {
 			3. fcmToken 을 입력해주세요.
 			4. Request Header에 디바이스 정보가 없습니다.
 			5. 허용하지 않는 User-Agent의 요청입니다.
+			6. Request Header에 디바이스 정보가 없습니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰입니다."),
 		@ApiResponse(responseCode = "409", description = """
@@ -71,6 +72,7 @@ public interface AuthControllerDocs {
 			2. refresh token 을 입력해주세요.
 			3. Request Header에 디바이스 정보가 없습니다.
 			4. 허용하지 않는 User-Agent의 요청입니다.
+			5. Request Header에 디바이스 정보가 없습니다.
 			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 		@ApiResponse(responseCode = "401", description = """
 				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
