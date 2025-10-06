@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.Encoding;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -66,5 +67,25 @@ public class SwaggerConfig {
 			)
 			.info(info)
 			.addSecurityItem(securityRequirement);
+	}
+
+	@Bean
+	public OperationCustomizer multipartJsonPartCustomizer() {
+		return (Operation operation, org.springframework.web.method.HandlerMethod handlerMethod) -> {
+			if (operation.getRequestBody() == null) {
+				return operation;
+			}
+			var requestBody = operation.getRequestBody();
+			var content = requestBody.getContent();
+			if (content == null) {
+				return operation;
+			}
+			var multipart = content.get("multipart/form-data");
+			if (multipart == null) {
+				return operation;
+			}
+			multipart.addEncoding("request", new Encoding().contentType("application/json"));
+			return operation;
+		};
 	}
 }

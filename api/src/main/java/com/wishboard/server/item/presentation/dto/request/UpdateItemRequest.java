@@ -4,6 +4,7 @@ import com.wishboard.server.common.domain.ItemNotificationType;
 import com.wishboard.server.item.application.dto.command.UpdateItemCommand;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -18,7 +19,7 @@ public record UpdateItemRequest(
 	String itemName,
 
 	@Schema(description = "itemPrice", example = "12300")
-	@Size(max = Integer.MAX_VALUE, message = "{item.itemPrice.max}")
+	@Max(value = Integer.MAX_VALUE, message = "{item.itemPrice.max}")
 	int itemPrice,
 
 	@Schema(description = "itemMemo", example = "메모입니다.")

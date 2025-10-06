@@ -102,7 +102,7 @@ public class ItemController implements ItemControllerDocs {
 	@Override
 	public SuccessResponse<ItemInfoResponse> updateItem(@UserId Long userId, @Valid @RequestPart("request") UpdateItemRequest request,
 		@RequestPart(required = false, value = "itemImages") List<MultipartFile> images, @PathVariable Long itemId) {
-		if(!isValidImageCount(images)) {
+		if (request.imageChanged() && !isValidImageCount(images)) {
 			throw new ValidationException("이미지는 1개 이상 10개 이하로 업로드 가능합니다.", VALIDATION_ITEM_IMAGE_MAX_COUNT_EXCEPTION);
 		}
 		var itemNotificationDto = updateItemUseCase.execute(userId, itemId, request.toCommand(), images);

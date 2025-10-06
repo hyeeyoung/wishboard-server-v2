@@ -1,5 +1,7 @@
 package com.wishboard.server.auth.application.service;
 
+import java.util.Objects;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +24,7 @@ public class LogoutUseCase {
 		var user = userReader.findById(userId);
 		var fcmTokens = user.getFcmTokens();
 		// deviceInfo가 일치하는 토큰이 있으면 그거만 삭제. 없으면 전체 삭제
-		boolean removed = fcmTokens.removeIf(token -> token.getDevice().equals(deviceInfo));
+		boolean removed = fcmTokens.removeIf(token -> Objects.equals(token.getDevice(), deviceInfo));
 		if (!removed) {
 			log.info("@@ Logout skip: device not found. userId={}, deviceId={}", userId, deviceInfo);
 		}
