@@ -43,7 +43,7 @@ public class GetFolderListUseCase {
 			var folderItemDto = folderItemDtoMap.get(folder.getId());
 			return folderThumbnailMapper.toDto(folder, folderItemDto);
 		}).toList();
-		return new PageImpl<>(results, pageable, results.size());
+		return new PageImpl<>(results, pageable, folders.getTotalElements());
 	}
 
 	public List<FolderDto> execute(Long userId) {
