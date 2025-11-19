@@ -1,7 +1,7 @@
 const { firebaseAdmin } = require('../config/firebaseAdmin');
 const logger = require('../config/winston');
 const { SuccessMessage, ErrorMessage } = require('../utils/response');
-const { Strings } = require('../utils/strings');
+const { Strings, NotiTypeLabels } = require('../utils/strings');
 const Slack = require('../lib/slack');
 
 const sendFcmTokenToFirebase = async (notiList) => {
@@ -36,14 +36,15 @@ const sendFcmTokenToFirebase = async (notiList) => {
           token: '',
         };
   
+        const notiLabel = NotiTypeLabels[notiList[userId].notiTypes[0]];
         if (numOfNotiItems === 1) {
-          message.notification.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
-          message.android.data.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
-          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} ${Strings.notiMessageDescription}`;
+          message.notification.body = `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`;
+          message.android.data.body = `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`;
+          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`;
         } else {
-          message.notification.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
-          message.android.data.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
-          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiList[userId].notiTypes[0]} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+          message.notification.body = `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+          message.android.data.body = `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
         }
         message.token = token;
         messages.push(message);
