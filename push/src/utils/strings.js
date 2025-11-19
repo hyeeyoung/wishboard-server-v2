@@ -14,6 +14,17 @@ const Strings = {
   pushNotiSchedulerEnd: '푸쉬 알림 스케줄러 종료',
 };
 
+const NotiTypeLabels = {
+  SALE_START: "세일 시작",
+  SALE_END: "세일 마감",
+  REMINDER: "리마인드",
+  OPEN: "오픈",
+  RESTOCK: "재입고",
+  PREORDER: "프리오더",
+};
+
+
 module.exports = {
   Strings,
+  NotiTypeLabels
 };
