@@ -75,6 +75,14 @@ public class FolderController implements FolderControllerDocs {
 	}
 
 	@Auth
+	@PutMapping("/v2/folder/order")
+	@Override
+	public SuccessResponse<Object> updateFolderOrder(@UserId Long userId, @Valid @RequestBody UpdateFolderOrderRequest request) {
+		updateFolderOrderUseCase.execute(userId, request.folderIds());
+		return SuccessResponse.success(SuccessCode.FOLDER_ORDER_UPDATE_SUCCESS, null);
+	}
+
+	@Auth
 	@DeleteMapping("/v2/folder/{folderId}")
 	@Override
 	public SuccessResponse<Object> deleteFolder(@UserId Long userId, @PathVariable Long folderId) {
