@@ -197,7 +197,7 @@ public class JwtClient {
 			KEY_WILDCARD
 		);
 		var graceKeys = redisTemplate.keys(pattern);
-		if (graceKeys != null && !graceKeys.isEmpty()) {
+		if (!graceKeys.isEmpty()) {
 			redisTemplate.delete(graceKeys);
 		}
 	}
