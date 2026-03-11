@@ -1,20 +1,26 @@
 package com.wishboard.server.auth.infrastructure.jwt;
 
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.wishboard.server.auth.presentation.dto.response.TokenResponseDto;
 import com.wishboard.server.common.constant.JwtKeys;
 import com.wishboard.server.common.constant.RedisKey;
-import com.wishboard.server.common.util.YamlPropertySourceFactory;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -30,8 +36,32 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class JwtClient {
+	private static final long REFRESH_ROTATE_GRACE_MILLIS = 15_000L;
+	private static final String TOKEN_PAIR_DELIMITER = "|";
+	private static final String KEY_WILDCARD = "*";
+
+	public enum RefreshTokenRotateStatus {
+		SUCCESS,
+		TOKEN_NOT_FOUND,
+		TOKEN_MISMATCH
+	}
+
+	public record RotateTokenResult(RefreshTokenRotateStatus status, TokenResponseDto tokenInfo) {
+		public static RotateTokenResult success(TokenResponseDto tokenInfo) {
+			return new RotateTokenResult(RefreshTokenRotateStatus.SUCCESS, tokenInfo);
+		}
+
+		public static RotateTokenResult tokenNotFound() {
+			return new RotateTokenResult(RefreshTokenRotateStatus.TOKEN_NOT_FOUND, null);
+		}
+
+		public static RotateTokenResult tokenMismatch() {
+			return new RotateTokenResult(RefreshTokenRotateStatus.TOKEN_MISMATCH, null);
+		}
+	}
 
 	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisScript<Long> refreshTokenRotateCasScript;
 	private final Key secretKey;
 
 	@Value("${jwt.access-token-expire-time}")
@@ -39,38 +69,67 @@ public class JwtClient {
 	@Value("${jwt.refresh-token-expire-time}")
 	private Long refreshTokenExpireTime;
 
-	public JwtClient(@Value("${jwt.secret}") String secret, RedisTemplate<String, Object> redisTemplate) {
+	public JwtClient(@Value("${jwt.secret}") String secret, RedisTemplate<String, Object> redisTemplate,
+		@Qualifier("refreshTokenRotateCasScript") RedisScript<Long> refreshTokenRotateCasScript) {
 		this.redisTemplate = redisTemplate;
+		this.refreshTokenRotateCasScript = refreshTokenRotateCasScript;
 		byte[] keyBytes = Decoders.BASE64.decode(secret);
 		this.secretKey = Keys.hmacShaKeyFor(keyBytes);
 	}
 
 	public TokenResponseDto createTokenInfo(Long userId, String deviceInfo) {
 		long now = (new Date()).getTime();
-		Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
-		Date refreshTokenExpiresIn = new Date(now + refreshTokenExpireTime);
-
-		// Access Token 생성
-		String accessToken = Jwts.builder()
-			.claim(JwtKeys.USER_ID, userId)
-			.setExpiration(accessTokenExpiresIn)
-			.signWith(secretKey, SignatureAlgorithm.HS512)
-			.compact();
-
-		// Refresh Token 생성
-		String refreshToken = Jwts.builder()
-			.setExpiration(refreshTokenExpiresIn)
-			.signWith(secretKey, SignatureAlgorithm.HS512)
-			.compact();
+		String accessToken = createAccessToken(userId, now);
+		String refreshToken = createRefreshToken(now);
 
 		saveRefreshTokenToRedis(userId, deviceInfo, refreshToken, now);
 
 		return TokenResponseDto.of(accessToken, refreshToken);
 	}
 
+	public RotateTokenResult rotateTokenInfoWithCompareAndSet(Long userId, String deviceInfo, String currentRefreshToken) {
+		long now = (new Date()).getTime();
+		String newAccessToken = createAccessToken(userId, now);
+		String newRefreshToken = createRefreshToken(now);
+
+		String refreshTokenKeyName = generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId));
+		String legacyRefreshTokenKeyName = String.valueOf(userId);
+		String zsetKeyName = generateKeyName(RedisKey.USER_DEVICE, String.valueOf(userId));
+		String graceKeyName = generateGraceKeyName(userId, deviceInfo, currentRefreshToken);
+		String graceValue = newAccessToken + TOKEN_PAIR_DELIMITER + newRefreshToken;
+
+		Long scriptResult = redisTemplate.execute(
+			refreshTokenRotateCasScript,
+			List.of(refreshTokenKeyName, legacyRefreshTokenKeyName, zsetKeyName, graceKeyName),
+			currentRefreshToken,
+			newRefreshToken,
+			String.valueOf(refreshTokenExpireTime),
+			String.valueOf(now),
+			graceValue,
+			String.valueOf(REFRESH_ROTATE_GRACE_MILLIS)
+		);
+
+		if (scriptResult == 0L) {
+			return RotateTokenResult.tokenNotFound();
+		}
+
+		if (scriptResult == -1L) {
+			var graceTokenPair = getGraceRotatedToken(userId, deviceInfo, currentRefreshToken);
+			if (graceTokenPair != null) {
+				return RotateTokenResult.success(graceTokenPair);
+			}
+			return RotateTokenResult.tokenMismatch();
+		}
+
+		removeOldestDeviceIfExceedLimit(zsetKeyName, userId);
+		var tokenInfo = TokenResponseDto.of(newAccessToken, newRefreshToken);
+		return RotateTokenResult.success(tokenInfo);
+	}
+
 	public void expireRefreshToken(Long userId, String deviceInfo) {
 		String keyName = generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId));
 		expireRefreshToken(keyName);
+		clearGraceRotatedTokenCacheForDevice(userId, deviceInfo);
 	}
 
 	private void expireRefreshToken(String keyName) {
@@ -130,6 +189,74 @@ public class JwtClient {
 		return String.join(":", names);
 	}
 
+	private void clearGraceRotatedTokenCacheForDevice(Long userId, String deviceInfo) {
+		String pattern = generateKeyName(
+			RedisKey.REFRESH_TOKEN_ROTATE_GRACE,
+			deviceInfo,
+			String.valueOf(userId),
+			KEY_WILDCARD
+		);
+		var graceKeys = redisTemplate.keys(pattern);
+		if (graceKeys != null && !graceKeys.isEmpty()) {
+			redisTemplate.delete(graceKeys);
+		}
+	}
+
+	private TokenResponseDto getGraceRotatedToken(Long userId, String deviceInfo, String oldRefreshToken) {
+		String keyName = generateGraceKeyName(userId, deviceInfo, oldRefreshToken);
+		Object cached = redisTemplate.opsForValue().get(keyName);
+		if (!(cached instanceof String cachedValue) || !cachedValue.contains(TOKEN_PAIR_DELIMITER)) {
+			return null;
+		}
+		String[] parts = cachedValue.split("\\|", 2);
+		if (parts.length != 2 || !StringUtils.hasText(parts[0]) || !StringUtils.hasText(parts[1])) {
+			return null;
+		}
+		return TokenResponseDto.of(parts[0], parts[1]);
+	}
+
+	private String generateGraceKeyName(Long userId, String deviceInfo, String refreshToken) {
+		return generateKeyName(
+			RedisKey.REFRESH_TOKEN_ROTATE_GRACE,
+			deviceInfo,
+			String.valueOf(userId),
+			sha256Hex(refreshToken)
+		);
+	}
+
+	private String sha256Hex(String value) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+			StringBuilder builder = new StringBuilder(hash.length * 2);
+			for (byte b : hash) {
+				builder.append(String.format(Locale.ROOT, "%02x", b));
+			}
+			return builder.toString();
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("SHA-256 algorithm is not available", e);
+		}
+	}
+
+	private String createAccessToken(Long userId, long now) {
+		Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
+		return Jwts.builder()
+			.claim(JwtKeys.USER_ID, userId)
+			.setExpiration(accessTokenExpiresIn)
+			.signWith(secretKey, SignatureAlgorithm.HS512)
+			.compact();
+	}
+
+	private String createRefreshToken(long now) {
+		Date refreshTokenExpiresIn = new Date(now + refreshTokenExpireTime);
+		return Jwts.builder()
+			.setId(UUID.randomUUID().toString())
+			.setIssuedAt(new Date(now))
+			.setExpiration(refreshTokenExpiresIn)
+			.signWith(secretKey, SignatureAlgorithm.HS512)
+			.compact();
+	}
+
 	private void saveRefreshTokenToRedis(Long userId, String deviceInfo, String refreshToken, Long now) {
 		String refreshTokenKeyName = generateKeyName(RedisKey.REFRESH_TOKEN, deviceInfo, String.valueOf(userId));
 		String zsetKeyName = generateKeyName(RedisKey.USER_DEVICE, String.valueOf(userId));
@@ -168,6 +295,7 @@ public class JwtClient {
 				redisTemplate.opsForZSet().remove(zsetKeyName, oldRefreshTokenKeyName);
 
 				String oldKeyDeviceInfo = oldRefreshTokenKeyName.split(":")[1];
+				clearGraceRotatedTokenCacheForDevice(userId, oldKeyDeviceInfo);
 				redisTemplate.opsForValue()
 					.set(generateKeyName(RedisKey.LOGOUT_FLAG, oldKeyDeviceInfo, String.valueOf(userId)), String.valueOf(true));
 				log.warn("@@ Exceeded device limit. Deleted oldest refresh token: {}", oldRefreshTokenKeyName);

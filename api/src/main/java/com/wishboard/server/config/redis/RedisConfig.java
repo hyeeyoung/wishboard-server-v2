@@ -10,8 +10,12 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 
 @RequiredArgsConstructor
@@ -43,5 +47,13 @@ public class RedisConfig {
 	@Bean
 	public ConfigureRedisAction configureRedisAction() {
 		return ConfigureRedisAction.NO_OP;
+	}
+
+	@Bean(name = "refreshTokenRotateCasScript")
+	public RedisScript<Long> refreshTokenRotateCasScript() {
+		DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+		script.setScriptSource(new ResourceScriptSource(new ClassPathResource("redis/refresh-token-rotate-cas.lua")));
+		script.setResultType(Long.class);
+		return script;
 	}
 }

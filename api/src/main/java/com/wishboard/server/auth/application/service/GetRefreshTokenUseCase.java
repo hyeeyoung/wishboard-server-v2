@@ -3,8 +3,6 @@ package com.wishboard.server.auth.application.service;
 import static com.wishboard.server.common.exception.ErrorCode.*;
 import static com.wishboard.server.common.exception.ErrorDetailCode.*;
 
-import java.util.Objects;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +26,6 @@ public class GetRefreshTokenUseCase {
 				UNAUTHORIZED_INVALID_TOKEN_EXCEPTION, INVALID_TOKEN);
 		}
 		Long userId = jwtClient.getUserIdFromJwt(tokenCommand.getAccessToken());
-		String refreshToken = jwtClient.getRefreshToken(userId, deviceInfo);
 		Boolean isLogoutDevice = jwtClient.isLogoutDevice(userId, deviceInfo);
 
 		if (isLogoutDevice) {
@@ -36,14 +33,17 @@ public class GetRefreshTokenUseCase {
 				UNAUTHORIZED_EXCEPTION, LOGOUT_BY_DEVICE_OVERFLOW);
 		}
 
-		if (Objects.isNull(refreshToken)) {
+		var rotateResult = jwtClient.rotateTokenInfoWithCompareAndSet(userId, deviceInfo, tokenCommand.getRefreshToken());
+		if (rotateResult.status() == JwtClient.RefreshTokenRotateStatus.TOKEN_NOT_FOUND) {
 			throw new UnAuthorizedException(String.format("이미 만료된 리프레시 토큰 (%s) 입니다.", tokenCommand.getRefreshToken()),
 				UNAUTHORIZED_EXCEPTION, TOKEN_EXPIRED);
 		}
-		if (!refreshToken.equals(tokenCommand.getRefreshToken())) {
+
+		if (rotateResult.status() == JwtClient.RefreshTokenRotateStatus.TOKEN_MISMATCH) {
 			throw new UnAuthorizedException(String.format("해당 리프레시 토큰의 정보 (%s) 가 일치하지 않습니다.", tokenCommand.getRefreshToken()),
 				UNAUTHORIZED_EXCEPTION, INVALID_TOKEN);
 		}
-		return jwtClient.createTokenInfo(userId, deviceInfo);
+
+		return rotateResult.tokenInfo();
 	}
 }
