@@ -34,6 +34,9 @@ public class Folder extends AuditingTimeEntity {
 	@Column(name = "folder_name", length = 512)
 	private String folderName = "empty";
 
+	@Column(name = "folder_order")
+	private Long folderOrder;
+
 	private Folder(User user, String folderName) {
 		this.user = user;
 		this.folderName = folderName;
@@ -48,5 +51,9 @@ public class Folder extends AuditingTimeEntity {
 			return;
 		}
 		this.folderName = folderName;
+	}
+
+	public void updateFolderOrder(Long folderOrder) {
+		this.folderOrder = folderOrder;
 	}
 }

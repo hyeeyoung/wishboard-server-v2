@@ -3,8 +3,6 @@ package com.wishboard.server.folder.domain.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.wishboard.server.folder.domain.model.Folder;
@@ -15,7 +13,7 @@ public interface FolderRepository extends JpaRepository<Folder, Long>, FolderRep
 
 	Optional<Folder> findByUserAndFolderName(User user, String folderName);
 
-	Page<Folder> findAllByUser(User user, Pageable pageable);
+	List<Folder> findAllByUser(User user);
 
 	List<Folder> findAllByUserOrderByCreatedAtDesc(User user);
 

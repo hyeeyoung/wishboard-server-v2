@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,8 +28,12 @@ import com.wishboard.server.folder.application.service.DeleteFolderUseCase;
 import com.wishboard.server.folder.application.service.GetFolderListUseCase;
 import com.wishboard.server.folder.application.service.GetItemInFolderUseCase;
 import com.wishboard.server.folder.application.service.UpdateFolderUseCase;
+import com.wishboard.server.folder.application.service.UpdateFolderOrderUseCase;
 import com.wishboard.server.folder.presentation.docs.FolderControllerDocs;
 import com.wishboard.server.folder.presentation.dto.request.CreateFolderRequest;
+import com.wishboard.server.folder.presentation.dto.request.FolderPageOrderType;
+import com.wishboard.server.folder.presentation.dto.request.FolderListOrderType;
+import com.wishboard.server.folder.presentation.dto.request.UpdateFolderOrderRequest;
 import com.wishboard.server.folder.presentation.dto.request.UpdateFolderRequest;
 import com.wishboard.server.folder.presentation.dto.response.FolderInfoWithoutItemCountResponse;
 import com.wishboard.server.folder.presentation.dto.response.FolderListResponse;
@@ -42,6 +47,7 @@ public class FolderController implements FolderControllerDocs {
 	private final GetFolderListUseCase getFolderListUseCase;
 	private final CreateFolderUseCase createFolderUseCase;
 	private final UpdateFolderUseCase updateFolderUseCase;
+	private final UpdateFolderOrderUseCase updateFolderOrderUseCase;
 	private final DeleteFolderUseCase deleteFolderUseCase;
 	private final GetItemInFolderUseCase getItemInFolderUseCase;
 	private final ModelMapper modelMapper;
@@ -50,8 +56,9 @@ public class FolderController implements FolderControllerDocs {
 	@GetMapping("/v2/folder")
 	@Override
 	public SuccessResponse<Page<FolderListResponse>> getFolderList(@UserId Long userId,
-		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-		var folderList = getFolderListUseCase.execute(userId, pageable);
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+		@RequestParam(value = "order", required = false) FolderPageOrderType order) {
+		var folderList = getFolderListUseCase.execute(userId, pageable, resolveOrderTypeForFolder(order));
 		var response = folderList.map(folder -> modelMapper.map(folder, FolderListResponse.class));
 		return SuccessResponse.success(SuccessCode.FOLDER_LIST_SUCCESS, response);
 	}
@@ -75,6 +82,14 @@ public class FolderController implements FolderControllerDocs {
 	}
 
 	@Auth
+	@PutMapping("/v2/folder/order")
+	@Override
+	public SuccessResponse<Object> updateFolderOrder(@UserId Long userId, @Valid @RequestBody UpdateFolderOrderRequest request) {
+		updateFolderOrderUseCase.execute(userId, request.folderIds());
+		return SuccessResponse.success(SuccessCode.FOLDER_ORDER_UPDATE_SUCCESS, null);
+	}
+
+	@Auth
 	@DeleteMapping("/v2/folder/{folderId}")
 	@Override
 	public SuccessResponse<Object> deleteFolder(@UserId Long userId, @PathVariable Long folderId) {
@@ -95,11 +110,31 @@ public class FolderController implements FolderControllerDocs {
 	@Auth
 	@GetMapping("/v2/folder/list")
 	@Override
-	public SuccessResponse<List<FolderInfoWithoutItemCountResponse>> getFolderListWithoutItemCount(@UserId Long userId) {
-		var folderList = getFolderListUseCase.execute(userId);
+	public SuccessResponse<List<FolderInfoWithoutItemCountResponse>> getFolderListWithoutItemCount(@UserId Long userId,
+		@RequestParam(value = "order", required = false) FolderListOrderType order) {
+		var folderList = getFolderListUseCase.execute(userId, resolveOrderTypeForFolderList(order));
 		var response = folderList.stream()
 			.map(folder -> modelMapper.map(folder, FolderInfoWithoutItemCountResponse.class))
 			.toList();
 		return SuccessResponse.success(SuccessCode.FOLDER_LIST_FOR_ITEM_DETAIL_SUCCESS, response);
+	}
+
+	private FolderPageOrderType resolveOrderTypeForFolder(FolderPageOrderType order) {
+		if (order == FolderPageOrderType.CUSTOM) {
+			return FolderPageOrderType.CUSTOM;
+		}
+		// null 이거나 LATEST 면 LATEST
+		return FolderPageOrderType.LATEST;
+	}
+
+	private FolderListOrderType resolveOrderTypeForFolderList(FolderListOrderType order) {
+		if (order == FolderListOrderType.CUSTOM) {
+			return FolderListOrderType.CUSTOM;
+		}
+		if (order == FolderListOrderType.RECENT_ITEM) {
+			return FolderListOrderType.RECENT_ITEM;
+		}
+		// null 이거나 LATEST 면 LATEST
+		return FolderListOrderType.LATEST;
 	}
 }

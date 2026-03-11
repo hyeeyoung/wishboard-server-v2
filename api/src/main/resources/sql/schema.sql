@@ -48,6 +48,7 @@ CREATE TABLE `folders` (
                            `create_at` datetime default current_timestamp,
                            `update_at` datetime default current_timestamp on update current_timestamp,
                            `folder_name` varchar(512)  DEFAULT NULL,
+                           `folder_order` bigint DEFAULT NULL,
                            `user_id` bigint DEFAULT NULL,
                            foreign key (`user_id`) references `users` (`user_id`) on update cascade on delete cascade,
                            primary key (`folder_id`)
@@ -129,6 +130,5 @@ CREATE TABLE `item_image` (
                               foreign key (`item_id`) references `items` (`item_id`) on update cascade on delete cascade,
                               PRIMARY KEY (`id`)
 )
-
 
 
