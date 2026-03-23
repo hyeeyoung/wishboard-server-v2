@@ -65,6 +65,7 @@ CREATE TABLE `items` (
                          `item_name` varchar(512) NOT NULL,
                          `item_price` varchar(255) NOT NULL,
                          `item_url` varchar(1024) DEFAULT NULL,
+                         `item_status` varchar(45) NOT NULL DEFAULT 'WISH';
                          `folder_id` bigint DEFAULT NULL,
                          `user_id` bigint NOT NULL,
                          `version` bigint,
@@ -130,5 +131,3 @@ CREATE TABLE `item_image` (
                               foreign key (`item_id`) references `items` (`item_id`) on update cascade on delete cascade,
                               PRIMARY KEY (`id`)
 )
-
-

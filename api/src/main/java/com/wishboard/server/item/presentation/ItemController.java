@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,10 +33,12 @@ import com.wishboard.server.item.application.service.DeleteItemUseCase;
 import com.wishboard.server.item.application.service.GetAllItemInfoUseCase;
 import com.wishboard.server.item.application.service.GetItemInfoUseCase;
 import com.wishboard.server.item.application.service.UpdateItemFolderUseCase;
+import com.wishboard.server.item.application.service.UpdateItemStatusUseCase;
 import com.wishboard.server.item.application.service.UpdateItemUseCase;
 import com.wishboard.server.item.domain.model.AddType;
 import com.wishboard.server.item.presentation.docs.ItemControllerDocs;
 import com.wishboard.server.item.presentation.dto.request.CreateItemRequest;
+import com.wishboard.server.item.presentation.dto.request.UpdateItemStatusRequest;
 import com.wishboard.server.item.presentation.dto.request.UpdateItemRequest;
 import com.wishboard.server.item.presentation.dto.response.ItemInfoResponse;
 import com.wishboard.server.item.presentation.dto.response.ItemParseResponse;
@@ -52,6 +55,7 @@ public class ItemController implements ItemControllerDocs {
 	private final UpdateItemUseCase updateItemUseCase;
 	private final DeleteItemUseCase deleteItemUseCase;
 	private final UpdateItemFolderUseCase updateItemFolderUseCase;
+	private final UpdateItemStatusUseCase updateItemStatusUseCase;
 
 	private final ModelMapper modelMapper;
 
@@ -127,6 +131,15 @@ public class ItemController implements ItemControllerDocs {
 	public SuccessResponse<ItemInfoResponse> updateItemFolder(@UserId Long userId, @PathVariable Long itemId, @PathVariable Long folderId) {
 		var itemNotificationDto = updateItemFolderUseCase.execute(userId, itemId, folderId);
 		return SuccessResponse.success(SuccessCode.ITEM_FOLDER_UPDATE_SUCCESS, modelMapper.map(itemNotificationDto, ItemInfoResponse.class));
+	}
+
+	@Auth
+	@PutMapping(value = "/v2/item/{itemId}/status")
+	@Override
+	public SuccessResponse<ItemInfoResponse> updateItemStatus(@UserId Long userId, @PathVariable Long itemId,
+		@Valid @RequestBody UpdateItemStatusRequest request) {
+		var itemNotificationDto = updateItemStatusUseCase.execute(userId, itemId, request.status());
+		return SuccessResponse.success(SuccessCode.ITEM_STATUS_UPDATE_SUCCESS, modelMapper.map(itemNotificationDto, ItemInfoResponse.class));
 	}
 
 	private boolean isValidImageCount(List<MultipartFile> images) {

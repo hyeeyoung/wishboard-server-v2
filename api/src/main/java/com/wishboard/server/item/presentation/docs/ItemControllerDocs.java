@@ -14,6 +14,7 @@ import com.wishboard.server.config.swagger.SwaggerBody;
 import com.wishboard.server.config.swagger.SwaggerPageable;
 import com.wishboard.server.item.domain.model.AddType;
 import com.wishboard.server.item.presentation.dto.request.CreateItemRequest;
+import com.wishboard.server.item.presentation.dto.request.UpdateItemStatusRequest;
 import com.wishboard.server.item.presentation.dto.request.UpdateItemRequest;
 import com.wishboard.server.item.presentation.dto.response.ItemInfoResponse;
 import com.wishboard.server.item.presentation.dto.response.ItemParseResponse;
@@ -208,5 +209,30 @@ public interface ItemControllerDocs {
 	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
 	SuccessResponse<ItemInfoResponse> updateItemFolder(@Parameter(hidden = true) Long userId, @Parameter(name = "itemId", example = "1") Long itemId,
 		@Parameter(name = "folderId", example = "1") Long folderId);
+
+	@Operation(summary = "아이템 상태 수정")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "아이템 상태 수정 성공입니다."),
+		@ApiResponse(responseCode = "400", description = """
+			1. 아이템 상태는 필수입니다.
+			2. 잘못된 Enum 값 입니다.
+			3. 허용하지 않는 User-Agent의 요청입니다.
+			4. Request Header에 디바이스 정보가 없습니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "401", description = """
+				1. 토큰이 만료되었습니다. 다시 로그인 해주세요.
+				2. 유효하지 않은 토큰입니다.
+				3. 탈퇴했거나 존재하지 않는 유저입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponseWithCode.class))),
+		@ApiResponse(responseCode = "404", description = """
+			1. 탈퇴했거나 존재하지 않는 유저입니다.
+			2. 존재하지 않는 아이템입니다.
+			""", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "409", description = "다른 사용자의 아이템입니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "500", description = "예상치 못한 서버 에러가 발생하였습니다.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+	})
+	@Parameter(name = "Device-Info", description = "디바이스 식별용 UUID", example = "69b5207d-04a3-4f01-a0a2-cc61661a9411", in = ParameterIn.HEADER, required = true)
+	SuccessResponse<ItemInfoResponse> updateItemStatus(@Parameter(hidden = true) Long userId,
+		@Parameter(name = "itemId", example = "1") Long itemId, UpdateItemStatusRequest updateItemStatusRequest);
 
 }

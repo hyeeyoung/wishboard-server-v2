@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.wishboard.server.common.domain.ItemNotificationType;
 import com.wishboard.server.item.domain.model.Item;
+import com.wishboard.server.item.domain.model.ItemStatus;
 import com.wishboard.server.notifications.domain.model.Notifications;
 
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class ItemFolderNotificationDto {
 	private String itemName;
 	private String itemPrice;
 	private String itemUrl;
+	private ItemStatus itemStatus;
 	private ItemNotificationType itemNotificationType;
 	private LocalDateTime itemNotificationDate;
 	private Boolean readState;
@@ -44,6 +46,7 @@ public class ItemFolderNotificationDto {
 			.itemName(item.getItemName())
 			.itemPrice(item.getItemPrice())
 			.itemUrl(item.getItemUrl())
+			.itemStatus(item.getItemStatus())
 			.itemNotificationType(notifications == null ? null : notifications.getItemNotificationType())
 			.itemNotificationDate(notifications == null ? null : notifications.getItemNotificationDate())
 			.createdAt(item.getCreatedAt())

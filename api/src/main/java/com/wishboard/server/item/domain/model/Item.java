@@ -60,6 +60,10 @@ public class Item extends AuditingTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private AddType addType;
 
+	@Column(name = "item_status", length = 45, nullable = false)
+	@Enumerated(EnumType.STRING)
+	private ItemStatus itemStatus = ItemStatus.WISH;
+
 	@OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ItemImage> images = new ArrayList<>();
 
@@ -73,6 +77,7 @@ public class Item extends AuditingTimeEntity {
 		this.itemUrl = itemUrl;
 		this.itemMemo = itemMemo;
 		this.addType = addType;
+		this.itemStatus = ItemStatus.WISH;
 	}
 
 	@Builder
@@ -84,6 +89,7 @@ public class Item extends AuditingTimeEntity {
 		this.itemMemo = itemMemo;
 		this.addType = addType;
 		this.folder = folder;
+		this.itemStatus = ItemStatus.WISH;
 	}
 
 	public static Item newInstance(User user, String itemName, String itemPrice, String itemUrl, String itemMemo, AddType addType) {
@@ -109,5 +115,12 @@ public class Item extends AuditingTimeEntity {
 		this.itemPrice = itemPrice;
 		this.itemUrl = itemUrl;
 		this.itemMemo = itemMemo;
+	}
+
+	public void updateStatus(ItemStatus itemStatus) {
+		if (this.itemStatus == itemStatus) {
+			return;
+		}
+		this.itemStatus = itemStatus;
 	}
 }

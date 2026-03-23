@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.wishboard.server.common.domain.ItemNotificationType;
 import com.wishboard.server.item.application.dto.ItemImageDto;
+import com.wishboard.server.item.domain.model.ItemStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class ItemInfoResponse {
 	private String itemPrice;
 	private String itemUrl;
 	private String itemMemo;
+	private ItemStatus itemStatus;
 	private ItemNotificationType itemNotificationType;
 	private LocalDateTime itemNotificationDate;
 	private LocalDateTime createdAt;
