@@ -29,7 +29,7 @@ CREATE TABLE `users` (
                          `email` varchar(256)  NOT NULL,
                          `is_active` bit(1) NOT NULL,
                          `nickname` varchar(512)  DEFAULT NULL,
-                         `os_type`  varchar(45) NOT NULL,
+                         `os_type`  varchar(45) DEFAULT NULL,
                          `password` varchar(256)  NOT NULL,
                          `profile_img` varchar(512)  DEFAULT NULL,
                          `profile_img_url` varchar(1000) DEFAULT NULL,

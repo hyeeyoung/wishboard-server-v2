@@ -64,7 +64,7 @@ public class User extends AuditingTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private AuthType authType;
 
-	@Column(name = "os_type", nullable = false, length = 45)
+	@Column(name = "os_type", length = 45)
 	@Enumerated(EnumType.STRING)
 	private OsType osType;
 
@@ -116,7 +116,7 @@ public class User extends AuditingTimeEntity {
 			// 2) 새 토큰 삽입
 			addFcmToken(fcmToken, deviceInfo, this);
 		}
-		if (osType != null && !StringUtils.hasText(osType.getValue())) {
+		if (osType != null && StringUtils.hasText(osType.getValue())) {
 			this.osType = osType;
 		}
 	}
