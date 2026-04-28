@@ -20,6 +20,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wishboard.server.item.application.dto.FolderItemDto;
 import com.wishboard.server.item.application.dto.ItemFolderNotificationDto;
 import com.wishboard.server.item.domain.model.Item;
+import com.wishboard.server.item.domain.model.ItemStatus;
 import com.wishboard.server.item.domain.model.QItem;
 import com.wishboard.server.notifications.domain.model.Notifications;
 import com.wishboard.server.notifications.domain.model.QNotifications;
@@ -59,6 +60,29 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				return ItemFolderNotificationDto.of(item, notifications);
 			}).toList();
 		return new PageImpl<>(dtoList, pageable, totalElements);
+	}
+
+	@Override
+	public long countByUserId(Long userId) {
+		Long count = queryFactory
+			.select(item.id.count())
+			.from(item)
+			.where(item.user.id.eq(userId))
+			.fetchOne();
+		return count == null ? 0L : count;
+	}
+
+	@Override
+	public long countByUserIdAndStatus(Long userId, ItemStatus status) {
+		Long count = queryFactory
+			.select(item.id.count())
+			.from(item)
+			.where(
+				item.user.id.eq(userId),
+				item.itemStatus.eq(status)
+			)
+			.fetchOne();
+		return count == null ? 0L : count;
 	}
 
 	@Override

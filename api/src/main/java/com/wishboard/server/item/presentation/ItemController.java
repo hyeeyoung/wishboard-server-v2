@@ -31,6 +31,7 @@ import com.wishboard.server.config.resolver.UserId;
 import com.wishboard.server.item.application.service.CreateItemUseCase;
 import com.wishboard.server.item.application.service.DeleteItemUseCase;
 import com.wishboard.server.item.application.service.GetAllItemInfoUseCase;
+import com.wishboard.server.item.application.service.GetItemCountsUseCase;
 import com.wishboard.server.item.application.service.GetItemInfoUseCase;
 import com.wishboard.server.item.application.service.UpdateItemFolderUseCase;
 import com.wishboard.server.item.application.service.UpdateItemStatusUseCase;
@@ -40,6 +41,7 @@ import com.wishboard.server.item.presentation.docs.ItemControllerDocs;
 import com.wishboard.server.item.presentation.dto.request.CreateItemRequest;
 import com.wishboard.server.item.presentation.dto.request.UpdateItemStatusRequest;
 import com.wishboard.server.item.presentation.dto.request.UpdateItemRequest;
+import com.wishboard.server.item.presentation.dto.response.ItemCountsResponse;
 import com.wishboard.server.item.presentation.dto.response.ItemInfoResponse;
 import com.wishboard.server.item.presentation.dto.response.ItemParseResponse;
 
@@ -51,6 +53,7 @@ import lombok.RequiredArgsConstructor;
 public class ItemController implements ItemControllerDocs {
 	private final GetAllItemInfoUseCase getAllItemInfoUseCase;
 	private final GetItemInfoUseCase getItemInfoUseCase;
+	private final GetItemCountsUseCase getItemCountsUseCase;
 	private final CreateItemUseCase createItemUseCase;
 	private final UpdateItemUseCase updateItemUseCase;
 	private final DeleteItemUseCase deleteItemUseCase;
@@ -74,6 +77,14 @@ public class ItemController implements ItemControllerDocs {
 		var itemNotificationDto = getAllItemInfoUseCase.execute(userId, pageable);
 		var response = itemNotificationDto.map(item -> modelMapper.map(item, ItemInfoResponse.class));
 		return SuccessResponse.success(SuccessCode.ITEM_LIST_INFO_SUCCESS, response);
+	}
+
+	@Auth
+	@GetMapping("/v2/item/counts")
+	@Override
+	public SuccessResponse<ItemCountsResponse> getItemCounts(@UserId Long userId) {
+		var itemCountsDto = getItemCountsUseCase.execute(userId);
+		return SuccessResponse.success(SuccessCode.ITEM_COUNTS_SUCCESS, modelMapper.map(itemCountsDto, ItemCountsResponse.class));
 	}
 
 	@Auth

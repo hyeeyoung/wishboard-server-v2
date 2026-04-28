@@ -34,6 +34,7 @@ public enum SuccessCode {
 	USER_DELETE_SUCCESS(OK, "사용자 탈퇴 성공입니다."),
 
 	ITEM_LIST_INFO_SUCCESS(OK, "아이템 리스트 조회 성공입니다."),
+	ITEM_COUNTS_SUCCESS(OK, "아이템 카운트 조회 성공입니다."),
 	ITEM_INFO_SUCCESS(OK, "아이템 정보 조회 성공입니다."),
 	ITEM_CREATE_SUCCESS(CREATED, "아이템 생성 성공입니다."),
 	ITEM_AND_NOTIFICATION_CREATE_SUCCESS(CREATED, "아이템 및 알림 생성 성공입니다."),
