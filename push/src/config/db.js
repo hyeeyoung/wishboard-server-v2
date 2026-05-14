@@ -34,9 +34,8 @@ logger.info(TAG_SUCCESS);
 
 module.exports = {
   connection: async function () {
-    const connection = await pool.getConnection(async (conn) => conn);
     try {
-      return connection;
+      return await pool.getConnection();
     } catch (err) {
       switch (err.code) {
         case 'PROTOCOL_CONNECTION_LOST':
@@ -49,19 +48,19 @@ module.exports = {
           logger.error(TAG_ECONNREFUSED);
           break;
       }
+      throw err;
     }
   },
   query: async function (query, ...args) {
-    let rows;
-    const connection = await this.connection(async (conn) => conn);
+    const connection = await this.connection();
 
-    if (!args) {
-      rows = await connection.query(query);
-    } else {
-      rows = await connection.query(query, args);
+    try {
+      if (!args) {
+        return await connection.query(query);
+      }
+      return await connection.query(query, args);
+    } finally {
+      connection.release();
     }
-    connection.release();
-
-    return rows;
   },
 };
