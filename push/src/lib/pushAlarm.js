@@ -4,86 +4,78 @@ const { SuccessMessage, ErrorMessage } = require('../utils/response');
 const { Strings, NotiTypeLabels } = require('../utils/strings');
 const Slack = require('../lib/slack');
 
+const buildMessage = (token, notiTypes) => {
+  const numOfNotiItems = notiTypes.length;
+  const notiLabel = NotiTypeLabels[notiTypes[0]];
+  const body =
+    numOfNotiItems === 1
+      ? `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`
+      : `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+
+  return {
+    notification: {
+      title: Strings.notiMessageTitle,
+      body,
+    },
+    android: {
+      data: {
+        title: Strings.notiMessageTitle,
+        body,
+      },
+    },
+    apns: {
+      payload: {
+        aps: {
+          alert: {
+            title: Strings.notiMessageTitle,
+            body,
+          },
+        },
+      },
+    },
+    token,
+  };
+};
+
 const sendFcmTokenToFirebase = async (notiList) => {
   try {
     const messages = [];
     Object.keys(notiList).forEach((userId) => {
-      const numOfNotiItems = notiList[userId].notiTypes.length;
-      const tokens = notiList[userId].tokens;
-
+      const { notiTypes, tokens } = notiList[userId];
       for (const token of tokens) {
-        const message = {
-          notification: {
-            title: Strings.notiMessageTitle,
-            body: '',
-          },
-          android: {
-            data: {
-              title: Strings.notiMessageTitle,
-              body: '',
-            },
-          },
-          apns: {
-            payload: {
-              aps: {
-                alert: {
-                  title: Strings.notiMessageTitle,
-                  body: '',
-                },
-              },
-            },
-          },
-          token: '',
-        };
-  
-        const notiLabel = NotiTypeLabels[notiList[userId].notiTypes[0]];
-        if (numOfNotiItems === 1) {
-          message.notification.body = `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`;
-          message.android.data.body = `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`;
-          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`;
-        } else {
-          message.notification.body = `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
-          message.android.data.body = `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
-          message.apns.payload.aps.alert.body = `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
-        }
-        message.token = token;
-        messages.push(message);
+        messages.push(buildMessage(token, notiTypes));
       }
     });
 
-    const failedTokens = [];
-    messages.forEach(async (message) => {
-      const response = await firebaseAdmin.messaging().send(message);
-      logger.info(SuccessMessage.notiFCMSend);
-      // failureCount 존재 시 예외처리
-      if (response.failureCount > 0) {
-        response.responses.forEach((resp, idx) => {
-          if (!resp.success) {
-            failedTokens.push(messages[idx]);
-          }
-        });
-        // 실패 토큰에 한하여 재전송
-        const reResponse = await firebaseAdmin.messaging().send(failedTokens);
-        logger.info(SuccessMessage.notiFCMSend);
-        Slack.sendMessage({
-          color: Slack.Colors.warning,
-          title: '푸쉬 알림 실패에 따른 재전송 성공 여부 Responses',
-          text: `\`\`\`${JSON.stringify(reResponse)}\`\`\``,
-        });
-      }
-    });
+    if (messages.length === 0) {
+      return true;
+    }
 
-    failedTokens.forEach(async (failedTokenMessage) => {
-      const reResponse = await firebaseAdmin
+    // firebase-admin v13: sendEach 로 다중 메시지 일괄 전송
+    const result = await firebaseAdmin.messaging().sendEach(messages);
+    logger.info(
+      `${SuccessMessage.notiFCMSend} (success: ${result.successCount}, failure: ${result.failureCount})`,
+    );
+
+    if (result.failureCount > 0) {
+      const failedMessages = result.responses
+        .map((resp, idx) => (!resp.success ? messages[idx] : null))
+        .filter(Boolean);
+
+      // 실패 토큰에 한하여 1회 재전송
+      const retryResult = await firebaseAdmin
         .messaging()
-        .send(failedTokenMessage);
-      logger.info(SuccessMessage.notiFCMSend);
+        .sendEach(failedMessages);
+      logger.info(
+        `${SuccessMessage.notiFCMSend} retry (success: ${retryResult.successCount}, failure: ${retryResult.failureCount})`,
+      );
+
       Slack.sendMessage({
         color: Slack.Colors.warning,
         title: '푸쉬 알림 실패에 따른 재전송 성공 여부 Responses',
-        text: `\`\`\`${JSON.stringify(reResponse)}\`\`\``,
+        text: `\`\`\`${JSON.stringify(retryResult)}\`\`\``,
       });
-    });
+    }
 
     return true;
   } catch (e) {
