@@ -1,36 +1,24 @@
 const cheerio = require('cheerio');
-const { getPriceWithoutString } = require('../utils');
+const {
+  getPriceWithoutString,
+  extractOgMeta,
+  titleFallback,
+} = require('../utils');
 
 const extractFromSeoulStoreHtml = (html, _url) => {
-  let itemImg;
-  let itemName;
-  let itemPrice;
   const $ = cheerio.load(html);
-  $('meta').each((_, el) => {
-    const tag = $(el).attr('property')?.split(':')[1];
-    if (tag) {
-      const value = $(el).attr('content');
-      switch (tag) {
-        case 'title':
-          itemName = value;
-          itemPrice = value.split('|').reverse()[1];
-          break;
-        case 'image':
-          if (!itemImg) {
-            itemImg = value;
-          }
-          break;
-      }
-    }
-    if (!itemName) {
-      const text = $('title').text();
-      if (text) {
-        itemName = text;
-      }
-    }
-  });
-  itemPrice = itemPrice ? getPriceWithoutString(itemPrice) : undefined;
-  return { item_img: itemImg, item_name: itemName, item_price: itemPrice };
+  const og = extractOgMeta($);
+
+  const itemName = og.title || titleFallback($);
+  const itemImg = og.image;
+  // 서울스토어 og:title 패턴: "[브랜드] | 상품명 | 가격"
+  const itemPrice = og.title ? og.title.split('|').reverse()[1] : undefined;
+
+  return {
+    item_img: itemImg,
+    item_name: itemName,
+    item_price: itemPrice ? getPriceWithoutString(itemPrice) : undefined,
+  };
 };
 
 module.exports = { extractFromSeoulStoreHtml };

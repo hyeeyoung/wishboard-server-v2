@@ -1,40 +1,30 @@
 const cheerio = require('cheerio');
-const { getPriceWithoutString } = require('../utils');
+const {
+  getPriceWithoutString,
+  extractOgMeta,
+  titleFallback,
+} = require('../utils');
 
 const extractFromMusinsaHtml = (html, _url) => {
-  let itemImg;
-  let itemName;
-  let itemPrice;
   const $ = cheerio.load(html);
-  $('meta').each((_, el) => {
-    const ogTag = $(el).attr('property')?.split(/^og:/)[1];
-    if (ogTag) {
-      const ogValue = $(el).attr('content');
-      switch (ogTag) {
-        case 'title':
-          itemName = ogValue;
-          break;
-        case 'image':
-          if (!itemImg) {
-            itemImg = ogValue;
-          }
-          break;
-        case 'description': {
-          const matchPrice = ogValue.match(/\d{1,3}(,\d{3})*/g);
-          itemPrice = matchPrice[matchPrice.length - 1];
-          break;
-        }
-      }
+  const og = extractOgMeta($);
+
+  const itemName = og.title || titleFallback($);
+  const itemImg = og.image;
+
+  let itemPrice;
+  if (og.description) {
+    const matchPrice = og.description.match(/\d{1,3}(,\d{3})*/g);
+    if (matchPrice && matchPrice.length > 0) {
+      itemPrice = matchPrice[matchPrice.length - 1];
     }
-    if (!itemName) {
-      const text = $('title').text();
-      if (text) {
-        itemName = text;
-      }
-    }
-  });
-  itemPrice = itemPrice ? getPriceWithoutString(itemPrice) : undefined;
-  return { item_img: itemImg, item_name: itemName, item_price: itemPrice };
+  }
+
+  return {
+    item_img: itemImg,
+    item_name: itemName,
+    item_price: itemPrice ? getPriceWithoutString(itemPrice) : undefined,
+  };
 };
 
 module.exports = { extractFromMusinsaHtml };
