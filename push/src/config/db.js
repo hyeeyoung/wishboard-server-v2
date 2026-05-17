@@ -55,7 +55,7 @@ module.exports = {
     const connection = await this.connection();
 
     try {
-      if (!args) {
+      if (args.length === 0) {
         return await connection.query(query);
       }
       return await connection.query(query, args);
