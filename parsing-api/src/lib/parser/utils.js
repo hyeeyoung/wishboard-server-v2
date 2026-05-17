@@ -8,6 +8,10 @@ const emptyResult = () => ({
   item_price: undefined,
 });
 
+/**
+ * @param {cheerio.CheerioAPI} $ cheerio.load(html) 결과
+ * @returns {Record<string, string>} og:title → { title }, og:image → { image } 등으로 평탄화한 객체
+ */
 const extractOgMeta = ($) => {
   const og = {};
   $('meta').each((_, el) => {
@@ -20,6 +24,10 @@ const extractOgMeta = ($) => {
   return og;
 };
 
+/**
+ * @param {cheerio.CheerioAPI} $ cheerio.load(html) 결과
+ * @returns {string | undefined} <title> 텍스트. 비어있으면 undefined.
+ */
 const titleFallback = ($) => {
   const text = $('title').text();
   return text || undefined;
