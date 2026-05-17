@@ -10,7 +10,7 @@ const buildMessage = (token, notiTypes) => {
   const body =
     numOfNotiItems === 1
       ? `${Strings.after30minutes} ${notiLabel} ${Strings.notiMessageDescription}`
-      : `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems}개의 ${Strings.notiMessageCountDescription}`;
+      : `${Strings.after30minutes} ${notiLabel} 외 ${numOfNotiItems - 1}개의 ${Strings.notiMessageCountDescription}`;
 
   return {
     notification: {
