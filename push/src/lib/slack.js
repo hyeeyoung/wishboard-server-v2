@@ -1,5 +1,5 @@
 const axios = require('axios');
-const _ = require('lodash');
+const { isString } = require('es-toolkit/compat');
 const logger = require('../config/winston');
 require('dotenv').config({ path: '../.env' });
 
@@ -34,7 +34,7 @@ class Slack {
       attachments: [],
     };
 
-    if (_.isString(message)) {
+    if (isString(message)) {
       data.text = message;
     } else {
       if (!message.title && !message.text) {
