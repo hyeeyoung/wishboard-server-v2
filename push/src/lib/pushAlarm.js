@@ -1,8 +1,32 @@
+const { chunk } = require('es-toolkit');
 const { firebaseAdmin } = require('../config/firebaseAdmin');
 const logger = require('../config/winston');
 const { SuccessMessage, ErrorMessage } = require('../utils/response');
 const { Strings, NotiTypeLabels } = require('../utils/strings');
 const Slack = require('../lib/slack');
+
+// FCM sendEach 는 요청 1건당 최대 500개 메시지를 처리
+const FCM_BATCH_SIZE = 500;
+
+const sendInBatches = async (messagesToSend) => {
+  const batches = chunk(messagesToSend, FCM_BATCH_SIZE);
+  let successCount = 0;
+  let failureCount = 0;
+  const responses = [];
+  const failedMessages = [];
+
+  for (const batch of batches) {
+    const result = await firebaseAdmin.messaging().sendEach(batch);
+    successCount += result.successCount;
+    failureCount += result.failureCount;
+    result.responses.forEach((resp, idx) => {
+      responses.push(resp);
+      if (!resp.success) failedMessages.push(batch[idx]);
+    });
+  }
+
+  return { successCount, failureCount, responses, failedMessages };
+};
 
 const buildMessage = (token, notiTypes) => {
   const numOfNotiItems = notiTypes.length;
@@ -51,21 +75,15 @@ const sendFcmTokenToFirebase = async (notiList) => {
       return true;
     }
 
-    // firebase-admin v13: sendEach 로 다중 메시지 일괄 전송
-    const result = await firebaseAdmin.messaging().sendEach(messages);
+    // firebase-admin v13: sendEach 로 다중 메시지 일괄 전송 (500개 단위 배치)
+    const result = await sendInBatches(messages);
     logger.info(
       `${SuccessMessage.notiFCMSend} (success: ${result.successCount}, failure: ${result.failureCount})`,
     );
 
     if (result.failureCount > 0) {
-      const failedMessages = result.responses
-        .map((resp, idx) => (!resp.success ? messages[idx] : null))
-        .filter(Boolean);
-
       // 실패 토큰에 한하여 1회 재전송
-      const retryResult = await firebaseAdmin
-        .messaging()
-        .sendEach(failedMessages);
+      const retryResult = await sendInBatches(result.failedMessages);
       logger.info(
         `${SuccessMessage.notiFCMSend} retry (success: ${retryResult.successCount}, failure: ${retryResult.failureCount})`,
       );
@@ -73,7 +91,11 @@ const sendFcmTokenToFirebase = async (notiList) => {
       Slack.sendMessage({
         color: Slack.Colors.warning,
         title: '푸쉬 알림 실패에 따른 재전송 성공 여부 Responses',
-        text: `\`\`\`${JSON.stringify(retryResult)}\`\`\``,
+        text: `\`\`\`${JSON.stringify({
+          successCount: retryResult.successCount,
+          failureCount: retryResult.failureCount,
+          responses: retryResult.responses,
+        })}\`\`\``,
       });
     }
 
