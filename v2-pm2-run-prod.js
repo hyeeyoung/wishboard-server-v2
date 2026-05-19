@@ -4,7 +4,7 @@ module.exports = {
      *
      * ▸ wishboard-v2-api-server-prod         : Java Spring Boot (single instance, fork mode)
      * ▸ wishboard-v2-parsing-api-server-prod : Node.js Parsing API (1 instance cluster)
-     * ▸ wishboard-v2-push-scheduler-prod     : Node.js Push Scheduler (1 instance cluster)
+     * ▸ wishboard-v2-push-scheduler-prod     : Node.js Push Scheduler (1 instance fork)
      *
      * 디렉토리 구조 (current/):
      *   ├── api/          server-2.0.0.jar
@@ -59,7 +59,7 @@ module.exports = {
             namespace: 'push-scheduler',
             version: '2.0.0',  // TODO 버전 변경 시 여기 수정
             instances: 1,
-            exec_mode: 'cluster',
+            exec_mode: 'fork',
             wait_ready: true,
             listen_timeout: 50000,
             kill_timeout: 5000,

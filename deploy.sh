@@ -32,9 +32,9 @@ ls
 
 # parsing-api 가 새로 배포되었고 playwright runtime 이 ZIP 에 포함되었다면 Chromium 바이너리 설치.
 # 이미 받았으면 playwright 가 알아서 skip. 시스템 라이브러리(libnss3 등) 는 운영 셋업 1회로 분리.
-if [ -f "parsing-api/package.json" ] && grep -q '"playwright"' "parsing-api/package.json"; then
+if [ -f "parsing-api/package.json" ] && grep -q '"playwright":' "parsing-api/package.json"; then
   echo "******** Installing Playwright Chromium for parsing-api ********"
-  (cd parsing-api && npx --no-install playwright install chromium)
+  (cd parsing-api && npx --no-install playwright install chromium) || exit 1
 fi
 
 echo "******** PM2 script start ********"
