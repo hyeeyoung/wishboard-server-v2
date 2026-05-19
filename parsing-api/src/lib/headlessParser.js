@@ -24,6 +24,7 @@ const {
   getExtractorBySiteType,
   getRandomUserAgent,
 } = require('./parser');
+const { emptyResult, looksLikeBotBlock } = require('./parser/utils');
 
 const PAGE_GOTO_TIMEOUT_MS = 8000;
 
@@ -74,14 +75,17 @@ const parseWithHeadless = async (url) => {
     const html = await page.content();
     const siteType = resolveSiteType(url);
     const extract = getExtractorBySiteType(siteType);
-    return extract(html, url);
+    const result = extract(html, url);
+    if (looksLikeBotBlock(result)) {
+      logger.warn(
+        `[headlessParser] bot block detected for ${url}: name="${result.item_name}"`,
+      );
+      return emptyResult();
+    }
+    return result;
   } catch (err) {
     logger.error(`[headlessParser] error for ${url}: ${err?.stack || err}`);
-    return {
-      item_img: undefined,
-      item_name: undefined,
-      item_price: undefined,
-    };
+    return emptyResult();
   } finally {
     if (context) {
       try {
