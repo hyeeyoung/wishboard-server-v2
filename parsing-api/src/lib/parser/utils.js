@@ -39,6 +39,11 @@ const BOT_BLOCK_PATTERNS = [
   /forbidden/i,
   /\b403\b/,
   /bot\s*detection/i,
+  /잠시만\s*기다리(십시오|세요)/, // Gmarket 등의 봇 검증 대기 페이지
+  /just\s*a\s*moment/i, // Cloudflare 대기 페이지
+  /please\s*wait/i,
+  /checking\s*your\s*browser/i,
+  /verification/i,
 ];
 
 /**
