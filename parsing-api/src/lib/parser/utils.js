@@ -129,6 +129,20 @@ const normalizeUrl = (rawUrl) => {
   }
 };
 
+/**
+ * 두 추출 결과를 머지. primary 의 falsy 필드를 secondary 값으로 채운다.
+ * 빈 문자열·undefined·null 모두 falsy 로 처리.
+ */
+const mergeResults = (primary, secondary) => {
+  const p = primary || {};
+  const s = secondary || {};
+  return {
+    item_img: p.item_img || s.item_img,
+    item_name: p.item_name || s.item_name,
+    item_price: p.item_price || s.item_price,
+  };
+};
+
 module.exports = {
   getPriceWithoutString,
   emptyResult,
@@ -137,4 +151,5 @@ module.exports = {
   looksLikeBotBlock,
   BOT_BLOCK_PATTERNS,
   normalizeUrl,
+  mergeResults,
 };

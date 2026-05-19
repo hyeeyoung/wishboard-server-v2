@@ -1,5 +1,6 @@
 const { onBindParsingType, normalizeUrl } = require('../lib/parser');
 const { parseWithHeadless } = require('../lib/headlessParser');
+const { mergeResults } = require('../lib/parser/utils');
 const logger = require('../config/winston');
 const { BadRequest } = require('../utils/errors');
 const {
@@ -14,6 +15,14 @@ const isEmptyResult = (data) => {
   }
   const { item_img, item_name, item_price } = data;
   return !item_img && !item_name && !item_price;
+};
+
+// itemPrice 만 결손이고 다른 필드는 있을 때 → 헤드리스로 가격만 보강.
+// 정적이 부분 성공(name+img는 잡았지만 가격 미달)한 케이스를 위한 판정.
+const needsPriceFallback = (data) => {
+  if (!data || typeof data !== 'object') return false;
+  if (isEmptyResult(data)) return false;
+  return !data.item_price;
 };
 
 const isValidUrl = (url) => {
@@ -49,6 +58,10 @@ module.exports = {
       if (isEmptyResult(data)) {
         parserType = 'headless_fallback';
         data = await parseWithHeadless(site);
+      } else if (needsPriceFallback(data)) {
+        parserType = 'static_with_price_fallback';
+        const headlessData = await parseWithHeadless(site);
+        data = mergeResults(data, headlessData);
       }
 
       logger.info(
