@@ -11,9 +11,15 @@ on:
         required: true
         default: 'develop'
       module:
-        description: 'Module to deploy (api | parsing-api | push)'
+        description: 'Module to deploy (all = api + parsing-api + push)'
         required: true
         default: 'api'
+        type: choice
+        options:
+          - all
+          - api
+          - parsing-api
+          - push
 
 env:
   AWS_REGION: ap-northeast-2
@@ -43,9 +49,9 @@ jobs:
       - id: fallback
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "api=${{ github.event.inputs.module == 'api' }}" >> "$GITHUB_OUTPUT"
-          echo "parsing_api=${{ github.event.inputs.module == 'parsing-api' }}" >> "$GITHUB_OUTPUT"
-          echo "push=${{ github.event.inputs.module == 'push' }}" >> "$GITHUB_OUTPUT"
+          echo "api=${{ github.event.inputs.module == 'api' || github.event.inputs.module == 'all' }}" >> "$GITHUB_OUTPUT"
+          echo "parsing_api=${{ github.event.inputs.module == 'parsing-api' || github.event.inputs.module == 'all' }}" >> "$GITHUB_OUTPUT"
+          echo "push=${{ github.event.inputs.module == 'push' || github.event.inputs.module == 'all' }}" >> "$GITHUB_OUTPUT"
 
       - name: Print changed outputs
         run: |
@@ -60,7 +66,7 @@ jobs:
     needs: [ changes ]
     if: |
       (github.event_name == 'push' && needs.changes.outputs.api == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'api')
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.module == 'api' || github.event.inputs.module == 'all'))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -112,7 +118,7 @@ jobs:
     needs: [ changes ]
     if: |
       (github.event_name == 'push' && needs.changes.outputs.parsing_api == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'parsing-api')
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.module == 'parsing-api' || github.event.inputs.module == 'all'))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -176,7 +182,7 @@ jobs:
     needs: [ changes ]
     if: |
       (github.event_name == 'push' && needs.changes.outputs.push == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'push')
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.module == 'push' || github.event.inputs.module == 'all'))
     runs-on: ubuntu-latest
     defaults:
       run:
