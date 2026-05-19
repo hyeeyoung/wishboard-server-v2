@@ -2,16 +2,14 @@ module.exports = {
     /**
      * PM2 process definitions for Wishboard v2 (dev environment)
      *
-     * ▸ wishboard-v2-api-server-dev      : Java Spring Boot (single instance, fork mode)
+     * ▸ wishboard-v2-api-server-dev         : Java Spring Boot (single instance, fork mode)
      * ▸ wishboard-v2-parsing-api-server-dev : Node.js Parsing API (1 instance cluster)
-     * ▸ wishboard-v2-push-scheduler-dev  : Java Push‑Scheduler (1 instance cluster)
+     * ▸ wishboard-v2-push-scheduler-dev     : Node.js Push Scheduler (1 instance fork)
      *
-     * NOTE
-     * ────────────────────────────────────────────────────────────────
-     * 1) "cwd" is kept identical across apps; adjust if you relocate binaries.
-     * 2) "version" fields are placeholders – bump on every tagged release.
-     * 3) If push‑scheduler is actually a Node service, switch `script` to the
-     *    entry JS file and set `interpreter: 'node'`, `exec_mode: 'cluster'`.
+     * 디렉토리 구조 (current/):
+     *   ├── api/          server-2.0.0.jar
+     *   ├── parsing-api/  server.js + node_modules/playwright(+core)
+     *   └── push/         pushScheduler.js + vendors-*.js
      */
     apps: [
         /* ───────────────────────── Java API ───────────────────────── */
@@ -23,10 +21,10 @@ module.exports = {
                 '-Xms128m',
                 '-jar',
                 '-Duser.timezone=Asia/Seoul',
-                '/home/ubuntu/wishboard-v2/dev/current/server-2.0.0.jar', // TODO 버전 변경 시 여기 수정
+                '/home/ubuntu/wishboard-v2/dev/current/api/server-2.0.0.jar', // TODO 버전 변경 시 여기 수정
                 '--spring.profiles.active=dev'
             ],
-            cwd: '/home/ubuntu/wishboard-v2/dev/current',
+            cwd: '/home/ubuntu/wishboard-v2/dev/current/api',
             exec_mode: 'fork',
             instances: 1,
             namespace: 'api-server',
@@ -40,7 +38,7 @@ module.exports = {
             name: 'wishboard-v2-parsing-api-server-dev',
             script: './server.js',
             interpreter: 'node',
-            cwd: '/home/ubuntu/wishboard-v2/dev/current',
+            cwd: '/home/ubuntu/wishboard-v2/dev/current/parsing-api',
             namespace: 'parsing-api-server',
             version: '2.0.0', // TODO 버전 변경 시 여기 수정
             instances: 1,
@@ -52,12 +50,12 @@ module.exports = {
             watch: false
         },
 
-        /* ───────────────────────── Java Push Scheduler ───────────────────────── */
+        /* ───────────────────────── Node Push Scheduler ───────────────────────── */
         {
             name: 'wishboard-v2-push-scheduler-dev',
             script: './pushScheduler.js',
             interpreter: 'node',
-            cwd: '/home/ubuntu/wishboard-v2/dev/current',
+            cwd: '/home/ubuntu/wishboard-v2/dev/current/push',
             namespace: 'push-scheduler',
             version: '2.0.0',  // TODO 버전 변경 시 여기 수정
             instances: 1,

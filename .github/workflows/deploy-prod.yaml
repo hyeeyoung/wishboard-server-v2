@@ -11,14 +11,21 @@ on:
         required: true
         default: 'main'
       module:
-        description: 'Module to deploy (api | parsing-api | push)'
+        description: 'Module to deploy (all = api + parsing-api + push)'
         required: true
         default: 'api'
+        type: choice
+        options:
+          - all
+          - api
+          - parsing-api
+          - push
 
 env:
   AWS_REGION: ap-northeast-2
   AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME_PROD }}
   BUILD_DIR_NAME: wishboard-v2-build-prod
+  PHASE: prod
 
 jobs:
   changes:
@@ -28,7 +35,7 @@ jobs:
       parsing_api: ${{ steps.filter.outputs.parsing_api || steps.fallback.outputs.parsing_api }}
       push: ${{ steps.filter.outputs.push        || steps.fallback.outputs.push }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - id: filter
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -42,9 +49,9 @@ jobs:
       - id: fallback
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "api=${{ github.event.inputs.module == 'api' }}" >> "$GITHUB_OUTPUT"
-          echo "parsing_api=${{ github.event.inputs.module == 'parsing-api' }}" >> "$GITHUB_OUTPUT"
-          echo "push=${{ github.event.inputs.module == 'push' }}" >> "$GITHUB_OUTPUT"
+          echo "api=${{ github.event.inputs.module == 'api' || github.event.inputs.module == 'all' }}" >> "$GITHUB_OUTPUT"
+          echo "parsing_api=${{ github.event.inputs.module == 'parsing-api' || github.event.inputs.module == 'all' }}" >> "$GITHUB_OUTPUT"
+          echo "push=${{ github.event.inputs.module == 'push' || github.event.inputs.module == 'all' }}" >> "$GITHUB_OUTPUT"
 
       - name: Print changed outputs
         run: |
@@ -59,14 +66,14 @@ jobs:
     needs: [ changes ]
     if: |
       (github.event_name == 'push' && needs.changes.outputs.api == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'api')
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.module == 'api' || github.event.inputs.module == 'all'))
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: api
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create Spring secret files
         run: |
@@ -75,7 +82,7 @@ jobs:
           echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
 
       - name: Set up JDK 21 (Corretto)
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
@@ -88,13 +95,13 @@ jobs:
 
       - name: Package artefacts
         run: |
-          mkdir -p api
-          cp -r build/libs/* api/
-          cp ../v2-pm2-run-dev.js api/
-          cp ../deploy.sh api/
+          mkdir -p ../artifact/api
+          cp build/libs/* ../artifact/api/
+          cp ../v2-pm2-run-${{ env.PHASE }}.js ../artifact/
+          cp ../deploy.sh ../artifact/
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
@@ -102,7 +109,7 @@ jobs:
 
       - name: Upload to S3
         run: |
-          aws s3 cp --recursive ./api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
+          aws s3 cp --recursive ../artifact s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
 
   # ---------------------------------------------------------------------------
   # parsing-api (Node 22.x LTS, .nvmrc single source of truth)
@@ -111,7 +118,7 @@ jobs:
     needs: [ changes ]
     if: |
       (github.event_name == 'push' && needs.changes.outputs.parsing_api == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'parsing-api')
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.module == 'parsing-api' || github.event.inputs.module == 'all'))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -130,11 +137,8 @@ jobs:
       - name: Verify npm version
         run: npm -v
 
-      - name: npm ci (clean install)
+      - name: npm ci (clean install, dev 포함)
         run: npm ci
-
-      #      - name: ESLint check
-      #        run: npm run lint
 
       - name: Create .env
         run: |
@@ -143,15 +147,22 @@ jobs:
           echo "${{ secrets.PARSING_API_ENV }}" > .env
 
       - name: Build (prod)
-        run: npm run build --if-present
+        run: npm run build:production --if-present
 
-      - name: Copy deploy artifacts
+      - name: Prune dev dependencies (playwright 만 잔존)
+        run: npm prune --omit=dev
+
+      - name: Package artefacts
         run: |
-          cp ../v2-pm2-run-dev.js ./dist/
-          cp ../deploy.sh ./dist/
-
-      - name: Rename build directory
-        run: mv dist parsing-api
+          mkdir -p ../artifact/parsing-api
+          # webpack 빌드 산출물
+          cp -r dist/. ../artifact/parsing-api/
+          # webpack externals 로 분리된 playwright 런타임을 함께 배포
+          cp -r node_modules ../artifact/parsing-api/
+          cp package.json package-lock.json ../artifact/parsing-api/
+          # 공통 파일
+          cp ../v2-pm2-run-${{ env.PHASE }}.js ../artifact/
+          cp ../deploy.sh ../artifact/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -160,9 +171,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Upload dist to S3
+      - name: Upload artefacts to S3
         run: |
-          aws s3 cp --recursive ./parsing-api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
+          aws s3 cp --recursive ../artifact s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
 
   # ---------------------------------------------------------------------------
   # push (Node 22.x LTS)
@@ -171,7 +182,7 @@ jobs:
     needs: [ changes ]
     if: |
       (github.event_name == 'push' && needs.changes.outputs.push == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.module == 'push')
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.module == 'push' || github.event.inputs.module == 'all'))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -193,9 +204,6 @@ jobs:
       - name: npm ci (clean install)
         run: npm ci
 
-      #      - name: ESLint check
-      #        run: npm run lint
-
       - name: Create .env
         run: |
           touch .env
@@ -205,16 +213,17 @@ jobs:
           echo "== '\n' 인식 문제로 인해 재할당 =="
           echo FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} >> .env
 
-      - name: Build (dev)
-        run: npm run build --if-present
+      - name: Build (prod)
+        run: npm run build:production --if-present
 
-      - name: Copy deploy artifacts
+      - name: Package artefacts
         run: |
-          cp ../v2-pm2-run-prod.js ./dist/
-          cp ../deploy.sh ./dist/
-
-      - name: Rename build directory
-        run: mv dist push
+          mkdir -p ../artifact/push
+          # webpack 번들에 모든 의존성 inline (native 의존 없음 → node_modules 불필요)
+          cp -r dist/. ../artifact/push/
+          # 공통 파일
+          cp ../v2-pm2-run-${{ env.PHASE }}.js ../artifact/
+          cp ../deploy.sh ../artifact/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -223,6 +232,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Upload dist to S3
+      - name: Upload artefacts to S3
         run: |
-          aws s3 cp --recursive ./push s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
+          aws s3 cp --recursive ../artifact s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
