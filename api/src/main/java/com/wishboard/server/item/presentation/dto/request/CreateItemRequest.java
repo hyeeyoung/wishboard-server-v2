@@ -25,7 +25,7 @@ public record CreateItemRequest(
 	String itemMemo,
 
 	@Schema(description = "itemUrl", example = "https://naver.com")
-	@Size(max = 1024, message = "{item.itemUrl.max")
+	@Size(max = 2048, message = "{item.itemUrl.max}")
 	String itemUrl,
 
 	@Schema(description = "알림 타입", example = "REMINDER")

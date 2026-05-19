@@ -64,7 +64,7 @@ CREATE TABLE `items` (
                          `item_memo` text ,
                          `item_name` varchar(512) NOT NULL,
                          `item_price` varchar(255) NOT NULL,
-                         `item_url` varchar(1024) DEFAULT NULL,
+                         `item_url` varchar(2048) DEFAULT NULL,
                          `item_status` varchar(45) NOT NULL DEFAULT 'WISH';
                          `folder_id` bigint DEFAULT NULL,
                          `user_id` bigint NOT NULL,
