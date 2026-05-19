@@ -32,9 +32,13 @@ ls
 
 # parsing-api 가 새로 배포되었고 playwright runtime 이 ZIP 에 포함되었다면 Chromium 바이너리 설치.
 # 이미 받았으면 playwright 가 알아서 skip. 시스템 라이브러리(libnss3 등) 는 운영 셋업 1회로 분리.
+#
+# aws s3 cp --recursive 가 node_modules/.bin/* 의 심볼릭 링크와 execute bit 를
+# 보존하지 않으므로 npx / .bin 경로 대신 node 로 cli.js 를 직접 호출한다.
+# (이 방식은 execute 권한 체크 / 링크 dereference 둘 다 우회됨)
 if [ -f "parsing-api/package.json" ] && grep -q '"playwright":' "parsing-api/package.json"; then
   echo "******** Installing Playwright Chromium for parsing-api ********"
-  (cd parsing-api && npx --no-install playwright install chromium) || exit 1
+  (cd parsing-api && node node_modules/playwright/cli.js install chromium) || exit 1
 fi
 
 echo "******** PM2 script start ********"
