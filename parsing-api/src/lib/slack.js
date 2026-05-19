@@ -1,5 +1,4 @@
 const axios = require('axios');
-const _ = require('lodash');
 const logger = require('../config/winston').default;
 require('dotenv').config({ path: '../.env' });
 
@@ -34,7 +33,7 @@ class Slack {
       attachments: [],
     };
 
-    if (_.isString(message)) {
+    if (typeof message === 'string') {
       data.text = message;
     } else {
       if (!message.title && !message.text) {

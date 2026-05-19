@@ -105,7 +105,7 @@ jobs:
           aws s3 cp --recursive ./api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
 
   # ---------------------------------------------------------------------------
-  # parsing-api (Node 18.x)
+  # parsing-api (Node 22.x LTS, .nvmrc single source of truth)
   # ---------------------------------------------------------------------------
   build-parsing-api:
     needs: [ changes ]
@@ -116,17 +116,16 @@ jobs:
     defaults:
       run:
         working-directory: parsing-api
-    strategy:
-      matrix:
-        node-version: [ 18.20.8 ]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Set up Node.js (from .nvmrc)
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: 'parsing-api/.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'parsing-api/package-lock.json'
 
       - name: Verify npm version
         run: npm -v
@@ -155,7 +154,7 @@ jobs:
         run: mv dist parsing-api
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
@@ -166,7 +165,7 @@ jobs:
           aws s3 cp --recursive ./parsing-api s3://$AWS_S3_BUCKET_NAME/$BUILD_DIR_NAME
 
   # ---------------------------------------------------------------------------
-  # push (Node 18.x)
+  # push (Node 22.x LTS)
   # ---------------------------------------------------------------------------
   build-push:
     needs: [ changes ]
@@ -177,17 +176,16 @@ jobs:
     defaults:
       run:
         working-directory: push
-    strategy:
-      matrix:
-        node-version: [ 18.20.8 ]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: 'push/.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: 'push/package-lock.json'
 
       - name: Verify npm version
         run: npm -v
@@ -203,7 +201,7 @@ jobs:
           touch .env
           echo NODE_ENV="development" >> .env
           echo "${{ secrets.PUSH_ENV_DEV }}" > .env
-          
+
           echo "== '\n' 인식 문제로 인해 재할당 =="
           echo FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }} >> .env
 
@@ -219,7 +217,7 @@ jobs:
         run: mv dist push
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_DEV }}
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY_DEV }}
