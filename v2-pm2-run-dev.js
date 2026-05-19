@@ -42,9 +42,6 @@ module.exports = {
             namespace: 'parsing-api-server',
             version: '2.0.0', // TODO 버전 변경 시 여기 수정
             instances: 1,
-            // Playwright 가 Chromium child process 를 spawn 할 때 stdio/IPC 가
-            // PM2 cluster IPC 와 충돌해 worker 가 ready 직후 종료되는 문제로
-            // fork mode 사용 (#26 / #27 참조). instances:1 이라 cluster 의 장점도 없음.
             exec_mode: 'fork',
             wait_ready: true, // 마스터 프로세스에게 ready 이벤트 대기
             listen_timeout: 50000,  // ms ... ready 이벤트를 기다릴 시간값
