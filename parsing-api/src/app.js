@@ -41,6 +41,7 @@ process.on('SIGINT', function () {
   server.close(function () {
     /** 앱 종료*/
     logger.info('pm2 process closed');
+    process.exit(0);
   });
 });
 
