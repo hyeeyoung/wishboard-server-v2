@@ -1,5 +1,5 @@
 const { getHtml, userAgents, getRandomUserAgent } = require('./http');
-const { emptyResult } = require('./utils');
+const { emptyResult, normalizeUrl } = require('./utils');
 
 const { extractFromGeneralHtml } = require('./extractors/general');
 const { extractFromMusinsaHtml } = require('./extractors/musinsa');
@@ -86,4 +86,5 @@ module.exports = {
   getExtractorBySiteType,
   userAgents,
   getRandomUserAgent,
+  normalizeUrl,
 };

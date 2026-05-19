@@ -1,4 +1,4 @@
-const { onBindParsingType } = require('../lib/parser');
+const { onBindParsingType, normalizeUrl } = require('../lib/parser');
 const { parseWithHeadless } = require('../lib/headlessParser');
 const logger = require('../config/winston');
 const { BadRequest } = require('../utils/errors');
@@ -67,6 +67,8 @@ module.exports = {
           itemImageUrl: data.item_img,
           itemName: data.item_name,
           itemPrice: data.item_price,
+          // 추적 파라미터 제거된 정규화 URL — 클라이언트가 백엔드 저장 시 이 값 사용 권장
+          itemUrl: normalizeUrl(site),
         },
       });
     } catch (err) {

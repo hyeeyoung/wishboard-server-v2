@@ -59,6 +59,76 @@ const looksLikeBotBlock = (result) => {
   return BOT_BLOCK_PATTERNS.some((pattern) => pattern.test(name));
 };
 
+// URL 추적 파라미터 블랙리스트.
+// - 정확 매치 또는 startsWith 매치 (utm_* 류).
+// - 도메인별 화이트리스트보다 블랙리스트가 안전: 미지원 도메인의 상품 ID 파라미터를 실수로 제거하지 않도록.
+const TRACKING_PARAM_PREFIXES = ['utm_'];
+const TRACKING_PARAM_EXACT = new Set([
+  // 광고 클릭 추적
+  'fbclid',
+  'gclid',
+  'dclid',
+  // 광고 / 추천 트래킹
+  'businessTracking',
+  'gaListId',
+  'gaListName',
+  'ciderListId',
+  'ciderListName',
+  'NaPm',
+  // Shopcider 류
+  'linkUrl',
+  'operationContent',
+  'operationImage',
+  'operationpageTitle',
+  'operationPosition',
+  'operationType',
+  'productPosition',
+  // 쿠팡 류
+  '_NC',
+  'wPcid',
+  'wRef',
+  'wTime',
+  'redirect',
+  'addtag',
+  'ctag',
+  'lptag',
+  'itime',
+  'pageType',
+  'pageValue',
+]);
+
+const isTrackingParam = (key) => {
+  if (TRACKING_PARAM_EXACT.has(key)) return true;
+  return TRACKING_PARAM_PREFIXES.some((prefix) => key.startsWith(prefix));
+};
+
+/**
+ * URL 에서 추적 파라미터를 제거한 정규화 URL 반환.
+ * 파싱 실패하면 원본 그대로 반환.
+ * @param {string} rawUrl
+ * @returns {string}
+ */
+const normalizeUrl = (rawUrl) => {
+  if (typeof rawUrl !== 'string' || !rawUrl) {
+    return rawUrl;
+  }
+  try {
+    const url = new URL(rawUrl);
+    const keysToDelete = [];
+    for (const key of url.searchParams.keys()) {
+      if (isTrackingParam(key)) {
+        keysToDelete.push(key);
+      }
+    }
+    for (const key of keysToDelete) {
+      url.searchParams.delete(key);
+    }
+    return url.toString();
+  } catch (e) {
+    return rawUrl;
+  }
+};
+
 module.exports = {
   getPriceWithoutString,
   emptyResult,
@@ -66,4 +136,5 @@ module.exports = {
   titleFallback,
   looksLikeBotBlock,
   BOT_BLOCK_PATTERNS,
+  normalizeUrl,
 };
