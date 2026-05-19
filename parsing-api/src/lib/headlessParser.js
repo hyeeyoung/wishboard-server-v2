@@ -25,8 +25,13 @@ const {
   getRandomUserAgent,
 } = require('./parser');
 const { emptyResult, looksLikeBotBlock } = require('./parser/utils');
+const {
+  getPriceSelectors,
+  extractPriceFromText,
+} = require('./parser/selectorHints');
 
 const PAGE_GOTO_TIMEOUT_MS = 8000;
+const SELECTOR_TEXT_TIMEOUT_MS = 1500;
 
 const BLOCKED_RESOURCE_TYPES = new Set([
   'image',
@@ -86,6 +91,29 @@ const parseWithHeadless = async (url) => {
           `status=${response?.status?.() ?? 'unknown'} final_url=${page.url?.()}`,
       );
       return emptyResult();
+    }
+    // 가격이 og 메타에 없을 때 DOM selector 로 보강.
+    // 사이트별 specific selector → general selector 순서로 시도.
+    if (!result.item_price) {
+      const selectors = getPriceSelectors(siteType);
+      for (const selector of selectors) {
+        try {
+          const text = await page
+            .locator(selector)
+            .first()
+            .textContent({ timeout: SELECTOR_TEXT_TIMEOUT_MS });
+          const price = extractPriceFromText(text);
+          if (price) {
+            result.item_price = price;
+            logger.info(
+              `[headlessParser] price extracted via selector "${selector}" for ${url}: ${price}`,
+            );
+            break;
+          }
+        } catch (_) {
+          // selector 미존재 / timeout — 다음 selector 시도
+        }
+      }
     }
     return result;
   } catch (err) {
