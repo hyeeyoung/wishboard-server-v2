@@ -39,6 +39,8 @@ const parseWithHeadless = async (url) => {
   await acquireSlot();
 
   let context;
+  let page;
+  let response;
   try {
     const browser = await getBrowser();
     context = await browser.newContext({
@@ -60,16 +62,18 @@ const parseWithHeadless = async (url) => {
       }
     });
 
-    const page = await context.newPage();
+    page = await context.newPage();
     page.setDefaultTimeout(PAGE_GOTO_TIMEOUT_MS);
 
     try {
-      await page.goto(url, {
+      response = await page.goto(url, {
         waitUntil: 'domcontentloaded',
         timeout: PAGE_GOTO_TIMEOUT_MS,
       });
     } catch (gotoErr) {
-      logger.warn(`[headlessParser] goto failed for ${url}: ${gotoErr.message}`);
+      logger.warn(
+        `[headlessParser] goto failed for ${url}: ${gotoErr.message} final_url=${page.url?.()}`,
+      );
     }
 
     const html = await page.content();
@@ -78,13 +82,17 @@ const parseWithHeadless = async (url) => {
     const result = extract(html, url);
     if (looksLikeBotBlock(result)) {
       logger.warn(
-        `[headlessParser] bot block detected for ${url}: name="${result.item_name}"`,
+        `[headlessParser] bot block detected for ${url}: name="${result.item_name}" ` +
+          `status=${response?.status?.() ?? 'unknown'} final_url=${page.url?.()}`,
       );
       return emptyResult();
     }
     return result;
   } catch (err) {
-    logger.error(`[headlessParser] error for ${url}: ${err?.stack || err}`);
+    logger.error(
+      `[headlessParser] error for ${url}: status=${response?.status?.() ?? 'unknown'} ` +
+        `final_url=${page?.url?.() ?? 'unknown'} stack=${err?.stack || err}`,
+    );
     return emptyResult();
   } finally {
     if (context) {
